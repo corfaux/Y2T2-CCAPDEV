@@ -9,13 +9,37 @@
 
     <body>
         <header>
-            
+            <div class="container">
+                <img src="images/dlsu-logo.jpg" alt="DLSU logo">
+                <h1>LabSys</h1>
+            </div> 
         </header>
 
+        <div class="content">
+            <div class="login-pane">
+                <h2>Welcome, Lasallian!</h2>
+                <p>Use your DLSU email address to continue with LabSys!</p>
+                <script src="https://accounts.google.com/gsi/client" async></script>
+                <div id="g_id_onload"
+                    data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                    data-login_uri="https://your.domain/your_login_endpoint"
+                    data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin"
+                    data-type="standard"
+                    data-size="large"
+                    data-theme="outline"
+                    data-text="sign_in_with"
+                    data-shape="rectangular"
+                    data-logo_alignment="left">
+                </div>
+            </div> 
+        </div>
+
         <footer>
-
+            <p><a href="technician-login.html">Lab Technician login</a></p>
         </footer>
-
+        
         <script src="js/script.js"></script>
     </body>
 </html>
