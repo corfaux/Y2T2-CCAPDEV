@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Student Profile | LabSys</title>
+        <link rel="stylesheet" href="css/styles.css">
+    </head>
+
+    <body class="student-profile">
+        <header>
+            <div class="container">
+                <img src="images/dlsu-logo-white.png" alt="DLSU logo">
+                <h1>LabSys</h1>
+            </div> 
+        </header>
+
+        <div class="content">
+            <a class="logout-btn" href="index.html">Log out</a>
+            <h2>Student Profile</h2>
+
+            <div class="profile">
+                <div class="profile-pic">
+                    <img src="images/default-profile-pic.jpg">
+                    <label for="update-photo" class="update-pic-btn">Update photo</label>
+                    <input id="update-photo" type="file" accept="image/jpg, image/jpeg, image/png, image/webp">
+                </div>
+                
+                <div class="details">
+                    <form class="personal-info">
+                        <h3>Personal Information</h2>
+
+                        <div class="name">
+                            <div class="container">
+                                <label for="first-name">First Name</label>
+                                <input id="first-name" type="text" placeholder="Paul John" disabled>
+                            </div>
+                            
+                            <div class="container">
+                                <label for="last-name">Last Name</label>
+                                <input id="last-name" type="text" placeholder="Placer" disabled>
+                            </div>
+                        </div>
+
+                        <div class="email">
+                            <label for="email-address">Email Address</label>
+                            <input id="email-address" type="text" placeholder="paul_placer@dlsu.edu.ph" disabled>
+                        </div>
+                        
+                        <div class="contact">
+                            <label for="contact-number">Contact No.</label>
+                            <input id="contact-number" type="text" placeholder="09XXXXXXXXX" >
+                        </div>
+                    </form>
+                    <div class="student-info">
+                        <h3>Student Information</h2>
+
+                        <div class="id-number">
+                            <label for="id-num">ID Number</label>
+                            <input id="id-num" type="text" placeholder="12477680">
+                        </div>
+                        
+                        <div class="college">
+                            <label for="college-dropdown">College</label>
+                            <select id="college-dropdown" name="college">
+                                <option value="none">-</option>
+                                <option value="CCS">CCS</option>
+                                <option value="COS">COS</option>
+                                <option value="CLA">CLA</option>
+                                <option value="RVRCOB">RVRCOB</option>
+                                <option value="CLTSOE">CLTSOE</option>
+                                <option value="BAGCED">BAGCED</option>
+                                <option value="TDSOL">TDSOL</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h2>Current Reservations</h2>
+            <div class="reservation-preview">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reservation No.</th>
+                            <th>Date</th>
+                            <th>Building</th>
+                            <th>Room No.</th>
+                            <th colspan="3">Timeslot/s</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td class="table-timeslots">-</td>
+                            <td class="table-timeslots">-</td>
+                            <td class="table-timeslots">-</td>
+                        </tr>
+                        <tr>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+            </div>
+            <p>You have 0/2 reservations as of now.</p>
+        </div>
+
+        <footer>
+            
+        </footer>
+        
+        <script src="js/script.js"></script>
+    </body>
+</html>
