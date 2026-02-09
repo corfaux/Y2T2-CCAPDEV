@@ -1,0 +1,470 @@
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  background-color: #f4f7f6;
+  color: #000000;
+  padding: 30px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+header a {
+  text-decoration: none;
+  color: #003D21;
+  font-weight: bold;
+}
+
+header button {
+  background-color: #003D21;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+header button:hover {
+  background-color: #00703C;
+}
+
+h1 {
+  margin-bottom: 20px;
+  color: #003D21;
+}
+
+h2 {
+  margin-bottom: 15px;
+  color: #00703C;
+}
+
+section {
+  background-color: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* search / filter area: date, building, seats */
+.search-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  align-items: end;
+}
+
+.search-section label {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+}
+
+.search-section input,
+.search-section select {
+  padding: 8px;
+  margin-top: 5px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.search-section button {
+  background-color: #00703C;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.search-section button:hover {
+  background-color: #00A357;
+}
+
+/* timeslot section, hidden by default */
+.timeslot-section {
+  display: none;
+}
+
+#timeslotGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 10px;
+}
+
+/* continue / confirm button */
+#continueButton {
+  width: 100%;
+  padding: 12px;
+  background-color: #003D21;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#continueButton:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+#continueButton:not(:disabled):hover {
+  background-color: #00703C;
+}
+
+/* reservation summary */
+#summary p {
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+/* dropdown consistency */
+select {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+select:focus {
+  outline: none;
+  border-color: #00703C;
+  box-shadow: 0 0 0 2px rgba(0, 112, 60, 0.2);
+}
+
+/* student details section */
+.student {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+/* dropdown inside student layout */
+.student select {
+  width: 100%;
+}
+
+#additionalStudents .student {
+  margin-top: 10px;
+}
+
+/* form layout */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+input,
+textarea {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+form button {
+  background-color: #00703C;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+form button:hover {
+  background-color: #00A357;
+}
+
+/* add student button */
+#addStudent {
+  background-color: transparent;
+  color: #00703C;
+  border: 2px dashed #00703C;
+}
+
+#addStudent:hover {
+  background-color: #e6f7ef;
+}
+
+
+/* room + time grid layout */
+#roomGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.room-row {
+  display: grid;
+  grid-template-columns: 80px repeat(28, 60px);
+  gap: 6px;
+  align-items: center;
+}
+
+.room-label {
+  font-weight: bold;
+  color: #003D21;
+  text-align: right;
+  padding-right: 8px;
+}
+
+/* horizontal scroll in reservation page */
+.horizontal-scroll {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 12px;
+}
+
+/* time header row */
+.time-header {
+  display: grid;
+  grid-template-columns: 80px repeat(28, 66.12px);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.time-header div {
+  text-align: center;
+}
+
+/* time slot cells */
+#scheduleGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.room-label {
+  font-weight: bold;
+  text-align: right;
+  padding-right: 8px;
+  color: #003D21;
+}
+
+.time-cell {
+  height: 28px;
+  border-radius: 4px;
+  background-color: #0e850e; 
+  cursor: pointer;
+}
+
+.time-cell.unavailable {
+  background-color: #c62828;
+  cursor: not-allowed;
+}
+
+.time-cell.selected {
+  background-color: #f7b855;
+}
+
+.time-cell:not(.unavailable):hover {
+  opacity: 0.85;
+}
+
+/* legend in reservation */
+.legend {
+  display: flex;
+  gap: 20px;
+  margin-top: 16px;
+  font-size: 14px;
+  align-items: center;
+  justify-content: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.legend-box.available {
+  background-color: #0e850e; /* available */
+}
+
+.legend-box.selected {
+  background-color: #f7b855; /* your booking */
+}
+
+.legend-box.unavailable {
+  background-color: #c62828; /* unavailable */
+}
+
+/* action buttons (profile, back, layout) */
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.action-button {
+    padding: 8px 14px;
+    background-color: #f4f7f6; 
+    color: #003D21;             
+    text-decoration: none;
+    border: 1px solid #ccc;    
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;          
+    cursor: pointer;
+    text-align: center;
+    min-width: 140px;
+    transition: all 0.2s ease;
+}
+
+.action-button.logout {
+    background-color: #fce8e6; 
+    color: #c62828;
+    border-color: #f5c2c0;
+    font-size: 14px;           
+}
+
+.action-button:hover {
+    background-color: #e6f7ef;  
+    border-color: #00A357;
+    color: #00703C;
+}
+
+.action-button.logout:hover {
+    background-color: #f8d5d3;
+    border-color: #f28b85;
+    color: #c62828;
+}
+
+/* popup (toast) */
+.popUp {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+
+  background-color: #f2dede;
+  color: #b94a48;
+  border: 1px solid #ebccd1;
+  padding: 14px 22px;
+  border-radius: 8px;
+
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  min-width: 320px;
+  max-width: 500px;
+
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.popUp.show {
+  opacity: 1;
+}
+
+.hidden {
+  display: none;
+}
+
+/* logout confirmation popup */
+#logoutpopUp {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10000;
+
+    background-color: #00703C; 
+    color: white;           
+    border: 2px solid #003D21;
+    padding: 20px 24px;
+    border-radius: 12px;
+    min-width: 320px;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#logoutpopUp.show {
+    opacity: 0.95;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+#logoutpopUp p {
+    margin-bottom: 16px;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+#logoutpopUp .popUp-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+#logoutpopUp .popUp-buttons button {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+#logoutpopUp .popUp-buttons #confirmLogout {
+    background-color: white;
+    color: #003D21
+}
+
+#logoutpopUp .popUp-buttons #confirmLogout:hover {
+    background-color: #00A357;
+}
+
+#logoutpopUp .popUp-buttons #cancelLogout {
+    background-color: #f2f2f2;
+    color: #003D21;
+}
+
+#logoutpopUp .popUp-buttons #cancelLogout:hover {
+    background-color: #e0e0e0;
+}
+
+
+
+
+
+
+
+
+
+
