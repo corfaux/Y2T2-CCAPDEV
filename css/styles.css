@@ -38,21 +38,26 @@ header {
     height: 10.5vh;
     /* border-bottom: 1px solid #dedfdf; */
     display: flex;
+    align-items: center;
+    gap: 6vw;
+    padding: 0 2.25vw;
+}
+
+.student-login header {
     justify-content: center;
     align-items: center;
 }
 
 header .container {
-    margin: 32px;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 12px;
+    gap: 0.67vw;
 }
 
 header .container img {
-    width: 60px;
-    height: 60px;
+    width: 6.5vh;
+    height: 6.5vh;
 }
 
 header .container h1 {
@@ -66,7 +71,6 @@ header .container h1 {
 footer {
     background-color: #3b3b3b;
     height: 10.5vh;
-    padding: 24px;
     /* border-top: 1px solid #dedfdf; */
     display: flex;
     justify-content: center;
@@ -76,10 +80,9 @@ footer {
 
 /* STYLES FOR STUDENT LOGIN PAGE/INDEX */
 .login-pane {
-    width: 480px;
-    height: 320px;
-    padding: 60px;
-    margin: 100px 0;
+    width: 25vw;
+    height: 35vh;
+    padding: 3vw;
     border: 1px solid #dedfdf;
     border-radius: 15px;
     box-shadow: 0 0 3px 3px rgba(222, 223, 223, 0.35);
@@ -93,6 +96,7 @@ footer {
 
 .login-pane h2 {
     font-size: 1.25rem;
+    color:#00703c
 }
 
 .login-pane p {
@@ -107,15 +111,42 @@ footer {
 
 
 /* STYLES FOR STUDENT PROFILE PAGE */
+.student-profile header nav {
+    margin-left: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.student-profile header nav ul {
+    list-style-type: none;
+    font-size: 1.125rem;
+    font-weight: 450;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6vw;
+}
+
+.student-profile header nav ul a {
+    color: white;
+    text-decoration: none;
+}
+
 .logout-btn {
     text-decoration: none;
     font-weight: 450;
     color: white;
     padding: 0.35vw 0.5vw;
-    background-color: #003d21;
-    border: 1px solid #dedfdf;
+    background-color: transparent;
+    border: 1px solid white;
     border-radius: 8px;
-    align-self: flex-end;
+    transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+    color: #00703c;
+    background-color: white;
 }
 
 .student-profile .content h2 {
@@ -238,5 +269,5 @@ footer {
 }
 
 .table-timeslots {
-    width: 5vw;
+    width: 3.5vw;
 }
