@@ -18,8 +18,8 @@
             <nav>
                 <ul>
                     <li><a href="#">View Profile</a></li>
-                    <li><a href="">Make a Reservation</a></li>
-                    <li><a href="">Manage Reservations</a></li>
+                    <li><a href="reservation.html">Make a Reservation</a></li>
+                    <!--<li><a href="">Cancel Reservation</a></li>-->
                 </ul>
             </nav>
             <a id="logout-btn" href="index.html">Log Out</a>
@@ -27,6 +27,9 @@
 
         <div class="content">
             <h2>Student Profile</h2>
+            <button id="adminBackBtn" style="display:none;">
+                Back to Admin Reservations
+            </button>
 
             <div class="profile">
                 <div class="container">
@@ -103,20 +106,22 @@
                             <th>Building</th>
                             <th>Room No.</th>
                             <th colspan="6">Timeslot/s</th>
+                            <th>Cancel Reservation</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
+                            <td>1</td>
+                            <td>2026-02-11</td>
+                            <td>Gokongwei</td>
+                            <td>304B</td>
+                            <td class="table-timeslots">10:00-10:30</td>
                             <td class="table-timeslots">-</td>
                             <td class="table-timeslots">-</td>
                             <td class="table-timeslots">-</td>
                             <td class="table-timeslots">-</td>
                             <td class="table-timeslots">-</td>
-                            <td class="table-timeslots">-</td>
+                            <td><button class="cancelBtn" onclick="location.href='cancel.html'">Cancel</button></td>
                         </tr>
                         <tr>
                             <td>-</td>
@@ -129,6 +134,7 @@
                             <td>-</td>
                             <td>-</td>
                             <td>-</td>
+                            <td></td>
                         </tr>
                     </tbody>
                 </table>
