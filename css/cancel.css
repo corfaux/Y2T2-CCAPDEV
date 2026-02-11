@@ -30,6 +30,30 @@
     text-decoration: none;
 }
 
+/*policies*/
+
+.policies-page header nav {
+    margin-left: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.policies-page header nav ul {
+    list-style-type: none;
+    font-size: 1.125rem;
+    font-weight: 450;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6vw;
+}
+
+.policies-page header nav ul a {
+    color: white;
+    text-decoration: none;
+}
+
 #logout-btn {
     text-decoration: none;
     font-weight: 450;
@@ -88,12 +112,6 @@ header .container .logo {
     text-align: center;
 }
 
-.reservation-pane table {
-    /*table-layout: fixed;
-    border-collapse: collapse;*/
-    
-}
-
 .reservation-pane {
     border: 1px solid #dedfdf;
     border-radius: 15px;
@@ -136,4 +154,23 @@ header .container .logo {
 .cancel-btn button:hover {
     background-color: #003d21;
     color:white;
+}
+
+.policies-pane a{
+    text-decoration: underline;
+    font-size: 36px;
+}
+
+.policies-pane {
+    text-align: left;
+    width: 70vw;
+    height: 60vh;
+}
+
+.policies-pane h1,h2{
+    color:#003d21;
+}
+
+.policies-pane p{
+    font-size: 20px;
 }
