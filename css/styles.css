@@ -30,6 +30,7 @@ body {
     justify-content: center;
     background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../images/computer-lab.jpg);
     background-position: bottom;
+    background-size: cover;
     background-repeat: no-repeat;
 }
 
@@ -40,7 +41,7 @@ header {
     display: flex;
     align-items: center;
     gap: 6vw;
-    padding: 0 2.25vw;
+    padding: 2.25vh 2.25vw;
 }
 
 .student-login header {
@@ -80,33 +81,74 @@ footer {
 
 /* STYLES FOR STUDENT LOGIN PAGE/INDEX */
 .login-pane {
-    width: 25vw;
+    width: 40vw;
     height: 35vh;
-    padding: 3vw;
+    /* padding: 3vw; */
     border: 1px solid #dedfdf;
     border-radius: 15px;
     box-shadow: 0 0 3px 3px rgba(222, 223, 223, 0.35);
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    justify-content: space-evenly;
     align-items: center;
-    gap: 8px;
+    /* gap: 5vw; */
     background-color: white;
 }
 
-.login-pane h2 {
+.welcome-message {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5vh;
+}
+
+.welcome-message h2 {
     font-size: 1.25rem;
     color:#00703c
 }
 
-.login-pane p {
+.welcome-message p {
     font-size: 0.875rem;
 }
 
-.technician-login a {
+.login-pane form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1vh;
+}
+
+.login-pane form label {
+    font-weight: 450;
+}
+
+.login-pane form button {
+    text-decoration: none;
+    font-weight: 450;
+    color: white;
+    padding: 0.35vw 0.5vw;
+    margin-top: 0.5vh;
+    background-color: #00703c;
+    border: 1px solid white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* TODO: fix class naming; class named "email" also in student-profile.html */
+.email,
+.password {
+    display: flex;
+    flex-direction: column;
+}
+
+#switch-mode-btn {
     color: #D3D3D3;
+    background-color: transparent;
     font-size: 0.875rem;
     text-decoration: none;
+    border: 0;
+    cursor: pointer;
 }
 
 
@@ -133,7 +175,7 @@ footer {
     text-decoration: none;
 }
 
-.logout-btn {
+#logout-btn {
     text-decoration: none;
     font-weight: 450;
     color: white;
@@ -144,7 +186,7 @@ footer {
     transition: all 0.2s ease;
 }
 
-.logout-btn:hover {
+#logout-btn:hover {
     color: #00703c;
     background-color: white;
 }
@@ -156,17 +198,23 @@ footer {
 
 .profile {
     display: flex;
+    flex-direction: column;
     justify-content: center;
-    gap: 2.5vw;
-    margin-bottom: 6vh;
+    gap: 1.5vw;
+    margin: 3vh;
     /* width: 960px;
     height: 320px; */
+}
+
+.profile > .container {
+    display: flex;
+    justify-content: center;
+    gap: 2vw;
 }
 
 .profile-pic {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     gap: 1vh;
 }
@@ -188,6 +236,11 @@ footer {
 
 .profile-pic input {
     display: none;
+}
+
+.profile > .container textarea {
+    width: 25vw;
+    height: 10vw;
 }
 
 .details {

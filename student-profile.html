@@ -5,6 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Student Profile | LabSys</title>
         <link rel="stylesheet" href="css/styles.css">
+        <script type="text/javascript" src="js/data.js" defer></script> 
+        <script type="module" src="js/student-profile.js" defer></script>
     </head>
 
     <body class="student-profile">
@@ -20,17 +22,23 @@
                     <li><a href="">Manage Reservations</a></li>
                 </ul>
             </nav>
-            <a class="logout-btn" href="index.html">Log Out</a>
+            <a id="logout-btn" href="index.html">Log Out</a>
         </header>
 
         <div class="content">
             <h2>Student Profile</h2>
 
             <div class="profile">
-                <div class="profile-pic">
-                    <img src="images/default-profile-pic.jpg">
-                    <label for="update-photo" class="update-pic-btn">Update photo</label>
-                    <input id="update-photo" type="file" accept="image/jpg, image/jpeg, image/png, image/webp">
+                <div class="container">
+                    <div class="profile-pic">
+                        <img src="images/default-profile-pic.jpg">
+                        <label for="update-photo" class="update-pic-btn">Update photo</label>
+                        <input id="update-photo" type="file" accept="image/jpg, image/jpeg, image/png, image/webp">
+                    </div>
+
+                    <form>
+                        <textarea id="desciption" name="desciption" placeholder="A short description about you..."></textarea>
+                    </form>
                 </div>
                 
                 <div class="details">
@@ -40,31 +48,31 @@
                         <div class="name">
                             <div class="container">
                                 <label for="first-name">First Name</label>
-                                <input id="first-name" type="text" placeholder="Paul John" disabled>
+                                <input id="first-name" type="text" disabled>
                             </div>
                             
                             <div class="container">
                                 <label for="last-name">Last Name</label>
-                                <input id="last-name" type="text" placeholder="Placer" disabled>
+                                <input id="last-name" type="text" disabled>
                             </div>
                         </div>
 
                         <div class="email">
                             <label for="email-address">Email Address</label>
-                            <input id="email-address" type="text" placeholder="paul_placer@dlsu.edu.ph" disabled>
+                            <input id="email-address" type="text" disabled>
                         </div>
                         
                         <div class="contact">
                             <label for="contact-number">Contact No.</label>
-                            <input id="contact-number" type="text" placeholder="09XXXXXXXXX" >
+                            <input id="contact-number" type="text" placeholder="09XXXXXXXXX">
                         </div>
                     </form>
-                    <div class="student-info">
+                    <form class="student-info">
                         <h3>Student Information</h2>
 
                         <div class="id-number">
                             <label for="id-num">ID Number</label>
-                            <input id="id-num" type="text" placeholder="12477680">
+                            <input id="id-num" type="text">
                         </div>
                         
                         <div class="college">
@@ -72,6 +80,7 @@
                             <select id="college-dropdown" name="college">
                                 <option value="none">-</option>
                                 <option value="CCS">CCS</option>
+                                <option value="CCS">GCOE</option>
                                 <option value="COS">COS</option>
                                 <option value="CLA">CLA</option>
                                 <option value="RVRCOB">RVRCOB</option>
@@ -80,7 +89,7 @@
                                 <option value="TDSOL">TDSOL</option>
                             </select>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
             
@@ -132,6 +141,6 @@
             
         </footer>
         
-        <script src="js/script.js"></script>
+        
     </body>
 </html>

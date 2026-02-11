@@ -5,6 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>LabSys</title>
         <link rel="stylesheet" href="css/styles.css">
+        <script type="text/javascript" src="js/data.js" defer></script>
+        <script type="module" src="js/index.js" defer></script>
     </head>
 
     <body class="student-login">
@@ -17,29 +19,28 @@
 
         <div class="content">
             <div class="login-pane">
-                <h2>Welcome, Lasallian!</h2>
-                <p>Use your DLSU email address to continue with LabSys!</p>
-                <script src="https://accounts.google.com/gsi/client" async></script>
-                <div id="g_id_onload"
-                    data-client_id="YOUR_GOOGLE_CLIENT_ID"
-                    data-login_uri="https://your.domain/your_login_endpoint"
-                    data-auto_prompt="false">
+                <div class="welcome-message">
+                    <h2>Welcome, Lasallian!</h2>
+                    <p>Use your DLSU email address to continue with LabSys!</p>
                 </div>
-                <div class="g_id_signin"
-                    data-type="standard"
-                    data-size="large"
-                    data-theme="outline"
-                    data-text="sign_in_with"
-                    data-shape="rectangular"
-                    data-logo_alignment="left">
-                </div>
+                
+                <form>
+                    <div class="email">
+                        <label for="email-field">Email Address</label>
+                        <input id="email-field" type="text">
+                    </div>
+                    <div class="password">
+                        <label for="password-field">Password</label>
+                        <input id="password-field" type="text">
+                    </div>
+                    <button id="login-btn" type="submit">Log in</button>
+                    <!-- <button id="signup-btn" type="submit">Sign up</button> -->
+                </form>
             </div> 
         </div>
 
         <footer>
-            <p class="technician-login"><a href="technician-login.html">Lab Technician login</a></p>
+            <button id="switch-mode-btn">Lab Technician login</button>
         </footer>
-
-        <script src="js/script.js"></script>
     </body>
-</html>
+</html> 
