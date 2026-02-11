@@ -6,6 +6,7 @@
         <title>Cancel Reservation | LabSys</title>
         <link rel="stylesheet" href="css/styles.css">
         <link rel="stylesheet" href="css/cancel.css">
+        
     </head>
     <body class="cancel-page">
         <header>
@@ -39,7 +40,7 @@
                             <th>Building</th>
                             <th>Room No.</th>
                             <th>Number of Seats</th>
-                            <th>Timeslots</th>
+                            <th>Time</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -49,7 +50,7 @@
                             <td>Gokongwei</td>
                             <td>304</td>
                             <td>5</td>
-                            <td>5:00</td>
+                            <td>5:00-6:30</td>
                         </tr>
                         </tbody>
 
@@ -66,8 +67,7 @@
         </footer>
         <script>
             function moveToProfile () {
-                window.location.replace(
-  "student-profile.html");
+                window.location.href = "student-profile.html";
             }
         </script>
         </div>
