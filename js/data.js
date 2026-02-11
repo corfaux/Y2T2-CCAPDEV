@@ -16,7 +16,7 @@ const userData = {
         email: "maki_nishikino@dlsu.edu.ph",
         contactNumber: "091234567",
         idNumber: "12511068",
-        college: "COB",
+        college: "RVRCOB",
         description: ""
     },
     "char_aznable@dlsu.edu.ph": {
@@ -136,7 +136,7 @@ if (!localStorage.getItem("labs")) {
   localStorage.setItem("labs", JSON.stringify(labData));
 }
 
-if (!localStoragegetItem("reservations")) {
+if (!localStorage.getItem("reservations")) {
   localStorage.setItem("reservations", JSON.stringify(reservationData));
 }
 if (!localStorage.getItem("users")) {
