@@ -16,7 +16,7 @@ function login(event) {
             sessionStorage.setItem("currentTechnician", emailAddress);
 
             // TODO: change this to landing page for technician
-            // window.location.href = ("manage-laboratories.html");
+            window.location.href = ("lab-management.html");
         } else {
             window.location.reload();
         }
