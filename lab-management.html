@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Laboratory Management</title>
+  <link rel="stylesheet" href="css/admin-styles.css" />
+</head>
+
+<body>
+
+<header>
+  <div class="header-left">
+    <img src="images/dlsu-logo-white.png" class="logo">
+    <h1>LabSys</h1>
+  </div>
+
+  <!--Navigation Bar-->
+  <div class="header-right">
+    <button onclick="viewProfile()">View Profile</button>
+    <button onclick="location.href='reservation.html'">Make a Reservation</button>
+    <button onclick="location.href='reservation-management.html'">
+      Manage Reservations
+    </button>
+    <button onclick="location.href='lab-management.html'">
+      Manage Laboratories
+    </button>
+    <button class="logout" onclick="logout()">Log Out</button>
+  </div>
+</header>
+
+<div class="content">
+  <!--Create new lab-->
+  <div class="controls">
+    <h3>Add Laboratory</h3>
+
+    <div class="form-row">
+      <input id="buildingInput" placeholder="Building" />
+      <input id="roomInput" placeholder="Room No." />
+      <input id="capacityInput" type="number" placeholder="Capacity" />
+      <button onclick="addLab()">Add</button>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Building</th>
+        <th>Room</th>
+        <th>Capacity</th>
+        <th>Open</th>
+        <th>Edit</th>
+        <th>Delete</th>
+      </tr>
+    </thead>
+
+    <tbody id="labsTable"></tbody>
+  </table>
+
+</div>
+
+<!-- Popup details -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <div id="modalBody"></div>
+    <div id="modalFooter"></div>
+  </div>
+</div>
+<!--Alert popup-->
+<div id="popupMessage" class="popUp hidden">
+</div>
+
+<script src="js/admin-labs.js"></script>
+</body>
+</html>
