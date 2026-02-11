@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Reservation Management</title>
+  <link rel="stylesheet" href="css/admin-styles.css" /> 
+</head>
+
+<body>
+
+<header>
+  <div class="header-left">
+    <img src="images/dlsu-logo-white.png" class="logo">
+    <h1>LabSys</h1>
+  </div>
+  <!--Navigation Bar-->
+  <div class="header-right">
+    <button onclick="location.href='reservation.html'">Make a Reservation</button>
+    <button onclick="location.href='reservation-management.html'">
+      Manage Reservations
+    </button>
+    <button onclick="location.href='lab-management.html'">
+      Manage Laboratories
+    </button>
+    <button class="logout" onclick="location.href='index.html'">Log Out</button>
+  </div>
+</header>
+
+<div class="content">
+  <!--Venue, Date Selection, Search Reservation-->
+  <div class="controls">
+    <div class="row">
+      <label>Select Laboratory:</label>
+      <select id="labSelect" onchange="updateSchedule()"></select>
+      <div id="capacityDisplay" class="capacity-display"></div>
+    </div>
+
+    <div class="row">
+      <strong id="dateDisplay"></strong>
+      <input type="date" id="datePicker" />
+    </div>
+
+    <div class="row">
+      <input type="text" id="reservationSearch" placeholder="Search name or email">
+      <button id="clearSearchBtn">Clear</button>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="slot-legend">
+    <span><span class="legend-box slot-green"></span> Available</span>
+    <span><span class="legend-box slot-yellow"></span> Partial</span>
+    <span><span class="legend-box slot-red"></span> Full</span>
+  </div>
+  <!--Timeslot display-->
+  <table>
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Seats Used</th>
+        <th>Reservations</th>
+      </tr>
+    </thead>
+
+    <tbody id="scheduleBody"></tbody>
+  </table>
+
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <div id="modalBody"></div>
+    <div id="modalFooter"></div>
+  </div>
+</div>
+<script type="text/javascript" src="js/data.js" defer></script>
+<script src="js/admin-reservation.js"></script>
+</body>
+</html>
