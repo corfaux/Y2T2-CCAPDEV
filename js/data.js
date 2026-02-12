@@ -127,20 +127,12 @@ const reservationData = [
     companions: "Some Guy"
   }
 ];
-
-if(!localStorage.getItem("users")){
-    localStorage.setItem("users", JSON.stringify(userData));
-}
-
 if (!localStorage.getItem("labs")) {
   localStorage.setItem("labs", JSON.stringify(labData));
 }
 
 if (!localStorage.getItem("reservations")) {
   localStorage.setItem("reservations", JSON.stringify(reservationData));
-}
-if (!localStorage.getItem("users")) {
-  localStorage.setItem("users", JSON.stringify(userData));
 }
 
 
