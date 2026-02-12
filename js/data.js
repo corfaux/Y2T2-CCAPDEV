@@ -7,7 +7,7 @@ const userData = {
         contactNumber: "091234567",
         idNumber: "12312036",
         college: "CLA",
-        description: ""
+        description: "Communication Arts - The greatest idol in the world!"
     },
     "maki_nishikino@dlsu.edu.ph": {
         password: "password",
@@ -17,7 +17,7 @@ const userData = {
         contactNumber: "091234567",
         idNumber: "12511068",
         college: "RVRCOB",
-        description: ""
+        description: "BS Accounting."
     },
     "char_aznable@dlsu.edu.ph": {
         password: "password",
@@ -27,7 +27,7 @@ const userData = {
         contactNumber: "091234567",
         idNumber: "12215555",
         college: "CCS",
-        description: ""
+        description: "BSMS Computer Science"
     }
 }
 
@@ -142,5 +142,6 @@ if (!localStorage.getItem("reservations")) {
 if (!localStorage.getItem("users")) {
   localStorage.setItem("users", JSON.stringify(userData));
 }
+
 
 
