@@ -26,6 +26,8 @@ LabSys is designed to streamline reservation for computer laboratories for both 
 - Remove reservation
 - Edit reservation
 
+## Development
+
 ### Commit Message Format
 Follow **Conventional Commits** standard:
 
