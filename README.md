@@ -31,17 +31,17 @@ LabSys is designed to streamline reservation for computer laboratories for both 
 ### Commit Message Format
 Follow **Conventional Commits** standard:
 
-| Type | Purpose | Example |
-|------|---------|---------|
-| `feat` | Add a new feature (functions, logic) | `feat: implement A* search algorithm` |
-| `fix` | Fix a bug (incorrect output, logic errors) | `fix: correct Manhattan distance calculation` |
-| `refactor` | Improve code without changing behavior | `refactor: optimize state representation` |
-| `perf` | Optimize performance (faster loops, better memory) | `perf: improve deadlock detection speed` |
-| `style` | Formatting changes (indentation, comments) | `style: fix indentation in SokoBot.java` |
-| `test` | Add or update test cases | `test: add edge case tests for corner situations` |
-| `build` | Modify build files or compilation setup | `build: update batch files with new parameters` |
-| `docs` | Update README, specs, or comments | `docs: update algorithm description in README` |
-| `chore` | Non-code maintenance (renaming files) | `chore: update .gitignore for IDE files` |
+| Type | Purpose |
+|------|---------|
+| `feat` | Add a new feature (functions, logic) |
+| `fix` | Fix a bug (incorrect output, logic errors) |
+| `refactor` | Improve code without changing behavior |
+| `perf` | Optimize performance (faster loops, better memory) |
+| `style` | Formatting changes (indentation, comments) |
+| `test` | Add or update test cases |
+| `build` | Modify build files or compilation setup |
+| `docs` | Update README, specs, or comments |
+| `chore` | Non-code maintenance (renaming files) |
 
 **Format:**
 ```
