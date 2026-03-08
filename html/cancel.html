@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Cancel Reservation | LabSys</title>
+        <link rel="stylesheet" href="css/styles.css">
+        <link rel="stylesheet" href="css/cancel.css">
+        
+    </head>
+    <body class="cancel-page">
+        <header>
+            <div class="container">
+                <img src="images/dlsu-logo-white.png" alt="DLSU logo">
+                <h1>LabSys</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="student-profile.html">View Profile</a></li>
+                    <li><a href="reservation.html">Make a Reservation</a></li>
+                </ul>
+            </nav>
+            <a id="logout-btn" href="index.html">Log Out</a>
+        </header> 
+
+        <div class="content"> 
+            <div class="cancel-pane">
+                
+                <h1>
+                    Cancel Booking
+                </h1>
+
+                <div class="reservation-pane">
+                    <table class="selected-reserve">
+                        <thead>
+                        <tr>
+                            <th>Reservation No.</th>
+                            <th>Date</th>
+                            <th>Building</th>
+                            <th>Room No.</th>
+                            <th>Number of Seats</th>
+                            <th>Time</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>12345</td>
+                            <td>11/11/1111</td>
+                            <td>Gokongwei</td>
+                            <td>304</td>
+                            <td>5</td>
+                            <td>5:00-6:30</td>
+                        </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+                <div class="cancel-btn">
+                    <button onclick="moveToProfile()">Cancel Reservation</button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+
+        </footer>
+        <script>
+            function moveToProfile () {
+                window.location.href = "student-profile.html";
+            }
+        </script>
+        </div>
+    </body>
+</html>

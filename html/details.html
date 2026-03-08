@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Reservation Details</title>
+        <link rel="stylesheet" href="css/reservation.css">
+    </head>
+    <body>
+
+        <h1>Reservation Details</h1>
+
+        <!-- reservation summary: shows selected rooms, date, and seats -->
+        <section id="summary">
+            <h2>Selected Reservation</h2>
+        </section>
+
+        <!-- details form: collect student info -->
+        <section>
+            <h2>Student Information</h2>
+
+            <form id="detailsForm">
+
+                <!-- primary student details -->
+                <h3>Student Details</h3>
+                <div class="student">
+                    <input type="text" id="mainId" placeholder="ID Number" required>
+                    <input type="text" id="mainName" placeholder="Last Name, First Name" required>
+                    <select id="mainCollege" required>
+                        <option value="" disabled selected>Select College</option>
+                        <option value="CLA">CLA</option>
+                        <option value="BAGCED">BAGCED</option>
+                        <option value="GCOE">GCOE</option>
+                        <option value="COS">COS</option>
+                        <option value="CCS">CCS</option>
+                        <option value="RVRCOB">RVRCOB</option>
+                        <option value="CLTSOE">CLTSOE</option>
+                    </select>
+                </div>
+
+                <!-- additional students section -->
+                <h3 id="additionalHeader">Additional Student(s) Details</h3>
+                <div id="additionalStudents"></div>
+
+                <!-- buttons to add more students and submit form -->
+                <button type="button" id="addStudent">+ Add Another Student</button>
+                <button type="submit">Submit Reservation</button>
+
+            </form>
+        </section>
+
+            <!-- user navigation buttons -->
+            <div class="actions">
+                <a href="student-profile.html" class="action-button">Return to Profile</a>
+                <a href="reservation.html" class="action-button">Back to Reservation</a>
+                <button id="logoutConfirm" class="action-button logout">Logout</button>
+            </div>
+
+        <script>
+            // load reservation data from localStorage
+            const venue = localStorage.getItem("venue");
+            const date = localStorage.getItem("date");
+            const seats = parseInt(localStorage.getItem("seats") || "1");
+            const slots = JSON.parse(localStorage.getItem("selectedSlots")) || [];
+
+            // group selected time slots by room 
+            const roomTimes = {};
+            slots.forEach(slot => {
+                const [room, time] = slot.split(" ");
+                if (!roomTimes[room]) roomTimes[room] = [];
+                roomTimes[room].push(time);
+            });
+
+            // build html summary of selected rooms and times
+            let summaryHTML = "";
+            for (const room in roomTimes) {
+                const times = roomTimes[room].sort(); // sort ascending
+
+                const startTime = times[0];
+                
+                // calculate endTime: last slot + 30 mins
+                const [h, m] = times[times.length - 1].split(":").map(Number);
+                let endMinutes = h * 60 + m + 30;
+                const endHour = Math.floor(endMinutes / 60);
+                const endMin = endMinutes % 60;
+                const endTime = `${String(endHour).padStart(2,"0")}:${String(endMin).padStart(2,"0")}`;
+
+                summaryHTML += `<p><strong>Room:</strong> ${room} &nbsp;&nbsp; <strong>Time:</strong> ${startTime} - ${endTime}</p>`;
+            }
+
+            // insert summary into html
+            document.getElementById("summary").innerHTML = `
+                <p><strong>Date:</strong> ${date}</p>
+                <p><strong>Number of Seats:</strong> ${seats}</p>
+                ${summaryHTML}
+            `;
+
+            // hide additional students section if only 1 seat reserved
+            const additionalHeader = document.getElementById("additionalHeader");
+            const addStudentButton = document.getElementById("addStudent"); // renamed variable
+
+            if (seats <= 1) {
+                additionalHeader.style.display = "none";
+                addStudentButton.style.display = "none";
+            }
+
+            // logout confirmation popup
+            function showLogoutConfirm() {
+                const popUp = document.createElement("div");
+                popUp.id = "logoutpopUp";
+                popUp.classList.add("popUp");
+                popUp.innerHTML = `
+                    <p>Are you sure you want to log out?</p>
+                    <div class="popUp-buttons">
+                        <button id="confirmLogout">Yes</button>
+                        <button id="cancelLogout">No</button>
+                    </div>
+                `;
+
+                document.body.appendChild(popUp);
+
+                // show popup with slight delay for animation
+                setTimeout(() => popUp.classList.add("show"), 10);
+
+                // confirm logout
+                document.getElementById("confirmLogout").addEventListener("click", () => {
+                    localStorage.clear();
+                    window.location.href = "index.html";
+                });
+
+                // cancel logout
+                document.getElementById("cancelLogout").addEventListener("click", () => {
+                    popUp.classList.remove("show");
+                    setTimeout(() => popUp.remove(), 300);
+                });
+            }
+
+            // attach logout popup to button
+            document.getElementById("logoutConfirm").addEventListener("click", showLogoutConfirm);
+
+            // logic to add additional students
+            let addedStudents = 0;
+            const maxAdditional = seats > 1 ? seats - 1 : 0;
+
+            const addButton = document.getElementById("addStudent");
+            if (maxAdditional === 0) addButton.style.display = "none";
+
+            addButton.addEventListener("click", () => {
+                if (addedStudents >= maxAdditional) return;
+
+                const container = document.createElement("div");
+                container.classList.add("student");
+                container.innerHTML = `
+                    <input type="text" placeholder="ID Number" required>
+                    <input type="text" placeholder="Last Name, First Name" required>
+                    <select required>
+                        <option value="" disabled selected>Select College</option>
+                        <option value="CLA">CLA</option>
+                        <option value="BAGCED">BAGCED</option>
+                        <option value="GCOE">GCOE</option>
+                        <option value="COS">COS</option>
+                        <option value="CCS">CCS</option>
+                        <option value="RVRCOB">RVRCOB</option>
+                        <option value="CLTSOE">CLTSOE</option>
+                    </select>
+                `;
+
+                document.getElementById("additionalStudents").appendChild(container);
+                addedStudents++;
+
+                if (addedStudents >= maxAdditional) addButton.style.display = "none";
+            });
+
+            // form submission logic
+            document.getElementById("detailsForm").addEventListener("submit", (e) => {
+                e.preventDefault();
+
+                const primaryStudent = {
+                    id: document.getElementById("mainId").value,
+                    name: document.getElementById("mainName").value,
+                    college: document.getElementById("mainCollege").value
+                };
+
+                // collect additional students
+                const additional = Array.from(document.querySelectorAll("#additionalStudents .student")).map(div => {
+                    const inputs = div.querySelectorAll("input, select");
+                    return {
+                        id: inputs[0].value,
+                        name: inputs[1].value,
+                        college: inputs[2].value
+                    };
+                });
+
+                // create reservation object
+                const data = {
+                    venue,
+                    date,
+                    timeSlots: slots,
+                    seats,
+                    primaryStudent,
+                    additionalStudents: additional
+                };
+
+                console.log("Reservation Data:", data);
+                alert("Reservation Submitted!\n\n" + JSON.stringify(data, null, 2));
+
+                // redirect to confirmation page
+                // window.location.href = "confirmation.html"; ?
+            });
+        </script>
+    </body>
+</html>
