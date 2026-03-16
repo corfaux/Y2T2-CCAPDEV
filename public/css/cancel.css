@@ -1,0 +1,243 @@
+/* bian 
+**********************/
+/*
+.cancel {
+    background-image: linear-gradient(rgba(209, 209, 209, 0.123), rgba(209, 209, 209, 0.123)), url(../images/dlsuDusk.jpg);
+    background-position: bottom;
+    background-repeat: no-repeat;
+}*/
+
+/* TAKEN FROM STYLES */
+.cancel-page header nav {
+    margin-left: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cancel-page header nav ul {
+    list-style-type: none;
+    font-size: 1.125rem;
+    font-weight: 450;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6vw;
+}
+
+.cancel-page header nav ul a {
+    color: white;
+    text-decoration: none;
+}
+
+.policies-page header nav {
+    margin-left: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.policies-page header nav ul {
+    list-style-type: none;
+    font-size: 1.125rem;
+    font-weight: 450;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6vw;
+}
+
+.policies-page header nav ul a {
+    color: white;
+    text-decoration: none;
+}
+
+#logout-btn {
+    text-decoration: none;
+    font-weight: 450;
+    color: white;
+    padding: 0.35vw 0.5vw;
+    background-color: transparent;
+    border: 1px solid white;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+#logout-btn:hover {
+    color: #00703c;
+    background-color: white;
+    
+}
+
+
+.return-btn {
+    text-decoration: none;
+    font-weight: 450;
+    color: white;
+    padding: 0.35vw 0.5vw;
+    background-color: #003d21;
+    border: 1px solid #dedfdf;
+    border-radius: 8px;
+    align-self: flex-end;
+
+}
+
+.selected-reserve {
+    padding: auto;
+    border-spacing: 2vw; 
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.selected-reserve th {
+    text-align: center;
+    font-size: 20px;
+}
+
+.selected-reserve td {
+    text-align: center;
+    font-size: 16px;
+}
+
+header .container .logo {
+        display: flex;
+        justify-content: left;
+        align-items: center;
+}
+
+.content .cancel-pane h1 {
+    font-size: 2.5rem;
+    color: #003d21;
+    text-align: center;
+}
+
+.reservation-pane {
+    border: 1px solid #dedfdf;
+    border-radius: 15px;
+    box-shadow: 0 0 3px 3px rgba(222, 223, 223, 0.35);
+    background-color: white;
+    padding: 1.5vw;
+}
+
+.cancel-pane h1 {
+    padding-bottom: 2.5vh;
+}
+
+.cancel-pane table {
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.cancel-pane table th {
+    color: #003d21;
+}
+
+.cancel-pane table td {
+    font-size: 16px;
+}
+
+.cancel-pane table th, td {
+    text-align: center;
+    border: 1px solid black;
+    padding: 1rem;
+}
+
+.cancel-pane {
+    padding-top: 14vh;
+    align-content: center;
+    
+}
+
+.cancel-btn {
+    margin-top: 4rem;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.cancel-btn button {
+    text-decoration: none;
+    padding: 1.2rem;
+    border-radius: 8px;
+
+    border: 0px solid #ccc;    
+    color: #fce8e6; 
+    background-color: #9b1c1c;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    transition: all 0.2s ease;
+}
+
+.cancel-btn button:hover {
+    background-color: #003d21;
+    color:white;
+    
+}
+
+.policies-pane a{
+    border-radius: 8px;
+    border: 2px solid #ccc;  
+    text-decoration: none;
+    font-size: 16px;
+    margin: auto;
+    padding: .5em;
+}
+
+.policies-pane {
+    background-color: white;
+    border: none;
+    border-radius: 6px;
+    box-shadow: 0 0 3px 3px rgba(222, 223, 223, 0.35);
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    width: 40vw;
+    height: 60vh;
+    margin: auto;
+    padding: auto;
+}
+
+.policies-pane h1,h2{
+    color:#003d21;
+    margin: auto;
+}
+
+.policies-pane p{
+/*    margin: auto;*/
+    font-size: 20px;
+}
+
+.policies-pane li {
+    padding: 10px;
+    list-style: none;
+}
+
+.return-to-btn {
+    margin-top: 4rem;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.return-to-btn a {
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    text-decoration: none;
+    padding: 1.2rem;
+    border-radius: 8px;
+
+    border: 1px solid #00703c;    
+    color: white; 
+    background-color:#00703c;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    transition: all 0.2s ease;
+}
+
+.return-to-btn a:hover {
+    color: #00703c; 
+    background-color:white;
+
+}

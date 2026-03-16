@@ -1,0 +1,350 @@
+@import url('https://fonts.cdnfonts.com/css/galliard-bt');
+/* GLOBAL */
+:root {
+  --green: #00703C;
+  --dark-green: #003D21;
+  --light-green: #0AFF8D;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #fcfff9;
+}
+
+/* GENERAL BUTTONS */
+button {
+  background: var(--dark-green);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+button:hover {
+  background: #1f5a32;
+}
+
+button:disabled {
+  background: #d1d5db;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+/* HEADER */
+header {
+  background-color: var(--green);
+  height: 10.5vh;
+  display: flex;
+  align-items: center;
+  padding: 2.25vh 2.25vw;
+}
+
+/* LEFT: Logo + Title */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.67vw;
+}
+
+.logo {
+  width: 6.5vh;
+  height: 6.5vh;
+}
+
+.header-left h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  font-stretch: 90%;
+  font-family: "Galliard BT", sans-serif;
+  color: white;
+}
+
+/* RIGHT: Navigation */
+.header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 3vw;
+}
+
+/* Nav buttons */
+.header-right button {
+  background: transparent;
+  color: white;
+  font-size: 1.125rem;
+  font-weight: 450;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  transition: text-decoration 0.2s ease;
+}
+
+.header-right button:hover {
+  text-decoration: underline;
+}
+
+/* Logout button */
+.header-right .logout {
+  font-size: 0.95rem;
+  padding: 0.35vw 0.5vw;
+  border: 1px solid white;
+  border-radius: 8px;
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.header-right .logout:hover {
+  background: white;
+  color: var(--green);
+}
+
+/* Active page indicator */
+.header-right .active {
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* MAIN CONTAINER */
+.content {
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
+/* PANEL */
+.controls,
+table {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* CONTROLS */
+.controls {
+  display: flex;
+  justify-content: space-around;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.row {
+  padding: 10px;
+  flex: 1;
+}
+
+label {
+  font-weight: bold;
+  color: var(--dark-green);
+}
+
+.capacity-display {
+  font-weight: 600;
+  margin: 8px 0;
+  color: var(--dark-green);
+}
+
+/* TABLE */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+th {
+  background: #f0f5f2;
+  color: var(--green);
+  font-weight: bold;
+  text-align: center;
+}
+
+th,
+td {
+  border: 1px solid #d1d5db;
+  padding: 10px;
+  text-align: center;
+  vertical-align: top;
+}
+
+/* SLOT STATUS */
+.slot-green {
+  background: #d4edda;
+}
+
+.slot-yellow {
+  background: #fff3cd;
+}
+
+.slot-red {
+  background: #f8d7da;
+}
+
+.closed-lab {
+  color: #b00000;
+  font-weight: bold;
+}
+
+/* LEGEND */
+.slot-legend {
+  display: flex;
+  gap: 18px;
+  margin: 12px 0;
+  font-size: 14px;
+  align-items: center;
+}
+
+.legend-box {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* RESERVATIONS */
+.reservation-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding: 6px 0;
+}
+
+.reservation-info {
+  flex: 1;
+}
+
+.reservation-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.reservation-actions button:first-of-type {
+  background: var(--green);
+  color: white;
+}
+
+.reservation-actions button:last-of-type {
+  background: #9b1c1c;
+  color: white;
+}
+
+.slot-row:hover {
+  background: #f5f7fa;
+}
+
+.slot-expanded td {
+  background: #fafafa;
+}
+
+.toggle-indicator {
+  color: var(--dark-green);
+  font-weight: 600;
+  margin-right: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.reservation-highlight {
+  background: #e6f4ea;
+  border-left: 4px solid var(--green);
+  padding-left: 6px;
+  border-radius: 4px;
+}
+
+
+/* ADD LAB FORM */
+.form-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+input,
+select {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+}
+
+/* DELETE ICON */
+.delete-btn {
+  color: #9b1c1c;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.disabled-delete {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* MODAL */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  width: 420px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.modal-warning {
+  background: #ffe0e0;
+  border: 1px solid #ff7b7b;
+  padding: 8px;
+  margin-bottom: 10px;
+  color: #b00000;
+  font-weight: 500;
+}
+
+.error {
+  color: #b00000;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+/* ALERT */
+.popUp {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+
+  background-color: #f2dede;
+  color: #b94a48;
+  border: 1px solid #ebccd1;
+  padding: 14px 22px;
+  border-radius: 8px;
+
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  min-width: 320px;
+  max-width: 500px;
+
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.popUp.show {
+  opacity: 1;
+}
+
+.hidden {
+  display: none;
+}

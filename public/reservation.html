@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Lab Reservation</title>
+    <link rel="stylesheet" href="css/reservation.css">
+  </head>
+
+  <body>
+
+    <h1>Reservation</h1>
+
+    <!-- search section: select date, building, and number of seats -->
+    <section class="search-section">
+      <label>
+        Date:
+        <input type="date" id="reservationDate">
+      </label>
+
+      <label>
+        Building:
+        <select id="venueSelect">
+          <option value="">Select Building</option>
+          <option value="AG">AG - Br. Andrew Gonzales Hall</option>
+          <option value="C"> C - STRC Building</option>
+          <option value="GK">GK - Gokongwei Building</option>
+          <option value="LS">LS - St. La Salle Hall</option>
+          <option value="SJ">SJ - St. Joseph Hall</option>
+          <option value="VL">VL - Velasco</option>
+          <option value="Y">Y - Yuchengco Building</option>
+        </select>
+      </label>
+
+      <label>
+        Number of Seats:
+        <select id="seatCount">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </label>
+
+      <!-- button to show availability -->
+      <button id="showAvailability">Show Availability</button>
+    </section>
+
+    <!-- timeslot section: shown after selecting date and building -->
+    <section class="timeslot-section" style="display: none;">
+      <h2>Available Time Slots</h2>
+
+      <div class="horizontal-scroll">
+        <!-- time header row -->
+        <div class="time-header" id="timeHeader"></div>
+
+        <!-- room x time grid -->
+        <div id="scheduleGrid"></div>
+      </div>
+
+      <!-- legend for slot colors -->
+      <div class="legend">
+        <div class="legend-item">
+          <span class="legend-box available"></span>
+          <span>Available</span>
+        </div>
+
+        <div class="legend-item">
+          <span class="legend-box selected"></span>
+          <span>Your Booking</span>
+        </div>
+
+        <div class="legend-item">
+          <span class="legend-box unavailable"></span>
+          <span>Unavailable</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- continue button to confirm booking -->
+    <button id="continueButton" disabled>
+      Confirm Booking Details
+    </button>
+
+    <!-- message popup shown in the center of the page -->
+    <div id="popupMessage" class="popUp hidden">
+      Forbidden from booking same resource multiple times in a single booking.
+    </div>
+
+    <script src="js/reservation.js"></script>
+  </body>
+</html>
