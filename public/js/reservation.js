@@ -484,42 +484,31 @@ function generateTimeSlots(selectedDate) {
     const slotsContainer = document.createElement("div");
     slotsContainer.classList.add("room-slots");
 
-    let hour = 7;
-    let minute = 30;
-
     // get the class schedule for this room on the selected day (if any)
     const roomSchedule = (classSchedule[dayName] && classSchedule[dayName][room]) || [];
 
-    // create 30-minute interval time slots from 7:30 to 21:00
-    for (let i = 0; i < 28; i++) {
-      const timeStr =
-        String(hour).padStart(2, "0") + ":" +
-        String(minute).padStart(2, "0");
-
+    // create buttons for each available time slot defined in the TimeSlots collection
+    timeSlots.forEach(slot => {
       const button = document.createElement("button");
-      button.textContent = timeStr;
+      button.textContent = slot.startTime;
       button.classList.add("timeslot");
+      button.dataset.slotId = slot.id;
+      button.dataset.startTime = slot.startTime;
+      button.dataset.endTime = slot.endTime;
 
       // disable slot if it is occupied by a class or falls within a blocked time range
-      if (isTimeBlocked(timeStr, roomSchedule)) {
+      if (isSlotBlocked(slot, roomSchedule)) {
         button.disabled = true;
         button.classList.add("occupied");
       }
 
       // select/deselect slot on click, with a maximum of 6 slots (3 hours)
       button.addEventListener("click", () =>
-        toggleSlot(button, `${room} ${timeStr}`)
+        toggleSlot(room, slot, button)
       );
 
       slotsContainer.appendChild(button);
-
-      // move forward by 30 minutes
-      minute += 30;
-      if (minute === 60) {
-        minute = 0;
-        hour++;
-      }
-    }
+    });
 
     row.appendChild(label);
     row.appendChild(slotsContainer);
@@ -533,20 +522,27 @@ function timeToMinutes(timeStr) {
   return h * 60 + m;
 }
 
-// check if a time string is blocked based on an array of {start, end} ranges
-function isTimeBlocked(timeStr, ranges) {
-  const minutes = timeToMinutes(timeStr);
+// check if a time slot is blocked based on an array of {start, end} ranges
+function isSlotBlocked(slot, ranges) {
+  const slotStart = timeToMinutes(typeof slot === "string" ? slot : slot.startTime);
+  const slotEnd = timeToMinutes(typeof slot === "string" ? slot : slot.endTime);
+
   return ranges.some(range => {
     const start = timeToMinutes(range.start);
     const end = timeToMinutes(range.end);
-    return minutes >= start && minutes < end;
+
+    // overlap check: slot starts before range ends AND slot ends after range starts
+    return slotStart < end && slotEnd > start;
   });
 }
 
 // handle selecting and deselecting time slots
-function toggleSlot(button, value) {
-  if (selectedSlots.includes(value)) {
-    selectedSlots = selectedSlots.filter(v => v !== value);
+function toggleSlot(room, slot, button) {
+  const slotId = slot.id ?? slot._id ?? `${slot.startTime}-${slot.endTime}`;
+  const existingIndex = selectedSlots.findIndex(s => s.room === room && s.slotId === slotId);
+
+  if (existingIndex >= 0) {
+    selectedSlots.splice(existingIndex, 1);
     button.classList.remove("selected");
   } else {
     if (selectedSlots.length >= MAX_SLOTS) {
@@ -554,27 +550,47 @@ function toggleSlot(button, value) {
       return;
     }
 
-    selectedSlots.push(value);
+    selectedSlots.push({
+      room,
+      slotId,
+      startTime: slot.startTime,
+      endTime: slot.endTime
+    });
+
     button.classList.add("selected");
   }
 
   continueButton.disabled = selectedSlots.length === 0;
 }
 
-// generate a list of all possible time labels (07:30 to 21:00)
-const timeSlots = [];
-let hour = 7;
-let minute = 30;
+// A list of available time slots, loaded from the TimeSlots collection (or local fallback)
+const timeSlots = (Array.isArray(window.timeSlotData) && window.timeSlotData.length)
+  ? [...window.timeSlotData]
+  : generateDefaultTimeSlots();
 
-while (hour < 21 || (hour === 21 && minute === 0)) { // stop at 21:00
-  const timeStr = String(hour).padStart(2, "0") + ":" + String(minute).padStart(2, "0");
-  timeSlots.push(timeStr);
+function generateDefaultTimeSlots() {
+  const slots = [];
+  let hour = 7;
+  let minute = 30;
+  let id = 1;
 
-  minute += 30;
-  if (minute === 60) {
-    minute = 0;
-    hour++;
+  while (hour < 21 || (hour === 21 && minute === 0)) {
+    const startTime = String(hour).padStart(2, "0") + ":" + String(minute).padStart(2, "0");
+    const totalMinutes = hour * 60 + minute + 30;
+    const endHour = Math.floor(totalMinutes / 60);
+    const endMinute = totalMinutes % 60;
+    const endTime = String(endHour).padStart(2, "0") + ":" + String(endMinute).padStart(2, "0");
+
+    slots.push({ id: id++, startTime, endTime });
+
+    minute += 30;
+    if (minute === 60) {
+      minute = 0;
+      hour++;
+    }
   }
+
+  return slots;
 }
 
 // reference to the time header row
@@ -584,9 +600,9 @@ const timeHeader = document.getElementById("timeHeader");
 function generateTimeHeader() {
   timeHeader.innerHTML = "<div></div>"; // empty corner
 
-  timeSlots.forEach(time => {
+  timeSlots.forEach(slot => {
     const cell = document.createElement("div");
-    cell.textContent = time;
+    cell.textContent = slot.startTime;
     timeHeader.appendChild(cell);
   });
 }
@@ -615,34 +631,22 @@ function generateSchedule(building, selectedDate) {
 
     const roomSchedule = (classSchedule[dayName] && classSchedule[dayName][room]) || [];
 
-    timeSlots.forEach(time => {
+    timeSlots.forEach(slot => {
       const cell = document.createElement("div");
       cell.classList.add("time-cell");
+      cell.dataset.slotId = slot.id;
+      cell.dataset.startTime = slot.startTime;
+      cell.dataset.endTime = slot.endTime;
 
       // mark cell as unavailable if blocked by class schedule
-      if (isTimeBlocked(time, roomSchedule)) {
+      if (isSlotBlocked(slot, roomSchedule)) {
         cell.classList.add("unavailable");
       }
 
       cell.addEventListener("click", () => {
         if (cell.classList.contains("unavailable")) return;
 
-        const value = `${room} ${time}`;
-
-        if (selectedSlots.includes(value)) {
-          selectedSlots = selectedSlots.filter(v => v !== value);
-          cell.classList.remove("selected");
-        } else {
-          if (selectedSlots.length >= MAX_SLOTS) {
-            showpopUp("You can only reserve up to 3 hours (6 slots).");
-            return;
-          }
-
-          selectedSlots.push(value);
-          cell.classList.add("selected");
-        }
-
-        continueButton.disabled = selectedSlots.length === 0;
+        toggleSlot(room, slot, cell);
       });
 
       row.appendChild(cell);

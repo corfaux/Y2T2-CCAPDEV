@@ -61,27 +61,35 @@
             const seats = parseInt(localStorage.getItem("seats") || "1");
             const slots = JSON.parse(localStorage.getItem("selectedSlots")) || [];
 
-            // group selected time slots by room 
+            // group selected time slots by room (supports both legacy string values and new slot objects)
             const roomTimes = {};
             slots.forEach(slot => {
-                const [room, time] = slot.split(" ");
+                let room, startTime, endTime;
+
+                if (typeof slot === "string") {
+                    [room, startTime] = slot.split(" ");
+                    const [h, m] = startTime.split(":").map(Number);
+                    const endMinutes = h * 60 + m + 30;
+                    const endHour = Math.floor(endMinutes / 60);
+                    const endMin = endMinutes % 60;
+                    endTime = `${String(endHour).padStart(2, "0")}:${String(endMin).padStart(2, "0")}`;
+                } else {
+                    room = slot.room;
+                    startTime = slot.startTime;
+                    endTime = slot.endTime;
+                }
+
                 if (!roomTimes[room]) roomTimes[room] = [];
-                roomTimes[room].push(time);
+                roomTimes[room].push({ startTime, endTime });
             });
 
             // build html summary of selected rooms and times
             let summaryHTML = "";
             for (const room in roomTimes) {
-                const times = roomTimes[room].sort(); // sort ascending
+                const times = roomTimes[room].sort((a, b) => a.startTime.localeCompare(b.startTime));
 
-                const startTime = times[0];
-                
-                // calculate endTime: last slot + 30 mins
-                const [h, m] = times[times.length - 1].split(":").map(Number);
-                let endMinutes = h * 60 + m + 30;
-                const endHour = Math.floor(endMinutes / 60);
-                const endMin = endMinutes % 60;
-                const endTime = `${String(endHour).padStart(2,"0")}:${String(endMin).padStart(2,"0")}`;
+                const startTime = times[0].startTime;
+                const endTime = times[times.length - 1].endTime;
 
                 summaryHTML += `<p><strong>Room:</strong> ${room} &nbsp;&nbsp; <strong>Time:</strong> ${startTime} - ${endTime}</p>`;
             }

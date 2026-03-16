@@ -135,5 +135,35 @@ if (!localStorage.getItem("reservations")) {
   localStorage.setItem("reservations", JSON.stringify(reservationData));
 }
 
+// Sample time slot data (mirrors the MongoDB TimeSlots collection schema)
+// Each slot represents an available booking interval.
+const timeSlotData = (function() {
+  const slots = [];
+  let hour = 7;
+  let minute = 30;
+  let id = 1;
 
+  // Generate 30-minute slots from 07:30 until 21:00
+  while (hour < 21 || (hour === 21 && minute === 0)) {
+    const startTime = String(hour).padStart(2, "0") + ":" + String(minute).padStart(2, "0");
+    const totalMinutes = hour * 60 + minute + 30;
+    const endHour = Math.floor(totalMinutes / 60);
+    const endMinute = totalMinutes % 60;
+    const endTime = String(endHour).padStart(2, "0") + ":" + String(endMinute).padStart(2, "0");
 
+    slots.push({ id: id++, startTime, endTime });
+
+    minute += 30;
+    if (minute === 60) {
+      minute = 0;
+      hour++;
+    }
+  }
+
+  return slots;
+})();
+
+// Persist time slots locally for quick access (simulating a DB collection)
+if (!localStorage.getItem("timeSlots")) {
+  localStorage.setItem("timeSlots", JSON.stringify(timeSlotData));
+}
