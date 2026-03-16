@@ -414,7 +414,7 @@ const endOfYear = new Date(year, 11, 31);
 dateInput.max = formatDate(endOfYear);
 
 // show warning message if trying to book past 6 hours
-function showpopUp(message) {
+function showPopUp(message) {
   popUp.textContent = message;
   popUp.classList.remove("hidden");
   popUp.classList.add("show");
@@ -460,6 +460,17 @@ function hideAvailability() {
   continueButton.disabled = true;
 }
 
+// helper function to fetch booked slot IDs for a given building and date from the backend
+async function getBookedSlots(building, date) {
+  try {
+    const res = await fetch(`http://localhost:5000/api/reservations?labID=${building}&date=${date}`);
+    const bookings = await res.json();
+    return bookings.map(b => b.slot_ID); // returns array of booked slot IDs
+  } catch (err) {
+    console.error("Failed to fetch reservations:", err);
+    return [];
+  }
+}
 
 // generate time slot buttons for each room based on the selected date
 function generateTimeSlots(selectedDate) {
@@ -497,7 +508,7 @@ function generateTimeSlots(selectedDate) {
       button.dataset.endTime = slot.endTime;
 
       // disable slot if it is occupied by a class or falls within a blocked time range
-      if (isSlotBlocked(slot, roomSchedule)) {
+      if (isSlotBlocked(slot, roomSchedule) || bookedSlotIds.includes(slot.id)) {
         button.disabled = true;
         button.classList.add("occupied");
       }
@@ -546,7 +557,7 @@ function toggleSlot(room, slot, button) {
     button.classList.remove("selected");
   } else {
     if (selectedSlots.length >= MAX_SLOTS) {
-      showpopUp("You can only reserve up to 3 hours (6 time slots).");
+      showPopUp("You can only reserve up to 3 hours (6 time slots).");
       return;
     }
 
@@ -563,11 +574,21 @@ function toggleSlot(room, slot, button) {
   continueButton.disabled = selectedSlots.length === 0;
 }
 
+//-- CHANGE HERE
 // A list of available time slots, loaded from the TimeSlots collection (or local fallback)
-const timeSlots = (Array.isArray(window.timeSlotData) && window.timeSlotData.length)
-  ? [...window.timeSlotData]
-  : generateDefaultTimeSlots();
+let timeSlots = [];
 
+async function loadTimeSlots() {
+  try {
+    const res = await fetch("http://localhost:5000/api/slots"); // your TimeSlotRoutes GET endpoint
+    timeSlots = await res.json();
+  } catch (err) {
+    console.error("Failed to fetch timeslots from backend:", err);
+    timeSlots = generateDefaultTimeSlots(); // fallback
+  }
+}
+
+// if it fails to load from the backend, generate default 30-minute slots from 7:30 to 21:00
 function generateDefaultTimeSlots() {
   const slots = [];
   let hour = 7;
@@ -611,13 +632,14 @@ function generateTimeHeader() {
 const scheduleGrid = document.getElementById("scheduleGrid");
 
 // generate the schedule grid view for the selected building and date
-function generateSchedule(building, selectedDate) {
+async function generateSchedule(building, selectedDate) {
   scheduleGrid.innerHTML = "";
   selectedSlots = [];
   continueButton.disabled = true;
 
   const rooms = buildingRooms[building] || [];
   const dayName = selectedDate.toLocaleDateString("en-US", { weekday: "long" });
+  const bookedSlotIds = await getBookedSlots(building, formatDate(selectedDate));
 
   rooms.forEach(room => {
     const row = document.createElement("div");
@@ -639,7 +661,7 @@ function generateSchedule(building, selectedDate) {
       cell.dataset.endTime = slot.endTime;
 
       // mark cell as unavailable if blocked by class schedule
-      if (isSlotBlocked(slot, roomSchedule)) {
+      if (isSlotBlocked(slot, roomSchedule) || bookedSlotIds.includes(slot.id)) {
         cell.classList.add("unavailable");
       }
 
@@ -657,43 +679,63 @@ function generateSchedule(building, selectedDate) {
 }
 
 // handle clicking the "Show Availability" button
-document.getElementById("showAvailability").addEventListener("click", () => {
-  const building = document.getElementById("venueSelect").value;
-  const dateValue = document.getElementById("reservationDate").value;
+document.getElementById("showAvailability").addEventListener("click", async()=>{
+  const building=document.getElementById("venueSelect").value;
+  const dateValue=document.getElementById("reservationDate").value;
+  if(!building || !dateValue) return;
 
-  // stop if building or date is missing
-  if (!building || !dateValue) return;
+  const selectedDate=new Date(dateValue);
 
-  const selectedDate = new Date(dateValue);
-
-  // do not allow reservations on sundays
-  if (selectedDate.getDay() === 0) {
-    showpopUp("Reservations are not allowed on Sundays.");
-    hideAvailability();
-    return;
+  if(selectedDate.getDay()===0){
+    showPopUp("Reservations are not allowed on Sundays.");
+    hideAvailability(); return;
   }
 
-  // do not allow dates outside the booking week
-  if (!isWithinBookingWindow(selectedDate)) {
-    showpopUp("You have reached the end of the bookable window. No availability will be shown past this point.");
-    hideAvailability();
-    return;
+  if(!isWithinBookingWindow(selectedDate)){
+    showPopUp("You have reached the end of the bookable window.");
+    hideAvailability(); return;
   }
 
-  // all checks passed = show available time slots
-  document.querySelector(".timeslot-section").style.display = "block";
+  // Load time slots first
+  await loadTimeSlots();
 
+  document.querySelector(".timeslot-section").style.display="block";
   generateTimeHeader();
   generateSchedule(building, selectedDate);
-  generateTimeSlots(selectedDate);
 });
 
 // save reservation data and move to the next page
-continueButton.addEventListener("click", () => {
-  localStorage.setItem("selectedSlots", JSON.stringify(selectedSlots));
-  localStorage.setItem("venue", document.getElementById("venueSelect").value);
-  localStorage.setItem("date", document.getElementById("reservationDate").value);
-  localStorage.setItem("seats", document.getElementById("seatCount").value);
+continueButton.addEventListener("click", async () => {
+  const labID = document.getElementById("venueSelect").value;
+  const date = document.getElementById("reservationDate").value;
+  const seats = document.getElementById("seatCount").value;
+  const studentID = "student-id-placeholder"; // replace with logged-in user if available
 
+  for (const slot of selectedSlots) {
+    try {
+      const res = await fetch("http://localhost:5000/api/slots/book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          labID,
+          studentID,
+          slot_ID: slot.slotId,
+          date,
+          seats
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) showPopUp(data.message || "Failed to book slot");
+    } catch (err) {
+      console.error("Booking error:", err);
+      showPopUp("Server error. Try again later.");
+    }
+  }
+
+  // keep your redirect to the next page
   window.location.href = "details.html";
+});
+
+window.addEventListener("DOMContentLoaded", async () => {
+  await loadTimeSlots(); // fetch backend timeslots before rendering
 });
