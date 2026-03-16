@@ -30,8 +30,6 @@
     text-decoration: none;
 }
 
-/*policies*/
-
 .policies-page header nav {
     margin-left: auto;
     display: flex;
@@ -68,6 +66,7 @@
 #logout-btn:hover {
     color: #00703c;
     background-color: white;
+    
 }
 
 
@@ -92,7 +91,7 @@
 
 .selected-reserve th {
     text-align: center;
-    font-size: 24px;
+    font-size: 20px;
 }
 
 .selected-reserve td {
@@ -124,53 +123,121 @@ header .container .logo {
     padding-bottom: 2.5vh;
 }
 
+.cancel-pane table {
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
 .cancel-pane table th {
     color: #003d21;
+}
+
+.cancel-pane table td {
+    font-size: 16px;
+}
+
+.cancel-pane table th, td {
+    text-align: center;
+    border: 1px solid black;
+    padding: 1rem;
 }
 
 .cancel-pane {
     padding-top: 14vh;
     align-content: center;
+    
 }
 
 .cancel-btn {
-    padding: 100px;
+    margin-top: 4rem;
+    padding: 2rem;
     display: flex;
     justify-content: center;
 }
 
 .cancel-btn button {
     text-decoration: none;
-    padding: 16px;
+    padding: 1.2rem;
     border-radius: 8px;
 
     border: 0px solid #ccc;    
     color: #fce8e6; 
     background-color: #9b1c1c;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 14px;
+    font-size: 18px;
+    transition: all 0.2s ease;
 }
 
 .cancel-btn button:hover {
     background-color: #003d21;
     color:white;
+    
 }
 
 .policies-pane a{
-    text-decoration: underline;
-    font-size: 36px;
+    border-radius: 8px;
+    border: 2px solid #ccc;  
+    text-decoration: none;
+    font-size: 16px;
+    margin: auto;
+    padding: .5em;
 }
 
 .policies-pane {
-    text-align: left;
-    width: 70vw;
+    background-color: white;
+    border: none;
+    border-radius: 6px;
+    box-shadow: 0 0 3px 3px rgba(222, 223, 223, 0.35);
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    width: 40vw;
     height: 60vh;
+    margin: auto;
+    padding: auto;
 }
 
 .policies-pane h1,h2{
     color:#003d21;
+    margin: auto;
 }
 
 .policies-pane p{
+/*    margin: auto;*/
     font-size: 20px;
+}
+
+.policies-pane li {
+    padding: 10px;
+    list-style: none;
+}
+
+.return-to-btn {
+    margin-top: 4rem;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.return-to-btn a {
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    text-decoration: none;
+    padding: 1.2rem;
+    border-radius: 8px;
+
+    border: 1px solid #00703c;    
+    color: white; 
+    background-color:#00703c;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    transition: all 0.2s ease;
+}
+
+.return-to-btn a:hover {
+    color: #00703c; 
+    background-color:white;
+
 }
