@@ -23,37 +23,50 @@ app.get("/api/reservations", async (req, res) => {
     const { labID, date } = req.query;
 
     if (!labID || !date) {
-      return res.status(400).json({ message: "labID and date are required" });
+      return res.status(400).json({ message: "labID and date required" });
     }
 
-    // find the Lab document by room string (case-insensitive)
-    const lab = await Lab.findOne({ room: labID.trim() });
-    if (!lab) {
-      return res.status(404).json({ message: `Lab '${labID}' not found` });
-    }
-
-    // parse the date
     const reservationDate = new Date(date);
-    reservationDate.setHours(0, 0, 0, 0); // normalize to start of day
+    reservationDate.setHours(0,0,0,0);
+
     const nextDay = new Date(reservationDate);
     nextDay.setDate(nextDay.getDate() + 1);
 
-    // fetch reservations for this lab on that date
+    let labs;
+
+    // CASE 1: exact room (GK210)
+    const specificLab = await Lab.findOne({ room: labID });
+
+    if (specificLab) {
+      labs = [specificLab._id];
+    } 
+    else {
+      // CASE 2: building code (GK, LS, VL)
+      const building = await Lab.aggregate([
+        {
+          $lookup: {
+            from: "buildings",
+            localField: "buildingID",
+            foreignField: "_id",
+            as: "building"
+          }
+        },
+        { $unwind: "$building" },
+        { $match: { "building.code": labID } }
+      ]);
+
+      labs = building.map(l => l._id);
+    }
+
     const reservations = await Reservation.find({
-      labID: lab._id,
+      labID: { $in: labs },
       date: { $gte: reservationDate, $lt: nextDay }
-    })
-      .populate('slot_ID')   
-      .populate('studentID') 
-      .populate({
-        path: 'labID',
-        select: 'room buildingID'
-      });
+    }).populate("slot_ID");
 
     res.json(reservations);
 
   } catch (err) {
-    console.error("Error fetching reservations:", err);
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 });

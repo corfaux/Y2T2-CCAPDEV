@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Slot = require('./models/TimeSlot');
+const Slot = require('../models/TimeSlot');
 
 mongoose.connect('mongodb://127.0.0.1:27017/lab-reservation');
 

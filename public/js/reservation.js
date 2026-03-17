@@ -465,7 +465,10 @@ async function getBookedSlots(building, date) {
   try {
     const res = await fetch(`http://localhost:5000/api/reservations?labID=${building}&date=${date}`);
     const bookings = await res.json();
-    return bookings.map(b => b.slot_ID); // returns array of booked slot IDs
+
+    if (!Array.isArray(bookings)) return [];
+
+    return bookings.map(b => b.slot_ID._id);
   } catch (err) {
     console.error("Failed to fetch reservations:", err);
     return [];
@@ -508,7 +511,7 @@ function generateTimeSlots(selectedDate) {
       button.dataset.endTime = slot.endTime;
 
       // disable slot if it is occupied by a class or falls within a blocked time range
-      if (isSlotBlocked(slot, roomSchedule) || bookedSlotIds.includes(slot.id)) {
+      if (isSlotBlocked(slot, roomSchedule) || bookedSlotIds.includes(slot._id || slot.id)) {
         button.disabled = true;
         button.classList.add("occupied");
       }
@@ -656,12 +659,12 @@ async function generateSchedule(building, selectedDate) {
     timeSlots.forEach(slot => {
       const cell = document.createElement("div");
       cell.classList.add("time-cell");
-      cell.dataset.slotId = slot.id;
+      cell.dataset.slotId = slot._id || slot.id;
       cell.dataset.startTime = slot.startTime;
       cell.dataset.endTime = slot.endTime;
 
       // mark cell as unavailable if blocked by class schedule
-      if (isSlotBlocked(slot, roomSchedule) || bookedSlotIds.includes(slot.id)) {
+      if (isSlotBlocked(slot, roomSchedule) || bookedSlotIds.includes(slot._id || slot.id)) {
         cell.classList.add("unavailable");
       }
 
@@ -717,7 +720,7 @@ continueButton.addEventListener("click", async () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          labID,
+          labID: slot.room,
           studentID,
           slot_ID: slot.slotId,
           date,
