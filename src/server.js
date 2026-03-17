@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config(); // load .env variables
 const Reservation = require('./models/Reservation');
-
 const Lab = require('./models/Lab');
 
 const app = express();
@@ -16,6 +15,8 @@ app.use(express.json()); // parse JSON requests
 // routes
 const timeSlotRoutes = require('./routes/TimeSlotRoutes');
 app.use('/api/slots', timeSlotRoutes);
+const labRoutes = require('./routes/Admin-LabRoutes');
+app.use('/api/labs', labRoutes);
 
 // get reservations by lab (room) and date
 app.get("/api/reservations", async (req, res) => {

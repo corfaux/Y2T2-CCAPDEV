@@ -3,70 +3,238 @@ const roomInput = document.getElementById("roomInput");
 const capacityInput = document.getElementById("capacityInput");
 const addLabBtn = document.querySelector(".controls button");
 const popUp = document.getElementById("popupMessage");
-// Persistent lab and reservation information (TO BE FIXED)
-let labs = JSON.parse(localStorage.getItem("labs")) || [];
-let reservations = JSON.parse(localStorage.getItem("reservations")) || [];
+let labs = [];
 
 /* Initialize */
-function initLabPage() {
-  renderLabs();
+async function initLabPage() {
+  await fetchLabs();
 }
 
+async function fetchLabs() {
+  try {
+    const res = await fetch('http://localhost:5000/api/labs');
+    labs = await res.json();
+    renderLabs();
+  } catch (err) {
+    console.error(err);
+    showpopUp("Failed to load labs");
+  }
+}
+
+
 /* Load labs */
-function renderLabs() {
+async function renderLabs() {
   labsTable.innerHTML = "";
 
-  labs.forEach(l => {
-    const hasRes = labHasReservations(l.id);
+  for (const l of labs) {
+    const hasRes = await labHasReservations(l._id);
 
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>${l.building}</td>
-      <td>${l.room}</td>
+      <td>${l.buildingID?.name}</td>
+      <td>${l.room}</td> <!--RoomNumber-->
       <td>${l.capacity}</td>
-      <td><input type="checkbox" ${l.open ? "checked" : ""} disabled></td>
-      <td><button class="edit-lab" data-id="${l.id}">Edit</button></td>
-      <td><button class="delete-lab ${hasRes ? "disabled-delete" : ""}" data-id="${l.id}" ${hasRes ? "disabled" : ""}>✖</button></td>
+      <td><input type="checkbox" ${l.availability ? "checked" : ""} disabled></td>
+      <td><button class="edit-lab" data-id="${l._id}">Edit</button></td>
+      <td><button class="delete-lab ${hasRes ? "disabled-delete" : ""}" 
+          data-id="${l._id}" ${hasRes ? "disabled" : ""}>✖</button></td>
     `;
+
     labsTable.appendChild(tr);
-  });
+  }
 }
 
 /* Adding a lab */
-addLabBtn.addEventListener("click", () => {
-  const building = buildingInput.value.trim();
+addLabBtn.addEventListener("click", async () => {
+  const buildingCode = buildingInput.value.trim();
   const room = roomInput.value.trim();
   const capacity = parseInt(capacityInput.value);
-  // No building
-  if (!building) {
-    showpopUp("Please enter a building name.");
-    return;
-  }
-  // No room number
-  if (!room) {
-    showpopUp("Please enter a room number.");
-    return;
-  }
-  if (Number.isNaN(capacity) || capacity <= 0) return showpopUp("Capacity must be greater than 0.");
 
-  // Prevent duplicates
-  if (labs.some(l => l.building.toLowerCase() === building.toLowerCase() && l.room.toLowerCase() === room.toLowerCase())) {
-    return alert(`A lab in ${building} ${room} already exists.`);
+  if (!buildingCode || !room) {
+    return showpopUp("All fields are required.");
   }
-  // Create a new lab element via math-ing a new ID
-  const newId = labs.length ? Math.max(...labs.map(l => l.id)) + 1 : 1;
-  labs.push({ id: newId, building, room, capacity, open: true });
 
-  buildingInput.value = "";
-  roomInput.value = "";
-  capacityInput.value = "";
+  if (Number.isNaN(capacity) || capacity <= 0) {
+    return showpopUp("Capacity must be greater than 0.");
+  }
 
-  saveData();
-  renderLabs();
-  showpopUp(`Lab ${building} ${room} added successfully!`);
+  try {
+    // Fetch building by code
+    const bRes = await fetch(`http://localhost:5000/api/buildings/code/${buildingCode}`);
+
+    if (!bRes.ok) {
+      return showpopUp("Building not found.");
+    }
+
+    const building = await bRes.json();
+
+    if (!building || !building._id) {
+      return showpopUp("Invalid building code.");
+    }
+
+    // Create lab
+    const labRes = await fetch('http://localhost:5000/api/labs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        buildingID: building._id,
+        room,
+        capacity
+      })
+    });
+
+    if (!labRes.ok) {
+      throw new Error("Failed to create lab");
+    }
+
+    showpopUp("Lab added successfully!");
+
+    // Clear inputs
+    buildingInput.value = "";
+    roomInput.value = "";
+    capacityInput.value = "";
+
+    fetchLabs();
+
+  } catch (err) {
+    console.error(err);
+    showpopUp("Error adding lab");
+  }
 });
 
+/* Edit/Delete labs */
+labsTable.addEventListener("click", e => {
+  const btn = e.target.closest("button");
+  if (!btn) return;
+
+  const id = btn.dataset.id;
+
+  if (btn.classList.contains("edit-lab")) editLab(id);
+  if (btn.classList.contains("delete-lab") && !btn.disabled) deleteLab(id);
+});
+
+/* Edit Popup */
+function editLab(id) {
+  const lab = labs.find(l => l._id === id);
+
+  modalBody.innerHTML = `
+    <h3>Edit Laboratory</h3>
+
+    <p>
+      <label>Building</label>
+      <input value="${lab.buildingID?.name}" disabled>
+    </p>
+
+    <p>
+      <label>Room</label>
+      <input value="${lab.room}" disabled>
+    </p>
+
+    <p>
+      <label>Capacity</label>
+      <input id="editCapacity" type="number" value="${lab.capacity}">
+    </p>
+
+    <p>
+      <label> <input type="checkbox" id="editOpen" ${lab.availability ? "checked" : ""}>
+        Open
+      </label>
+    </p>
+  `;
+
+  modalFooter.innerHTML = `
+  <button id="saveLabBtn" data-id="${id}">Save</button>
+  <button id="cancelLabBtn" style="background:#9b1c1c;">Cancel</button>
+  `;
+  modal.style.display = "flex";
+}
+
+function deleteLab(id) {
+  const lab = labs.find(l => l._id === id);
+
+  const buildingName = lab?.buildingID?.name || "N/A";
+  const room = lab?.room || "";
+
+  modalBody.innerHTML = `
+    <h3>Delete Laboratory</h3>
+    <p>Are you sure you want to delete?</p>
+    <br> <strong>  ${buildingName} ${room}</strong> <br><br>
+    <p style="color:#9b1c1c;">This action cannot be undone.</p>
+  `;
+
+  modalFooter.innerHTML = `
+    <div class="modal-footer">
+      <button id="confirmDelete" data-id="${id}" class="btn-delete" style="background:#9b1c1c;">Delete</button>
+      <button id="cancelDelete">Cancel</button>
+    </div>
+  `;
+
+  modal.style.display = "flex";
+}
+
+// Handle modal footer clicks (Edit Save / Delete / Cancel)
+modalFooter.addEventListener("click", async (e) => {
+
+  // Save edits made
+  if (e.target.id === "saveLabBtn") {
+    const id = e.target.dataset.id;
+    const capacity = parseInt(document.getElementById("editCapacity").value);
+    const availability = document.getElementById("editOpen").checked;
+
+    if (Number.isNaN(capacity) || capacity <= 0) {
+      return showModalWarning("Capacity must be greater than 0.");
+    }
+
+    try {
+      await fetch(`http://localhost:5000/api/labs/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ capacity, availability })
+      });
+
+      closeModal();
+      fetchLabs();
+      showpopUp("Lab updated");
+
+    } catch (err) {
+      console.error(err);
+      showModalWarning("Failed to edit lab.");
+    }
+  }
+
+  // Cancel
+  if (e.target.id === "cancelLabBtn" || e.target.id === "cancelDelete") {
+    closeModal();
+  }
+
+  // Confirm
+  if (e.target.id === "confirmDelete") {
+    const id = e.target.dataset.id;
+
+    try {
+      await fetch(`http://localhost:5000/api/labs/${id}`, {
+        method: "DELETE"
+      });
+
+      closeModal();
+      fetchLabs();
+      showpopUp("Lab deleted successfully");
+
+    } catch (err) {
+      console.error(err);
+      showModalWarning("Failed to delete lab.");
+    }
+  }
+});
+
+function closeModal() {
+  modal.style.display = "none";
+  modalBody.innerHTML = "";
+  modalFooter.innerHTML = "";
+}
+
+/* Utilities */
 function showpopUp(message) {
   popUp.textContent = message;
   popUp.classList.remove("hidden");
@@ -80,146 +248,12 @@ function showpopUp(message) {
   }, 3000);
 }
 
-/* Edit/Delete labs */
-labsTable.addEventListener("click", e => {
-  const btn = e.target.closest("button");
-  if (!btn) return;
-  const id = parseInt(btn.dataset.id);
-  if (btn.classList.contains("edit-lab")) editLab(id);
-  if (btn.classList.contains("delete-lab") && !btn.disabled) deleteLab(id);
-});
-
-function editLab(id) {
-  const lab = labs.find(l => l.id === id);
-  const reserved = reservedSeatsForLab(id);
-
-  modalBody.innerHTML = `
-    <h3>Edit Laboratory</h3>
-    <p>
-      <label>Building</label>
-      <input value="${lab.building}" disabled>
-    </p>
-    <p>
-      <label>Room</label>
-      <input value="${lab.room}" disabled>
-    </p>
-    <p>
-      <label>Capacity</label>
-      <input id="editCapacity" type="number" value="${lab.capacity}" min="${reserved}">
-    </p>
-    <p>
-      <label>
-        <input type="checkbox" id="editOpen" ${lab.open ? "checked" : ""} ${reserved > 0 ? "disabled" : ""}>
-        Open
-      </label>
-    </p>
-    ${reserved > 0 ? `<small style="color:#9b1c1c;">Lab cannot be closed while reservations exist.</small>` : ""}
-  `;
-
-  modalFooter.innerHTML = `
-    <button id="saveLabBtn" data-id="${id}">Save</button>
-    <button style="background:#9b1c1c;" id="cancelLabBtn">Cancel</button>
-  `;
-
-  modal.style.display = "flex";
-}
-
-function deleteLab(id) {
-  const lab = labs.find(l => l.id === id);
-
-  modalBody.innerHTML = `
-    <h3>Delete Laboratory</h3>
-    <p>Are you sure you want to delete:</p>
-    <strong>${lab.building} ${lab.room}</strong>
-    <p style="color:#9b1c1c;">This action cannot be undone.</p>
-  `;
-  
-  modalFooter.innerHTML = `
-    <button style="background:#9b1c1c;" id="confirmDelete" data-id="${id}">Delete</button>
-    <button id="cancelDelete">Cancel</button>
-  `;
-
-  modal.style.display = "flex";
-}
-
-/* Event handling modals*/
-modal.addEventListener("click", e => {
-  if (e.target === modal) closeModal();
-});
-
-modalFooter.addEventListener("click", e => {
-  // Save lab edits
-  if (e.target.id === "saveLabBtn") {
-    const id = parseInt(e.target.dataset.id);
-    const editCapacity = parseInt(document.getElementById("editCapacity").value);
-    const editOpen = document.getElementById("editOpen").checked;
-    // Calculate max seats reserved in any slot
-    const slotUsage = {};
-    reservations
-      .filter(r => r.labId === id)
-      .forEach(res => {
-
-        const key = `${res.date || "no-date"}-${res.time || "no-time"}`;
-
-        if (!slotUsage[key]) {
-          slotUsage[key] = 0;
-        }
-
-        slotUsage[key] += res.seats;
-      });
-
-    const reserved = Object.values(slotUsage)
-      .reduce((max, seats) => seats > max ? seats : max, 0);
-    if (Number.isNaN(editCapacity) || editCapacity < reserved) {
-      return showModalWarning(`Capacity must be at least ${reserved}.`);
-    }
-
-    if (!editOpen && reserved > 0) {
-      return showModalWarning("Cannot close a lab with existing reservations.");
-    }
-
-    const lab = labs.find(l => l.id === id);
-    lab.capacity = editCapacity;
-    lab.open = editOpen;
-
-    closeModal();
-    saveData();
-    renderLabs();
-    showpopUp(`Lab ${building} ${room} edited successfully!`);
-  }
-
-  // Cancel modal
-  if (e.target.id === "cancelLabBtn" || e.target.id === "cancelDelete") {
-    closeModal();
-  }
-
-  // Confirm deletion
-  if (e.target.id === "confirmDelete") {
-    const id = parseInt(e.target.dataset.id);
-    labs = labs.filter(l => l.id !== id);
-    closeModal();
-    saveData();
-    renderLabs();
-    showpopUp(`Lab ${building} ${room} deleted.`);
-  }
-});
-
-function closeModal() {
-  modal.style.display = "none";
-  modalBody.innerHTML = "";
-  modalFooter.innerHTML = "";
-  clearModalWarning();
-}
-
-/* Utilities */
-function labHasReservations(labId) {
-  return reservations.some(r => r.labId === labId);
-}
-
-function reservedSeatsForLab(labId) {
-  return reservations
-    .filter(r => r.labId === labId)
-    .reduce((s, r) => s + r.seats, 0);
+// TO FIX
+async function labHasReservations(labId) {
+  const today = new Date().toISOString().split("T")[0]; // example date
+  const res = await fetch(`http://localhost:5000/api/reservations?labID=${labId}&date=${today}`);
+  const data = await res.json();
+  return data.length > 0;
 }
 
 function showModalWarning(message) {
@@ -231,16 +265,6 @@ function showModalWarning(message) {
     modalBody.prepend(warn);
   }
   warn.textContent = message;
-}
-
-function clearModalWarning() {
-  const warn = document.getElementById("modalWarning");
-  if (warn) warn.remove();
-}
-
-function saveData() {
-  localStorage.setItem("labs", JSON.stringify(labs));
-  localStorage.setItem("reservations", JSON.stringify(reservations));
 }
 
 initLabPage();

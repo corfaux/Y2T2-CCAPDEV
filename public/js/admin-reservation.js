@@ -3,24 +3,34 @@ const endTime = 18;
 // Array to store matched queries
 let searchMatches = [];
 let expandedSlots = {};
-// Persistent lab and reservation information (TO BE FIXED)
-let labs = JSON.parse(localStorage.getItem("labs")) || [];
-let reservations = JSON.parse(localStorage.getItem("reservations")) || [];
+let labs = [];
+let reservations = [];
 
 /* Initialize */
-function initReservationPage() {
-  const today = new Date();
-  const { monday, sunday } = getWeekBounds(today); // 1 week limit
 
-  if (datePicker) {
-    datePicker.min = monday.toISOString().split("T")[0];
-    datePicker.max = sunday.toISOString().split("T")[0];
-    datePicker.value = datePicker.min;
-    dateDisplay.textContent = formatDateLong(datePicker.value);
-  }
-
+async function fetchLabs() {
+  const res = await fetch('http://localhost:5000/api/labs');
+  labs = await res.json();
   renderLabsSelect();
   updateSchedule();
+}
+
+async function fetchReservations(labId, date) {
+  const res = await fetch(`http://localhost:5000/api/reservations?labID=${labId}&date=${date}`);
+  reservations = await res.json();
+}
+
+function initReservationPage() {
+  const today = new Date();
+  const { monday, sunday } = getWeekBounds(today);
+
+  datePicker.min = monday.toISOString().split("T")[0];
+  datePicker.max = sunday.toISOString().split("T")[0];
+  datePicker.value = datePicker.min;
+
+  dateDisplay.textContent = formatDateLong(datePicker.value);
+
+  fetchLabs();
 }
 
 /* Ensures 1 week availability limit */
@@ -44,14 +54,17 @@ if (datePicker) {
 /* Selecting a lab */
 function renderLabsSelect() {
   labSelect.innerHTML = "";
-  // dynamically loads labs as options
+
   labs.forEach(l => {
     const opt = document.createElement("option");
-    opt.value = l.id;
-    opt.textContent = `${l.building} ${l.room}`;
+    opt.value = l._id;
+    const buildingName = l.buildingID?.name;
+    const roomCode = `${l.room}`;
+    opt.textContent = `${buildingName} ${roomCode}`;
     labSelect.appendChild(opt);
   });
-  if (labs.length > 0) labSelect.value = labs[0].id;
+
+  if (labs.length > 0) labSelect.value = labs[0]._id;
 }
 
 if (labSelect) {
@@ -63,32 +76,28 @@ if (labSelect) {
 }
 
 /* Loads timeslots */
-function updateSchedule() {
+async function updateSchedule() {
   const selectedDate = datePicker.value;
-  const labId = parseInt(labSelect.value);
-  const lab = labs.find(l => l.id === labId); // Find the lab from the lab array with that id
+  const labId = labSelect.value;
+
+  await fetchReservations(labId, selectedDate);
+  const lab = labs.find(l => l._id === labId);
+
   if (!lab) {
     scheduleBody.innerHTML = `<tr><td colspan="3">No laboratory available.</td></tr>`;
     capacityDisplay.textContent = "No lab selected";
     return;
   }
-  // Get all reservations for this lab
-  const labRes = reservations.filter(r =>
-  r.labId === labId && r.date === selectedDate);
-  capacityDisplay.innerHTML = lab.open
+  capacityDisplay.innerHTML = lab.availability
     ? `Lab Capacity: ${lab.capacity}`
     : `<span class="closed-lab">LAB CLOSED — Reservations Disabled</span>`;
 
   let html = "";
   // Load reservations per time slot
-  capacityDisplay.innerHTML = lab.open
-  ? `Lab Capacity: ${lab.capacity ?? "N/A"}`
-  : `<span class="closed-lab">LAB CLOSED — Reservations Disabled</span>`;
-
   for (let t = startTime; t < endTime; t += 0.5) {
 
     const timeStr = formatTime(t);
-    const slot = labRes.filter(r => r.time === timeStr);
+    const slot = reservations.filter(r => normalizeTime(r.time) === timeStr);
     const seatsUsed = slot.reduce((s, r) => s + r.seats, 0);
 
     let status = "slot-green";
@@ -109,7 +118,7 @@ function updateSchedule() {
           ${seatsUsed}/${lab.capacity}
         </td>
         <td>
-          ${isExpanded && lab.open ? renderReservations(slot) : ""}
+          ${isExpanded && lab.availability ? renderReservations(slot) : ""}
         </td>
       </tr>
     `;
@@ -131,14 +140,14 @@ scheduleBody.addEventListener("click", e => {
 /* Load reservations */
 function renderReservations(slotReservations) {
   return slotReservations
-    .map(r => `<div class="reservation-entry ${searchMatches.includes(r.id) ? "reservation-highlight" : ""}">
+    .map(r => `<div class="reservation-entry ${searchMatches.includes(r._id) ? "reservation-highlight" : ""}">
       <div class="reservation-info">
         <strong>${r.name}</strong><br>
         <small>${r.email}</small>
       </div>
       <div class="reservation-actions">
-        <button class="view-reservation" data-id="${r.id}">View</button>
-        <button class="cancel-reservation" data-id="${r.id}">Cancel</button>
+        <button class="view-reservation" data-id="${r._id}">View</button>
+        <button class="cancel-reservation" data-id="${r._id}">Cancel</button>
       </div>
     </div>`)
     .join("");
@@ -165,13 +174,13 @@ modal.addEventListener("click", e => {
 scheduleBody.addEventListener("click", e => {
   const btn = e.target.closest("button");
   if (!btn) return;
-  const id = parseInt(btn.dataset.id);
+  const id = btn.dataset.id;
   if (btn.classList.contains("view-reservation")) viewReservation(id);
   if (btn.classList.contains("cancel-reservation")) cancelReservation(id);
 });
 
 function viewReservation(id) {
-  const r = reservations.find(x => x.id === id);
+  const r = reservations.find(res => res._id === id);
   openModal(`
     <h3>Reservation Details</h3>
     <p><strong>Name:</strong> ${r.name}</p>
@@ -183,15 +192,15 @@ function viewReservation(id) {
     <button onclick="closeModal()">Close</button>`);
 }
 
-function cancelReservation(id) {
-  const r = reservations.find(res => res.id === id);
-  const lab = labs.find(l => l.id === r.labId);
+async function cancelReservation(id) {
+  const r = reservations.find(res => res._id === id);
+  const lab = labs.find(l => l._id === r.labID);
 
   openModal(`
     <h3>Cancel Reservation</h3>
     <p>Are you sure you want to cancel this reservation?</p>
     <p><strong>Name:</strong> ${r.name}</p>
-    <p><strong>Laboratory:</strong> ${lab.building} ${lab.room}</p>
+    <p><strong>Laboratory:</strong> ${lab.buildingID?.name} ${lab.room}</p>
     <p><strong>Time:</strong> ${r.time}</p>
     <p><strong>Seats:</strong> ${r.seats}</p>
     <p style="color:#9b1c1c;"><strong>This action cannot be undone.</strong></p>
@@ -201,25 +210,28 @@ function cancelReservation(id) {
   `);
 }
 
-modalFooter.addEventListener("click", e => {
+modalFooter.addEventListener("click", async (e) => {
   if (e.target.id === "confirmCancel") {
-    const id = parseInt(e.target.dataset.id);
-    reservations = reservations.filter(r => r.id !== id);
+    const id = e.target.dataset.id;
+
+    await fetch(`http://localhost:5000/api/reservations/${id}`, {
+      method: "DELETE"
+    });
+
     closeModal();
-    saveData();
     updateSchedule();
   }
-
-  if(e.target.id ==="viewStudentProfile") {
+  // TO FIX
+  /*if(e.target.id ==="viewStudentProfile") {
     const email = e.target.dataset.email;
-    const users = JSON.parse(localStorage.getItem("users")) || {};
+    const users = JSON.parse(localStorage.getItem("users")) || {}; 
     const student = users[email];
 
     if (student) {
       sessionStorage.setItem("viewingStudent", JSON.stringify(student));
       window.location.href = "student-profile.html";
     }
-  }
+  }*/
 });
 
 /* Search through reservations */
@@ -230,15 +242,14 @@ function searchReservations() {
 
   if (!query) return updateSchedule();
 
-  const labId = parseInt(labSelect.value);
   const matches = reservations.filter(r =>
-    r.labId === labId &&
-    (r.name.toLowerCase().includes(query) || r.email.toLowerCase().includes(query))
+    r.name.toLowerCase().includes(query) ||
+    r.email.toLowerCase().includes(query)
   );
 
   matches.forEach(r => {
     expandedSlots[r.time] = true;
-    searchMatches.push(r.id);
+    searchMatches.push(r._id);
   });
 
   updateSchedule();
@@ -258,12 +269,6 @@ reservationSearch.addEventListener("keydown", e => {
 
 clearSearchBtn.addEventListener("click", clearSearch);
 
-/* Persistent lab information */
-function saveData() {
-  localStorage.setItem("labs", JSON.stringify(labs));
-  localStorage.setItem("reservations", JSON.stringify(reservations));
-}
-
 /* Util */
 function formatTime(t) {
   const h = Math.floor(t);
@@ -273,6 +278,18 @@ function formatTime(t) {
 
 function formatDateLong(d) {
   return new Date(d).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+}
+
+// TO FIX
+function normalizeTime(time) {
+  if (time.includes("AM") || time.includes("PM")) return time;
+
+  const [h, m] = time.split(":");
+  const hour = parseInt(h);
+  const suffix = hour >= 12 ? "PM" : "AM";
+  const formattedHour = hour % 12 || 12;
+
+  return `${formattedHour}:${m} ${suffix}`;
 }
 
 initReservationPage();
