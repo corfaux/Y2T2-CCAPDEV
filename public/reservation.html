@@ -9,7 +9,28 @@
 
   <body>
 
-    <h1>Reservation</h1>
+    <header>
+      <div class="header-left">
+        <img src="images/dlsu-logo-white.png" class="logo">
+        <h1>LabSys</h1>
+      </div>
+
+      <div class="header-right">
+        <button class="active" onclick="location.href='reservation.html'">
+          Make a Reservation
+        </button>
+        <button onclick="location.href='reservation-management.html'">
+          Manage Reservations
+        </button>
+        <button onclick="location.href='lab-management.html'">
+          Manage Laboratories
+        </button>
+        <button class="logout" onclick="location.href='index.html'">
+          Log Out
+        </button>
+      </div>
+    </header>
+    <div class="content">
 
     <!-- search section: select date, building, and number of seats -->
     <section class="search-section">
@@ -87,5 +108,6 @@
     </div>
 
     <script src="js/reservation.js"></script>
+    </div>
   </body>
 </html>
