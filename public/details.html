@@ -79,16 +79,24 @@
             const slots = JSON.parse(localStorage.getItem("selectedSlots")) || [];
 
             // group selected time slots by room 
+            /*
             const roomTimes = {};
             slots.forEach(slot => {
-                const [room, time] = slot.split(" ");
+                const room = slot.room;
+                const time = `${slot.startTime} - ${slot.endTime}`;
+
                 if (!roomTimes[room]) roomTimes[room] = [];
                 roomTimes[room].push(time);
-            });
+            }); */
+
+            // console.log(roomTimes);
 
             // build html summary of selected rooms and times
             let summaryHTML = "";
+            /*
             for (const room in roomTimes) {
+                // get all slots for this room from selectedSlots
+            
                 const times = roomTimes[room].sort(); // sort ascending
 
                 const startTime = times[0];
@@ -101,7 +109,20 @@
                 const endTime = `${String(endHour).padStart(2,"0")}:${String(endMin).padStart(2,"0")}`;
 
                 summaryHTML += `<p><strong>Room:</strong> ${room} &nbsp;&nbsp; <strong>Time:</strong> ${startTime} - ${endTime}</p>`;
-            }
+                
+            } */
+
+            const rooms = [...new Set(slots.map(slot => slot.room))];
+            rooms.forEach(room => {
+                const roomSlots = slots
+                    .filter(slot => slot.room === room)
+                    .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+                const startTime = roomSlots[0].startTime;
+                const endTime = roomSlots[roomSlots.length - 1].endTime;
+
+                summaryHTML += `<p><strong>Room:</strong> ${room} &nbsp;&nbsp; <strong>Time:</strong> ${startTime} - ${endTime}</p>`;
+            });
 
             // insert summary into html
             document.getElementById("summary").innerHTML = `
@@ -186,17 +207,69 @@
                 if (addedStudents >= maxAdditional) addButton.style.display = "none";
             });
 
+
+            let labs = [];
+
+            // fetch labs from backend
+            async function loadLabs() {
+                try {
+                    const res = await fetch("http://localhost:5000/api/labs");
+                    labs = await res.json();
+                } catch (err) {
+                    console.error("Failed to load labs:", err);
+                    alert("Could not load lab data. Try again later.");
+                }
+            }
+
+            // get lab ID by room name from preloaded labs data
+            function getLabID(roomName) {
+                const lab = labs.find(l => l.room === roomName);
+                if (!lab) throw new Error("Lab not found: " + roomName);
+                return lab._id;
+            }
+
+            // create/get test student for demonstration purposes
+            async function getTestStudent() {
+            const res = await fetch("http://localhost:5000/api/test/create-test-student", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    firstName: "Juan",
+                    lastName: "Dela Cruz",
+                    email: "juan@student.com",
+                    password: "password123"
+                })
+            });
+
+            const student = await res.json();
+
+            if (!student || !student._id) {
+                throw new Error("Failed to create test student");
+            }
+
+            return student._id;
+        }
+
+            // ensure labs are loaded before allowing form submission
+            document.addEventListener("DOMContentLoaded", async () => {
+                await loadLabs();
+            });
+
             // form submission logic
-            document.getElementById("detailsForm").addEventListener("submit", (e) => {
+            document.getElementById("detailsForm").addEventListener("submit", async (e) => {
                 e.preventDefault();
 
+                // get student ID (using test student for demo purposes)
+                const studentID = await getTestStudent();
+
+                // primary student details from form inputs
                 const primaryStudent = {
                     id: document.getElementById("mainId").value,
                     name: document.getElementById("mainName").value,
                     college: document.getElementById("mainCollege").value
                 };
 
-                // collect additional students
+                // additional students from form inputs
                 const additional = Array.from(document.querySelectorAll("#additionalStudents .student")).map(div => {
                     const inputs = div.querySelectorAll("input, select");
                     return {
@@ -206,21 +279,54 @@
                     };
                 });
 
-                // create reservation object
-                const data = {
-                    venue,
-                    date,
-                    timeSlots: slots,
-                    seats,
-                    primaryStudent,
-                    additionalStudents: additional
-                };
+                const selectedSlots = JSON.parse(localStorage.getItem("selectedSlots")) || [];
+                if (selectedSlots.length === 0) {
+                    alert("No slots selected.");
+                    return;
+                }
 
-                console.log("Reservation Data:", data);
-                alert("Reservation Submitted!\n\n" + JSON.stringify(data, null, 2));
+                // get labID from preloaded labs data
+                /* let labID;
 
-                // redirect to confirmation page
-                // window.location.href = "confirmation.html"; ?
+                try {
+                    labID = getLabID(venue);
+                } catch (err) {
+                    alert(err.message);
+                    return;
+                } */
+
+                try {
+                    for (const slot of selectedSlots) {
+                        const labID = getLabID(slot.room);
+                        const res = await fetch("http://localhost:5000/api/slots/book", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                labID,
+                                studentID,
+                                slot_ID: slot.slotId,
+                                date,
+                                seats,
+                                primaryStudent,
+                                additionalStudents: additional
+                            })
+                        });
+
+                        const result = await res.json();
+
+                        if (!res.ok) {
+                            alert("Error booking slot: " + (result.message || "Unknown error"));
+                            console.error(result);
+                            return;
+                        }
+                    }
+
+                    alert("Reservation submitted successfully!");
+                    window.location.href = "view-reservation.html";
+                } catch (err) {
+                    console.error("Booking failed:", err);
+                    alert("Server error. Please try again later.");
+                }
             });
         </script>
     </body>

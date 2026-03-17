@@ -4,13 +4,22 @@ const cors = require('cors');
 require('dotenv').config(); // load .env variables
 const Reservation = require('./models/Reservation');
 const Lab = require('./models/Lab');
+const testStudentRoutes = require("./routes/testStudent");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // middleware
-app.use(cors());
+const corsOptions = {
+  origin: "http://127.0.0.1:5500", // frontend origin
+  methods: ["GET","POST","PUT","DELETE"],
+  credentials: true // if you need cookies
+};
+
+app.use(cors(corsOptions));
+
 app.use(express.json()); // parse JSON requests
+app.use("/api/test", testStudentRoutes);
 
 // routes
 const timeSlotRoutes = require('./routes/TimeSlotRoutes');

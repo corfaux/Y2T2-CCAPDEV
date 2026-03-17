@@ -29,15 +29,32 @@ async function seedLabs() {
       { buildingID: gk._id, room: "GK211", capacity: 40 },
       { buildingID: gk._id, room: "GK302A", capacity: 40 },
       { buildingID: gk._id, room: "GK302B", capacity: 40 },
+      { buildingID: gk._id, room: "GK304B", capacity: 40 },
+      { buildingID: gk._id, room: "GK306A", capacity: 40 },
+      { buildingID: gk._id, room: "GK306B", capacity: 40 },
+      { buildingID: gk._id, room: "GK404A", capacity: 40 },
+      { buildingID: gk._id, room: "GK404B", capacity: 40 },
 
+      { buildingID: ls._id, room: "LS212", capacity: 40 },
+      { buildingID: ls._id, room: "LS229", capacity: 40 },
+      { buildingID: ls._id, room: "LS2320", capacity: 40 },
+      { buildingID: ls._id, room: "LS335", capacity: 40 },
+
+      { buildingID: sj._id, room: "SJ212", capacity: 40 },
+    
       { buildingID: vl._id, room: "VL103", capacity: 40 },
       { buildingID: vl._id, room: "VL205", capacity: 40 },
+      { buildingID: vl._id, room: "VL206", capacity: 40 },
+      { buildingID: vl._id, room: "VL208A", capacity: 40 },
+      { buildingID: vl._id, room: "VL208B", capacity: 40 },
+      { buildingID: vl._id, room: "VL301", capacity: 40 },
+      { buildingID: vl._id, room: "VL310", capacity: 40 },
 
-      { buildingID: ls._id, room: "LS229", capacity: 40 },
-      { buildingID: sj._id, room: "SJ212", capacity: 40 },
 
       { buildingID: ag._id, room: "AG1904", capacity: 40 },
+
       { buildingID: c._id, room: "C314", capacity: 40 },
+      
       { buildingID: y._id, room: "Y602", capacity: 40 }
 
     ];
