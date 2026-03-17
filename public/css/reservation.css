@@ -1,3 +1,8 @@
+:root {
+  --green: #00703C;
+  --dark-green: #003D21;
+  --light-green: #0AFF8D;
+}
 
 * {
   margin: 0;
@@ -7,40 +12,110 @@
 }
 
 body {
-  background-color: #f4f7f6;
-  color: #000000;
-  padding: 30px;
+  margin: 0;
+  background: #fcfff9;
 }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-header a {
-  text-decoration: none;
-  color: #003D21;
-  font-weight: bold;
-}
-
-header button {
-  background-color: #003D21;
+/* GENERAL BUTTONS */
+button {
+  background: var(--dark-green);
   color: white;
   border: none;
-  padding: 8px 14px;
   border-radius: 6px;
+  padding: 8px 14px;
   cursor: pointer;
+  transition: 0.2s ease;
 }
 
-header button:hover {
-  background-color: #00703C;
+button:hover {
+  background: #1f5a32;
 }
 
-h1 {
-  margin-bottom: 20px;
-  color: #003D21;
+button:disabled {
+  background: #d1d5db;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+/* HEADER */
+header {
+  background-color: var(--green);
+  height: 10.5vh;
+  display: flex;
+  align-items: center;
+  padding: 2.25vh 2.25vw;
+}
+
+/* LEFT: Logo + Title */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.67vw;
+}
+
+.logo {
+  width: 6.5vh;
+  height: 6.5vh;
+}
+
+.header-left h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  font-stretch: 90%;
+  font-family: "Galliard BT", sans-serif;
+  color: white;
+}
+
+/* RIGHT: Navigation */
+.header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 3vw;
+}
+
+/* Nav buttons */
+.header-right button {
+  background: transparent;
+  color: white;
+  font-size: 1.125rem;
+  font-weight: 450;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  transition: text-decoration 0.2s ease;
+}
+
+.header-right button:hover {
+  text-decoration: underline;
+}
+
+/* Logout button */
+.header-right .logout {
+  font-size: 0.95rem;
+  padding: 0.35vw 0.5vw;
+  border: 1px solid white;
+  border-radius: 8px;
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.header-right .logout:hover {
+  background: white;
+  color: var(--green);
+}
+
+/* Active page indicator */
+.header-right .active {
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* MAIN CONTAINER */
+.content {
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 0 20px;
 }
 
 h2 {
