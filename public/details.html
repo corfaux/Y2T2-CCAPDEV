@@ -1,65 +1,76 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Reservation Details</title>
+        <title>Reservation Details | LabSys</title>
+        <link rel="stylesheet" href="css/global.css">
         <link rel="stylesheet" href="css/reservation.css">
     </head>
     <body>
-
         <header>
-            <div class="header-left">
-                <img src="images/dlsu-logo-white.png" class="logo">
+            <div class="container">
+                <img src="images/dlsu-logo-white.png" alt="DLSU logo">
                 <h1>LabSys</h1>
             </div>
+            <nav>
+                <ul>
+                    <li><a href="student-profile.html">View Profile</a></li>
+                    <li><a href="reservation.html">Make a Reservation</a></li>
+                </ul>
+            </nav>
+            <a id="logout-btn" href="index.html">Log Out</a>
         </header>
+
         <div class="content">
+            <h1>Reservation Details</h1>
 
-        <!-- reservation summary: shows selected rooms, date, and seats -->
-        <section id="summary">
-            <h2>Selected Reservation</h2>
-        </section>
+            <!-- reservation summary: shows selected rooms, date, and seats -->
+            <section id="summary">
+                <h2>Selected Reservation</h2>
+            </section>
 
-        <!-- details form: collect student info -->
-        <section>
-            <h2>Student Information</h2>
+            <!-- details form: collect student info -->
+            <section>
+                <h2>Student Information</h2>
 
-            <form id="detailsForm">
+                <form id="detailsForm">
 
-                <!-- primary student details -->
-                <h3>Student Details</h3>
-                <div class="student">
-                    <input type="text" id="mainId" placeholder="ID Number" required>
-                    <input type="text" id="mainName" placeholder="Last Name, First Name" required>
-                    <select id="mainCollege" required>
-                        <option value="" disabled selected>Select College</option>
-                        <option value="CLA">CLA</option>
-                        <option value="BAGCED">BAGCED</option>
-                        <option value="GCOE">GCOE</option>
-                        <option value="COS">COS</option>
-                        <option value="CCS">CCS</option>
-                        <option value="RVRCOB">RVRCOB</option>
-                        <option value="CLTSOE">CLTSOE</option>
-                    </select>
+                    <!-- primary student details -->
+                    <h3>Student Details</h3>
+                    <div class="student">
+                        <input type="text" id="mainId" placeholder="ID Number" required>
+                        <input type="text" id="mainName" placeholder="Last Name, First Name" required>
+                        <select id="mainCollege" required>
+                            <option value="" disabled selected>Select College</option>
+                            <option value="CLA">CLA</option>
+                            <option value="BAGCED">BAGCED</option>
+                            <option value="GCOE">GCOE</option>
+                            <option value="COS">COS</option>
+                            <option value="CCS">CCS</option>
+                            <option value="RVRCOB">RVRCOB</option>
+                            <option value="CLTSOE">CLTSOE</option>
+                        </select>
+                    </div>
+
+                    <!-- additional students section -->
+                    <h3 id="additionalHeader">Additional Student(s) Details</h3>
+                    <div id="additionalStudents"></div>
+
+                    <!-- buttons to add more students and submit form -->
+                    <button type="button" id="addStudent">+ Add Another Student</button>
+                    <button type="submit">Submit Reservation</button>
+
+                </form>
+            </section>
+
+                <!-- user navigation buttons -->
+                <div class="actions">
+                    <a href="student-profile.html" class="action-button">Return to Profile</a>
+                    <a href="reservation.html" class="action-button">Back to Reservation</a>
+                    <button id="logoutConfirm" class="action-button logout">Logout</button>
                 </div>
-
-                <!-- additional students section -->
-                <h3 id="additionalHeader">Additional Student(s) Details</h3>
-                <div id="additionalStudents"></div>
-
-                <!-- buttons to add more students and submit form -->
-                <button type="button" id="addStudent">+ Add Another Student</button>
-                <button type="submit">Submit Reservation</button>
-
-            </form>
-        </section>
-
-            <!-- user navigation buttons -->
-            <div class="actions">
-                <a href="student-profile.html" class="action-button">Return to Profile</a>
-                <a href="reservation.html" class="action-button">Back to Reservation</a>
-                <button id="logoutConfirm" class="action-button logout">Logout</button>
-            </div>
         </div>
+
+
         <script>
             // load reservation data from localStorage
             const venue = localStorage.getItem("venue");
@@ -67,35 +78,27 @@
             const seats = parseInt(localStorage.getItem("seats") || "1");
             const slots = JSON.parse(localStorage.getItem("selectedSlots")) || [];
 
-            // group selected time slots by room (supports both legacy string values and new slot objects)
+            // group selected time slots by room 
             const roomTimes = {};
             slots.forEach(slot => {
-                let room, startTime, endTime;
-
-                if (typeof slot === "string") {
-                    [room, startTime] = slot.split(" ");
-                    const [h, m] = startTime.split(":").map(Number);
-                    const endMinutes = h * 60 + m + 30;
-                    const endHour = Math.floor(endMinutes / 60);
-                    const endMin = endMinutes % 60;
-                    endTime = `${String(endHour).padStart(2, "0")}:${String(endMin).padStart(2, "0")}`;
-                } else {
-                    room = slot.room;
-                    startTime = slot.startTime;
-                    endTime = slot.endTime;
-                }
-
+                const [room, time] = slot.split(" ");
                 if (!roomTimes[room]) roomTimes[room] = [];
-                roomTimes[room].push({ startTime, endTime });
+                roomTimes[room].push(time);
             });
 
             // build html summary of selected rooms and times
             let summaryHTML = "";
             for (const room in roomTimes) {
-                const times = roomTimes[room].sort((a, b) => a.startTime.localeCompare(b.startTime));
+                const times = roomTimes[room].sort(); // sort ascending
 
-                const startTime = times[0].startTime;
-                const endTime = times[times.length - 1].endTime;
+                const startTime = times[0];
+                
+                // calculate endTime: last slot + 30 mins
+                const [h, m] = times[times.length - 1].split(":").map(Number);
+                let endMinutes = h * 60 + m + 30;
+                const endHour = Math.floor(endMinutes / 60);
+                const endMin = endMinutes % 60;
+                const endTime = `${String(endHour).padStart(2,"0")}:${String(endMin).padStart(2,"0")}`;
 
                 summaryHTML += `<p><strong>Room:</strong> ${room} &nbsp;&nbsp; <strong>Time:</strong> ${startTime} - ${endTime}</p>`;
             }

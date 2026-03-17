@@ -1,0 +1,83 @@
+.content {
+    justify-content: center;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../images/computer-lab.jpg);
+    background-position: bottom;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+header {
+    justify-content: center;
+    align-items: center;
+}
+
+.login-pane {
+    width: 40vw;
+    height: 35vh;
+    /* padding: 3vw; */
+    border: 1px solid #dedfdf;
+    border-radius: 15px;
+    box-shadow: 0 0 3px 3px rgba(222, 223, 223, 0.35);
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    /* gap: 5vw; */
+    background-color: white;
+}
+
+.welcome-message {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5vh;
+}
+
+.welcome-message h2 {
+    font-size: 1.25rem;
+    color:#00703c
+}
+
+.welcome-message p {
+    font-size: 0.875rem;
+}
+
+.login-pane form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1vh;
+}
+
+.login-pane form label {
+    font-weight: 450;
+}
+
+.login-pane form button {
+    text-decoration: none;
+    font-weight: 450;
+    color: white;
+    padding: 0.35vw 0.5vw;
+    margin-top: 0.5vh;
+    background-color: #00703c;
+    border: 1px solid white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* TODO: fix class naming; class named "email" also in student-profile.html */
+.email,
+.password {
+    display: flex;
+    flex-direction: column;
+}
+
+#switch-mode-btn {
+    color: #D3D3D3;
+    background-color: transparent;
+    font-size: 0.875rem;
+    text-decoration: none;
+    border: 0;
+    cursor: pointer;
+}
