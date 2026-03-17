@@ -6,7 +6,13 @@
     </head>
     <body>
 
-        <h1>Reservation Details</h1>
+        <header>
+            <div class="header-left">
+                <img src="images/dlsu-logo-white.png" class="logo">
+                <h1>LabSys</h1>
+            </div>
+        </header>
+        <div class="content">
 
         <!-- reservation summary: shows selected rooms, date, and seats -->
         <section id="summary">
@@ -53,7 +59,7 @@
                 <a href="reservation.html" class="action-button">Back to Reservation</a>
                 <button id="logoutConfirm" class="action-button logout">Logout</button>
             </div>
-
+        </div>
         <script>
             // load reservation data from localStorage
             const venue = localStorage.getItem("venue");
