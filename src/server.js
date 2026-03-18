@@ -22,8 +22,8 @@ app.use(express.json()); // parse JSON requests
 app.use("/api/test", testStudentRoutes);
 
 // routes
-const timeSlotRoutes = require('./routes/TimeSlotRoutes');
-app.use('/api/slots', timeSlotRoutes);
+const availableSlotsRoutes  = require('./routes/AvailableSlotsRoutes');
+app.use('/api/slots', availableSlotsRoutes);
 const labRoutes = require('./routes/Admin-LabRoutes');
 app.use('/api/labs', labRoutes);
 
@@ -44,14 +44,13 @@ app.get("/api/reservations", async (req, res) => {
 
     let labs;
 
-    // CASE 1: exact room (GK210)
     const specificLab = await Lab.findOne({ room: labID });
 
     if (specificLab) {
       labs = [specificLab._id];
     } 
     else {
-      // CASE 2: building code (GK, LS, VL)
+
       const building = await Lab.aggregate([
         {
           $lookup: {

@@ -22,8 +22,10 @@ const ReservationSchema = new mongoose.Schema({
         type: String,
         enum: ['pending','done','cancelled'],
         default: 'pending'
-    }
-})
+    },
+    primaryStudent: { type: Object, default: {} },
+    additionalStudents: { type: Array, default: [] }
+});
 
 const Reservation = mongoose.model('Reservation', ReservationSchema)
 

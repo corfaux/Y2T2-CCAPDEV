@@ -8,8 +8,8 @@ const LabSchema = new mongoose.Schema({
     },
     room: { type: String, required: true },
     capacity: { type: Number, required: true },
-    availability: { type: Boolean, default: true }
-})
+    availability: { type: Boolean, default: true },
+});
 
 const Lab = mongoose.model('Lab', LabSchema)
 

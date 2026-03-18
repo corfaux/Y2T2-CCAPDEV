@@ -54,3 +54,20 @@ exports.deleteLab = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.getLabSlots = async (req, res) => {
+  try {
+    const { labId } = req.params;
+
+    const lab = await Lab.findById(labId);
+
+    if (!lab) {
+      return res.status(404).json({ message: "Lab not found" });
+    }
+
+    res.json(lab.slots || []); 
+  } catch (err) {
+    console.error("getLabSlots error:", err); 
+    res.status(500).json({ message: "Server error" });
+  }
+};

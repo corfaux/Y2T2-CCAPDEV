@@ -17,6 +17,8 @@ if(isViewOnly && adminBackBtn){
 
 // Load student data for admin
 if(currentUser){
+  localStorage.setItem("studentID", currentUser._id || currentUser.idNumber); 
+  // use _id if have it, fallback to idNumber
 
   document.getElementById("first-name").value = currentUser.firstName || "";
   document.getElementById("last-name").value = currentUser.lastName || "";

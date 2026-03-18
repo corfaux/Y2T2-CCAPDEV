@@ -6,5 +6,6 @@ router.get('/', LabController.getAllLabs);
 router.post('/', LabController.createLab);
 router.put('/:id', LabController.updateLab);
 router.delete('/:id', LabController.deleteLab);
+router.get('/:labId/slots', LabController.getLabSlots);
 
 module.exports = router;

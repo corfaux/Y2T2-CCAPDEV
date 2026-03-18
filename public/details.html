@@ -72,46 +72,29 @@
 
 
         <script>
+            // load current user from sessionStorage (set during login)
+            const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+            if (!currentUser) {
+                alert("Student not logged in.");
+                window.location.href = "index.html";
+            }
+
+            // save student ID to localStorage for use in reservation submission (can be accessed in details.html)
+            localStorage.setItem("studentID", currentUser._id || currentUser.idNumber);
+
+            // pre-fill primary student details in form using currentUser data
+            document.getElementById("mainId").value = currentUser.idNumber || "";
+            document.getElementById("mainName").value = currentUser.lastName + ", " + currentUser.firstName;
+            document.getElementById("mainCollege").value = currentUser.college || "";
+
             // load reservation data from localStorage
             const venue = localStorage.getItem("venue");
             const date = localStorage.getItem("date");
             const seats = parseInt(localStorage.getItem("seats") || "1");
             const slots = JSON.parse(localStorage.getItem("selectedSlots")) || [];
 
-            // group selected time slots by room 
-            /*
-            const roomTimes = {};
-            slots.forEach(slot => {
-                const room = slot.room;
-                const time = `${slot.startTime} - ${slot.endTime}`;
-
-                if (!roomTimes[room]) roomTimes[room] = [];
-                roomTimes[room].push(time);
-            }); */
-
-            // console.log(roomTimes);
-
             // build html summary of selected rooms and times
             let summaryHTML = "";
-            /*
-            for (const room in roomTimes) {
-                // get all slots for this room from selectedSlots
-            
-                const times = roomTimes[room].sort(); // sort ascending
-
-                const startTime = times[0];
-                
-                // calculate endTime: last slot + 30 mins
-                const [h, m] = times[times.length - 1].split(":").map(Number);
-                let endMinutes = h * 60 + m + 30;
-                const endHour = Math.floor(endMinutes / 60);
-                const endMin = endMinutes % 60;
-                const endTime = `${String(endHour).padStart(2,"0")}:${String(endMin).padStart(2,"0")}`;
-
-                summaryHTML += `<p><strong>Room:</strong> ${room} &nbsp;&nbsp; <strong>Time:</strong> ${startTime} - ${endTime}</p>`;
-                
-            } */
-
             const rooms = [...new Set(slots.map(slot => slot.room))];
             rooms.forEach(room => {
                 const roomSlots = slots
@@ -215,6 +198,7 @@
                 try {
                     const res = await fetch("http://localhost:5000/api/labs");
                     labs = await res.json();
+                    console.log("Labs loaded:", labs);
                 } catch (err) {
                     console.error("Failed to load labs:", err);
                     alert("Could not load lab data. Try again later.");
@@ -228,39 +212,31 @@
                 return lab._id;
             }
 
-            // create/get test student for demonstration purposes
-            async function getTestStudent() {
-            const res = await fetch("http://localhost:5000/api/test/create-test-student", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    firstName: "Juan",
-                    lastName: "Dela Cruz",
-                    email: "juan@student.com",
-                    password: "password123"
-                })
-            });
-
-            const student = await res.json();
-
-            if (!student || !student._id) {
-                throw new Error("Failed to create test student");
-            }
-
-            return student._id;
-        }
-
             // ensure labs are loaded before allowing form submission
             document.addEventListener("DOMContentLoaded", async () => {
                 await loadLabs();
             });
 
+            // fetch slot ID for a given room and startTime
+            function getSlotID(roomName, startTime) {
+                const lab = labs.find(l => l.room === roomName);
+                if (!lab) throw new Error("Lab not found: " + roomName);
+
+                const slotsArray = lab.slots; // must exist in /api/labs response
+                if (!slotsArray) throw new Error("No slots available for lab: " + roomName);
+
+                const slot = slotsArray.find(s => s.startTime === startTime);
+                if (!slot) throw new Error("Slot not found for time: " + startTime);
+
+                return slot._id;
+            }
+
             // form submission logic
             document.getElementById("detailsForm").addEventListener("submit", async (e) => {
                 e.preventDefault();
 
-                // get student ID (using test student for demo purposes)
-                const studentID = await getTestStudent();
+                // use the logged-in student
+                const studentID = currentUser._id || currentUser.idNumber;
 
                 // primary student details from form inputs
                 const primaryStudent = {
@@ -285,26 +261,28 @@
                     return;
                 }
 
-                // get labID from preloaded labs data
-                /* let labID;
-
-                try {
-                    labID = getLabID(venue);
-                } catch (err) {
-                    alert(err.message);
-                    return;
-                } */
-
                 try {
                     for (const slot of selectedSlots) {
                         const labID = getLabID(slot.room);
+                        const slot_ID = await getSlotID(slot.room, slot.startTime);
+
+                        console.log("Booking payload:", {
+                            labID,
+                            studentID,
+                            slot_ID,
+                            date,
+                            seats,
+                            primaryStudent,
+                            additionalStudents: additional
+                        });
+
                         const res = await fetch("http://localhost:5000/api/slots/book", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
                                 labID,
                                 studentID,
-                                slot_ID: slot.slotId,
+                                slot_ID,
                                 date,
                                 seats,
                                 primaryStudent,
