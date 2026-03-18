@@ -37,12 +37,6 @@
     font-size: 16px;
 }
 
-header .container .logo {
-        display: flex;
-        justify-content: left;
-        align-items: center;
-}
-
 .content .cancel-pane h1 {
     font-size: 2.5rem;
     color: #003d21;
@@ -112,41 +106,71 @@ header .container .logo {
     
 }
 
-.policies-pane a{
+.policies-panel a{
+    text-decoration: none;
     border-radius: 8px;
     border: 2px solid #ccc;  
-    text-decoration: none;
-    font-size: 16px;
+    font-size: 18px;
     margin: auto;
     padding: .5em;
+    color: black;
+    transition: all 0.2s ease;
 }
 
-.policies-pane {
+.policies-panel a:hover {
+    border: 2px solid #00703c;  
+    color: #00703c; 
+    background-color:white;
+
+}
+.policies-panel {
     background-color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 15px;
     box-shadow: 0 0 3px 3px rgba(222, 223, 223, 0.35);
     display: flex;
     justify-content: center;
     flex-direction: column;
     text-align: center;
-    width: 40vw;
-    height: 60vh;
+    width: 25vw;
+    height: 40vh;
     margin: auto;
     padding: auto;
 }
 
-.policies-pane h1,h2{
+.policies-panel ul {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    margin: auto;
+    padding: auto;
+}
+
+.policies-pane {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    margin: auto;
+    padding: auto;
+}
+
+.content h1,h2{
     color:#003d21;
     margin: auto;
 }
 
-.policies-pane p{
-/*    margin: auto;*/
+.policies-pane h1 {
+    margin-bottom: 3vh;
+}
+
+.policies-panel p{
+    margin: auto;
     font-size: 20px;
 }
 
-.policies-pane li {
+.policies-panel li {
     padding: 10px;
     list-style: none;
 }
@@ -159,11 +183,10 @@ header .container .logo {
 }
 
 .return-to-btn a {
-    padding: 2rem;
+    padding: 1.2rem;
     display: flex;
     justify-content: center;
     text-decoration: none;
-    padding: 1.2rem;
     border-radius: 8px;
 
     border: 1px solid #00703c;    

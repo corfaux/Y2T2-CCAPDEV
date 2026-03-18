@@ -1,117 +1,76 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Reservation | LabSys</title>
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/cancel.css">
-    <style>
-        /* Simple status colors */
-        .status-pending { color: orange; font-weight: bold; }
-        .status-approved { color: green; font-weight: bold; }
-        .status-cancelled { color: red; font-weight: bold; }
-    </style>
-</head>
-<body class="cancel-page">
-    <header>
-        <div class="container">
-            <img src="images/dlsu-logo-white.png" alt="DLSU logo">
-            <h1>LabSys</h1>
-        </div>
-        <nav>
-            <ul>
-                <li><a href="student-profile.html">View Profile</a></li>
-                <li><a href="reservation.html">Make a Reservation</a></li>
-            </ul>
-        </nav>
-        <a id="logout-btn" href="index.html">Log Out</a>
-    </header> 
+    <head>
+         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>View Reservation | LabSys</title>
+        <link rel="stylesheet" href="css/global.css">
+        <link rel="stylesheet" href="css/cancel.css">
+        
+    </head>
+    <body class="cancel-page">
+        <header>
+            <div class="container">
+                <img src="images/dlsu-logo-white.png" alt="DLSU logo">
+                <h1>LabSys</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="student-profile.html">View Profile</a></li>
+                    <li><a href="reservation.html">Make a Reservation</a></li>
+                </ul>
+            </nav>
+            <a id="logout-btn" href="index.html">Log Out</a>
+        </header> 
 
-    <div class="content"> 
-        <div class="cancel-pane">
-            <h1>View Reservation</h1>
+        <div class="content"> 
+            <div class="cancel-pane">
+                
+                <h1>
+                    View Reservation
+                </h1>
 
-            <div class="reservation-pane">
-                <table class="selected-reserve">
-                    <thead>
+                <div class="reservation-pane">
+                    <table class="selected-reserve">
+                        <thead>
                         <tr>
                             <th>Reservation No.</th>
                             <th>Date</th>
                             <th>Building</th>
                             <th>Room No.</th>
                             <th>Number of Seats</th>
-                            <th>Timeslots</th>
-                            <th>Status</th>
+                            <th colspan="6">Timeslots</th>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Reservations will be populated here -->
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td id="ReservationNum">12345</td>
+                            <td id="Date">11/11/1111</td>
+                            <td id="Building">Gokongwei</td>
+                            <td id="Room">304</td>
+                            <td id="NumSeats">5</td>
+                            <td>5:00-6:30</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                        </tbody>
 
-            <div class="return-to-btn">
-                <a href="student-profile.html">Return to Profile</a>
+                    </table>
+                </div>
+                <div class="return-to-btn">
+                    <a href="student-profile.html">Return to Profile</a>
+                </div>
             </div>
         </div>
-    </div>
 
-    <footer></footer>
+        <footer>
 
-    <script>
-        async function loadReservations() {
-            const studentID = localStorage.getItem("studentID");
-            if (!studentID) {
-                alert("Student not logged in.");
-                return;
-            }
-
-            try {
-                const res = await fetch(`http://localhost:5000/api/reservations/${studentID}`);
-                if (!res.ok) throw new Error("Failed to fetch reservations");
-                const reservations = await res.json();
-
-                const tbody = document.querySelector(".selected-reserve tbody");
-                tbody.innerHTML = "";
-
-                if (reservations.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No reservations found.</td></tr>`;
-                    return;
-                }
-
-                reservations.forEach(resv => {
-                    const date = new Date(resv.date).toLocaleDateString();
-
-                    // Handle multiple slots
-                    const slots = Array.isArray(resv.slot_ID) ? resv.slot_ID : [resv.slot_ID];
-                    const slotTimes = slots
-                        .map(s => s.startTime && s.endTime ? `${s.startTime}-${s.endTime}` : "-")
-                        .join(", ");
-
-                    // Status color
-                    const statusClass = resv.status ? `status-${resv.status.toLowerCase()}` : "";
-                    const statusText = resv.status || "-";
-
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `
-                        <td>${resv._id}</td>
-                        <td>${date}</td>
-                        <td>${resv.labID?.building || "-"}</td>
-                        <td>${resv.labID?.room || "-"}</td>
-                        <td>${resv.seats}</td>
-                        <td>${slotTimes}</td>
-                        <td class="${statusClass}">${statusText}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } catch (err) {
-                console.error("Failed to load reservations:", err);
-                alert("Could not load reservations. Please try again later.");
-            }
-        }
-
-        loadReservations();
-    </script>
-</body>
+        </footer>
+        <script>
+        </script>
+        </div>
+    </body>
 </html>
