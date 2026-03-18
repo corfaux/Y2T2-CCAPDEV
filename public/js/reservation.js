@@ -1,7 +1,6 @@
 const roomGrid = document.getElementById("roomGrid");
 const continueButton = document.getElementById("continueButton");
 
-// let bookedSlotIds = [];
 let selectedSlots = [];
 const MAX_SLOTS = 6;
 
@@ -477,6 +476,7 @@ async function getBookedSlots(building, date) {
 }
 
 // generate time slot buttons for each room based on the selected date
+/*
 function generateTimeSlots(selectedDate) {
   roomGrid.innerHTML = "";
   selectedSlots = [];
@@ -507,31 +507,20 @@ function generateTimeSlots(selectedDate) {
       const button = document.createElement("button");
       button.textContent = slot.startTime;
       button.classList.add("timeslot");
-
+      button.dataset.slotId = slot.id;
       button.dataset.startTime = slot.startTime;
       button.dataset.endTime = slot.endTime;
 
-      // button.dataset.slotId = slot.id;
-      if (slot._id) {
-        button.dataset.slotId = slot._id;
-      } else {
-        button.disabled = true;
-        button.classList.add("unavailable");
-      }
-
       // disable slot if it is occupied by a class or falls within a blocked time range
-      if (isSlotBlocked(slot, roomSchedule) || (slot._id && bookedSlotIds.includes(slot._id))) {
+      if (!slot.availability || bookedSlotIds.includes(slot._id)) {
         button.disabled = true;
         button.classList.add("occupied");
       }
 
       // select/deselect slot on click, with a maximum of 6 slots (3 hours)
-      // attach click ONLY if valid slot
-      if (slot._id && !button.disabled) {
-        button.addEventListener("click", () => {
-          toggleSlot(room, slot, button);
-        });
-      }
+      button.addEventListener("click", () =>
+        toggleSlot(room, slot, button)
+      );
 
       slotsContainer.appendChild(button);
     });
@@ -540,7 +529,7 @@ function generateTimeSlots(selectedDate) {
     row.appendChild(slotsContainer);
     roomGrid.appendChild(row);
   });
-}
+} */
 
 // convert a time string (HH:MM) into total minutes since midnight
 function timeToMinutes(timeStr) {
@@ -564,10 +553,7 @@ function isSlotBlocked(slot, ranges) {
 
 // handle selecting and deselecting time slots
 function toggleSlot(room, slot, button) {
-  // only allow real slots with a valid _id
-  if (!slot._id) return;
-
-  const slotId = slot._id;
+  const slotId = slot.id ?? slot._id ?? `${slot.startTime}-${slot.endTime}`;
   const existingIndex = selectedSlots.findIndex(s => s.room === room && s.slotId === slotId);
 
   if (existingIndex >= 0) {
@@ -592,21 +578,28 @@ function toggleSlot(room, slot, button) {
   continueButton.disabled = selectedSlots.length === 0;
 }
 
-//-- CHANGE HERE
-// A list of available time slots, loaded from the TimeSlots collection (or local fallback)
 let timeSlots = [];
 
-async function loadTimeSlots() {
+async function loadTimeSlots(building, selectedDate) {
   try {
-    const res = await fetch("http://localhost:5000/api/slots");
+    const dayName = selectedDate.toLocaleDateString("en-US", { weekday: "long" });
+
+    const res = await fetch(`http://localhost:5000/api/slots?building=${building}&day=${dayName}`);
+
     timeSlots = await res.json();
+
+    if (!timeSlots.length) {
+      timeSlots = generateDefaultTimeSlots();
+    }
+
   } catch (err) {
-    console.error("Failed to fetch timeslots from backend:", err);
-    timeSlots = generateDefaultTimeSlots(); // fallback
+    console.error("Failed to fetch slots from backend:", err);
+    timeSlots = [];
   }
 }
 
 // if it fails to load from the backend, generate default 30-minute slots from 7:30 to 21:00
+/*
 function generateDefaultTimeSlots() {
   const slots = [];
   let hour = 7;
@@ -630,14 +623,14 @@ function generateDefaultTimeSlots() {
   }
 
   return slots;
-}
+} */
 
 // reference to the time header row
 const timeHeader = document.getElementById("timeHeader");
 
 // create the time header labels
 function generateTimeHeader() {
-  timeHeader.innerHTML = "<div></div>"; // empty top-left cell
+  timeHeader.innerHTML = "<div></div>";
 
   timeSlots.forEach(slot => {
     const cell = document.createElement("div");
@@ -674,12 +667,12 @@ async function generateSchedule(building, selectedDate) {
     timeSlots.forEach(slot => {
       const cell = document.createElement("div");
       cell.classList.add("time-cell");
-      cell.dataset.slotId = slot._id;
+      cell.dataset.slotId = slot._id || slot.id;
       cell.dataset.startTime = slot.startTime;
       cell.dataset.endTime = slot.endTime;
 
       // mark cell as unavailable if blocked by class schedule
-      if (isSlotBlocked(slot, roomSchedule) || bookedSlotIds.includes(slot._id || slot.id)) {
+      if (!slot.availability || bookedSlotIds.includes(slot._id) || isSlotBlocked(slot, roomSchedule)) {
         cell.classList.add("unavailable");
       }
 
@@ -700,49 +693,37 @@ async function generateSchedule(building, selectedDate) {
 document.getElementById("showAvailability").addEventListener("click", async()=>{
   const building=document.getElementById("venueSelect").value;
   const dateValue=document.getElementById("reservationDate").value;
-  if (!building || !dateValue) return;
+  if(!building || !dateValue) return;
 
   const selectedDate=new Date(dateValue);
 
-  if(selectedDate.getDay() === 0){
+  if(selectedDate.getDay()===0){
     showPopUp("Reservations are not allowed on Sundays.");
-    hideAvailability(); 
-    return;
+    hideAvailability(); return;
   }
 
   if(!isWithinBookingWindow(selectedDate)){
     showPopUp("You have reached the end of the bookable window.");
-    hideAvailability(); 
-    return;
+    hideAvailability(); return;
   }
+
+  // Load time slots first
+  await loadTimeSlots(building, selectedDate);
 
   document.querySelector(".timeslot-section").style.display="block";
   generateTimeHeader();
-  await generateSchedule(building, selectedDate);
+  generateSchedule(building, selectedDate);
 });
 
 // save reservation data and move to the next page
 continueButton.addEventListener("click", async () => {
-  if (selectedSlots.length === 0) {
-    showPopUp("Please select at least one slot.");
-    return;
-  }
-
   const labID = document.getElementById("venueSelect").value;
   const date = document.getElementById("reservationDate").value;
   const seats = document.getElementById("seatCount").value;
   const studentID = "student-id-placeholder"; // replace with logged-in user if available
 
-  // store locally
-  localStorage.setItem("venue", labID);
-  localStorage.setItem("date", date);
-  localStorage.setItem("seats", seats);
-  localStorage.setItem("selectedSlots", JSON.stringify(selectedSlots));
-
-  // send each selected slot to backend
-  /*
-  try {
-    for (const slot of selectedSlots) {
+  for (const slot of selectedSlots) {
+    try {
       const res = await fetch("http://localhost:5000/api/slots/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -754,24 +735,18 @@ continueButton.addEventListener("click", async () => {
           seats
         })
       });
-
       const data = await res.json();
-
-      if (!res.ok) {
-        // show error but continue booking others
-        showPopUp(data.message || "Failed to book some slots");
-        console.error("Booking error:", data);
-      }
+      if (!res.ok) showPopUp(data.message || "Failed to book slot");
+    } catch (err) {
+      console.error("Booking error:", err);
+      showPopUp("Server error. Try again later.");
     }
-  } catch (err) {
-    console.error("Server error while booking slots:", err);
-    showPopUp("Server error. Try again later.");
-  } */
+  }
 
   // keep your redirect to the next page
   window.location.href = "details.html";
 });
 
 window.addEventListener("DOMContentLoaded", async () => {
-  await loadTimeSlots(); // fetch backend timeslots before rendering
+   // fetch backend timeslots before rendering
 });
