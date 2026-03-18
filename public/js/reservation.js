@@ -754,35 +754,18 @@ continueButton.addEventListener("click", async () => {
   const studentID = currentUser?._id;
 
   if (!studentID) return showPopUp("Invalid student ID. Please log in again.");
-  if (!selectedSlots.length) return showPopUp("No slots selected.");
-
-  for (const slot of selectedSlots) {
-    const labID = labMap[slot.room];
-    if (!labID) {
-      showPopUp(`Lab ID not found for room ${slot.room}`);
-      continue;
-    }
-
-    try {
-      const res = await fetch("http://localhost:5000/api/slots/book", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ labID, studentID, startTime: slot.startTime, endTime: slot.endTime, date, seats })
-      });
-
-      const data = await res.json().catch(() => ({ message: "Server returned invalid response" }));
-
-      if (!res.ok) {
-        return showPopUp(data.message || "Failed to book slot");
-      }
-    } catch (err) {
-      console.error("Booking error:", err);
-      return showPopUp("Server error. Try again later.");
-    }
+  if (!selectedSlots.length) {
+    return showPopUp("No slots selected.");
   }
 
+  if (!date) {
+    return showPopUp("Please select a date.");
+  }
+
+  const chosenSlots = selectedSlots.map(slot => ({...slot, date, seats}));
+  
   // booking successful → save locally and redirect
-  localStorage.setItem("selectedSlots", JSON.stringify(selectedSlots));
+  localStorage.setItem("selectedSlots", JSON.stringify(chosenSlots));
   window.location.href = "details.html";
 });
 
