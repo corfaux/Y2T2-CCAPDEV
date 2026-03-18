@@ -158,14 +158,7 @@ exports.getReservations = async (req, res) => {
     }
 
     const reservations = await Reservation.find(filter)
-      .populate({
-        path: 'labID',
-        model: 'Lab',
-        populate: {
-          path: 'buildingID',   // this is the field in Lab
-          model: 'Building'
-        }
-      });
+      .populate({path: 'labID', model: 'Lab', populate: {path: 'buildingID', model: 'Building'}});
 
     console.log("Reservations fetched:", JSON.stringify(reservations, null, 2));
 
