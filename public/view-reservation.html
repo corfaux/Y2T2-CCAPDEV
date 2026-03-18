@@ -33,29 +33,18 @@
                 <div class="reservation-pane">
                     <table class="selected-reserve">
                         <thead>
+
                         <tr>
                             <th>Reservation No.</th>
                             <th>Date</th>
                             <th>Building</th>
                             <th>Room No.</th>
                             <th>Number of Seats</th>
-                            <th colspan="6">Timeslots</th>
+                            <th>Timeslots</th>
+                            <th colspan="6">Status</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td id="ReservationNum">12345</td>
-                            <td id="Date">11/11/1111</td>
-                            <td id="Building">Gokongwei</td>
-                            <td id="Room">304</td>
-                            <td id="NumSeats">5</td>
-                            <td>5:00-6:30</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                        </tr>
                         </tbody>
 
                     </table>
@@ -70,6 +59,51 @@
 
         </footer>
         <script>
+            document.addEventListener("DOMContentLoaded", async () => {
+                try {
+                    const studentID = localStorage.getItem("studentID");
+
+                    const res = await fetch(`http://localhost:5000/api/slots/reservations?studentID=${studentID}`);
+                    const data = await res.json();
+
+                    const tbody = document.querySelector(".selected-reserve tbody");
+                    tbody.innerHTML = ""; // clear default row
+
+                    if (!data.length) {
+                    tbody.innerHTML = `<tr><td colspan="11">No reservations found.</td></tr>`;
+                    return;
+                    }
+
+                    data.forEach((reservation, index) => {
+                    const row = document.createElement("tr");
+
+                    // format date
+                    const formattedDate = new Date(reservation.date).toLocaleDateString();
+
+                    // room + building
+                    const room = reservation.labID?.room || "N/A";
+                    const building = reservation.labID?.buildingID?.name || "N/A";
+
+                    // timeslot
+                    const timeSlot = `${reservation.startTime}-${reservation.endTime}`;
+
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${formattedDate}</td>
+                        <td>${building}</td>
+                        <td>${room}</td>
+                        <td>${reservation.seats}</td>
+                        <td>${timeSlot}</td>
+                        <td>${reservation.status}</td>
+                    `;
+
+                    tbody.appendChild(row);
+                    });
+
+                } catch (err) {
+                    console.error("Error loading reservations:", err);
+                }
+                });
         </script>
         </div>
     </body>

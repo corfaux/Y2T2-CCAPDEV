@@ -147,14 +147,32 @@ exports.bookSlot = async (req, res) => {
 };
 
 exports.getReservations = async (req, res) => {
-  const { labID, date } = req.query;
-  const filter = {};
-  if (labID) filter.labID = labID;
-  if (date) {
-    const d = new Date(date);
-    d.setHours(0,0,0,0);
-    filter.date = d;
+  try {
+    const { studentID, date } = req.query;
+    const filter = {};
+    if (studentID) filter.studentID = studentID;
+    if (date) {
+      const d = new Date(date);
+      d.setHours(0,0,0,0);
+      filter.date = d;
+    }
+
+    const reservations = await Reservation.find(filter)
+      .populate({
+        path: 'labID',
+        model: 'Lab',
+        populate: {
+          path: 'buildingID',   // this is the field in Lab
+          model: 'Building'
+        }
+      });
+
+    console.log("Reservations fetched:", JSON.stringify(reservations, null, 2));
+
+    res.json(reservations);
+
+  } catch (err) {
+    console.error("Get Reservations Error:", err);
+    res.status(500).json({ error: err.message });
   }
-  const reservations = await Reservation.find(filter);
-  res.json(reservations);
 };
