@@ -106,11 +106,13 @@
                             <th>Date</th>
                             <th>Building</th>
                             <th>Room No.</th>
-                            <th colspan="6">Timeslot/s</th>
+                            <th>Timeslot/s</th>
+                            <th>Status</th>
                             <th>Cancel Reservation</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="reservation-tbody">
+                        <!--
                         <tr>
                             <td>1</td>
                             <td>2026-02-11</td>
@@ -137,15 +139,66 @@
                             <td>-</td>
                             <td></td>
                         </tr>
+                     -->
                     </tbody>
                 </table>
                 
             </div>
-            <p>You have 0/2 reservations as of now.</p>
+            <p>You have 0/2 reservations as of now.</p> <!-- is this necessary-->
         </div>
 
         <footer>
             
         </footer>
+        <script>
+            document.addEventListener("DOMContentLoaded", async () => {
+                try {
+                    const studentID = localStorage.getItem("studentID");
+                    const res = await fetch(`http://localhost:5000/api/slots/reservations?studentID=${studentID}`);
+                    const reservations = await res.json();
+
+                    const tbody = document.getElementById("reservation-tbody");
+                    tbody.innerHTML = ""; // clear default rows
+
+                    if (!reservations.length) {
+                        tbody.innerHTML = `<tr><td colspan="12">No reservations found.</td></tr>`;
+                        return;
+                    }
+
+                    reservations.forEach((reservation, index) => {
+                        const row = document.createElement("tr");
+
+                        // format date
+                        const formattedDate = new Date(reservation.date).toLocaleDateString();
+
+                        // room + building
+                        const room = reservation.labID?.room || "N/A";
+                        const building = reservation.labID?.buildingID?.name || "N/A";
+
+                        // timeslots: we can assume one slot per row or multiple if needed
+                        const timeSlot = `${reservation.startTime}-${reservation.endTime}`;
+
+                        row.innerHTML = `
+                            <td>${index + 1}</td>
+                            <td>${formattedDate}</td>
+                            <td>${building}</td>
+                            <td>${room}</td>
+                            <td class="table-timeslots">${timeSlot}</td>
+                            <td>${reservation.status || "N/A"}</td>
+                            <td><button class="cancelBtn" onclick="location.href='cancel.html?reservationID=${reservation._id}'">Cancel</button></td>
+                        `;
+
+                        tbody.appendChild(row);
+                    });
+
+                    // Optionally, update the reservation count below the table
+                    const countParagraph = document.querySelector("p");
+                    countParagraph.textContent = `You have ${reservations.length}/2 reservations as of now.`;
+
+                } catch (err) {
+                    console.error("Error loading reservations:", err);
+                }
+            });
+        </script>
     </body>
 </html>
