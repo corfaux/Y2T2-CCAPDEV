@@ -1,68 +1,184 @@
-const Slot = require('../models/AvailableSlots');
+const Lab = require('../models/Lab');
 const Reservation = require('../models/Reservation');
+const classSchedule = require('../models/ClassSchedule');
 
-// get all slots
-exports.getAllSlots = async (req, res) => {
+function toMinutes(time) {
+  const [h, m] = time.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function toTimeString(mins) {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+}
+
+function isSlotFree(slotStart, slotEnd, blockedSlots) {
+  for (const b of blockedSlots || []) {
+    const bStart = toMinutes(b.start);
+    const bEnd = toMinutes(b.end);
+
+    if (!(slotEnd <= bStart || slotStart >= bEnd)) {
+      return false; // overlap with class
+    }
+  }
+  return true;
+}
+
+exports.getAvailability = async (req, res) => {
   try {
-    const slots = await Slot.find();
-    res.json(slots);
+    const { building, date } = req.query;
+
+    if (!building || !date) {
+      return res.status(400).json({ message: "Missing building or date" });
+    }
+
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    await Reservation.deleteMany({
+      $or: [
+        { date: { $lt: todayStart } }, // past days
+        {
+          date: todayStart, // today but already finished
+          endTime: {
+            $lt: toTimeString(currentMinutes)
+          }
+        }
+      ]
+    });
+
+    const labs = await Lab.find({ building });
+    const labIds = labs.map(l => l._id);
+
+    const selectedDate = new Date(date);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    const reservations = await Reservation.find({
+      date: selectedDate,
+      labID: { $in: labIds }
+    });
+
+    const dayName = selectedDate.toLocaleDateString("en-US", {
+      weekday: "long"
+    });
+
+    const result = [];
+
+    for (const lab of labs) {
+      const labReservations = reservations.filter(r =>
+        r.labID.toString() === lab._id.toString()
+      );
+
+      const blockedByClass = classSchedule[dayName]?.[lab.room] || [];
+
+      const slots = [];
+
+      for (let mins = 450; mins + 30 <= 1260; mins += 30) {
+        const start = toTimeString(mins);
+        const end = toTimeString(mins + 30);
+
+        const freeByClass = isSlotFree(mins, mins + 30, blockedByClass);
+
+        const reserved = labReservations.some(r => {
+          const rStart = toMinutes(r.startTime);
+          const rEnd = toMinutes(r.endTime);
+
+          return !(mins + 30 <= rStart || mins >= rEnd);
+        });
+
+        slots.push({
+          startTime: start,
+          endTime: end,
+          available: freeByClass && !reserved
+        });
+      }
+
+      result.push({
+        room: lab.room,
+        labID: lab._id,
+        slots
+      });
+    }
+
+    res.json(result);
+
   } catch (err) {
+    console.error("Availability error:", err);
     res.status(500).json({ error: err.message });
   }
 };
 
-// book a slot
+
 exports.bookSlot = async (req, res) => {
   try {
-    console.log("Booking request body:", req.body);
+    const {
+      labID,
+      studentID,
+      startTime,
+      endTime,
+      date,
+      seats,
+      primaryStudent,
+      additionalStudents
+    } = req.body;
 
-    const { labID, studentID, slot_ID, date, seats, primaryStudent, additionalStudents } = req.body;
-
-    // Validate required fields
-    if (!labID || !studentID || !slot_ID || !date || !seats) {
+    if (!labID || !studentID || !startTime || !endTime || !date || !seats) {
       return res.status(400).json({ message: "Missing required field(s)" });
     }
 
-    // Check if slot exists
-    const slot = await Slot.findById(slot_ID);
-    if (!slot) return res.status(404).json({ message: "Slot not found" });
+    const selectedDate = new Date(date);
+    selectedDate.setHours(0, 0, 0, 0);
 
-    // Check if slot is already booked for that date
-    const existingReservation = await Reservation.findOne({ slot_ID, date, labID });
-    if (existingReservation) {
-      return res.status(400).json({ message: "Slot already booked for this date" });
+    const conflict = await Reservation.findOne({
+      labID,
+      date: selectedDate,
+      startTime: { $lt: endTime },
+      endTime: { $gt: startTime }
+    });
+
+    if (conflict) {
+      return res.status(400).json({
+        message: "Time slot overlaps with existing reservation"
+      });
     }
 
-    // Create reservation
     const reservation = new Reservation({
       labID,
       studentID,
-      slot_ID,
-      date,
+      startTime,
+      endTime,
+      date: selectedDate,
       seats,
-      primaryStudent: primaryStudent || {},       // save optional fields
-      additionalStudents: additionalStudents || [] // save optional fields
+      primaryStudent: primaryStudent || {},
+      additionalStudents: additionalStudents || []
     });
 
     await reservation.save();
 
-    res.status(201).json({ message: "Slot booked successfully", reservation });
+    res.status(201).json({
+      message: "Reservation successful",
+      reservation
+    });
+
   } catch (err) {
-    console.error("Book slot error:", err);
-    res.status(500).json({ message: "Internal server error", error: err.message });
+    console.error("Booking error:", err);
+    res.status(500).json({ error: err.message });
   }
 };
 
-
-// get reservations
 exports.getReservations = async (req, res) => {
-  try {
-    const reservations = await Reservation.find()
-      .populate('slot_ID')
-      .populate('labID')
-      .populate('studentID');
-    res.json(reservations);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  const { labID, date } = req.query;
+  const filter = {};
+  if (labID) filter.labID = labID;
+  if (date) {
+    const d = new Date(date);
+    d.setHours(0,0,0,0);
+    filter.date = d;
   }
+  const reservations = await Reservation.find(filter);
+  res.json(reservations);
 };

@@ -4,24 +4,31 @@ const cors = require('cors');
 require('dotenv').config(); // load .env variables
 const Reservation = require('./models/Reservation');
 const Lab = require('./models/Lab');
-const testStudentRoutes = require("./routes/testStudent");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // middleware
-const corsOptions = {
-  origin: "http://127.0.0.1:5500", // frontend origin
-  methods: ["GET","POST","PUT","DELETE"],
-  credentials: true // if you need cookies
-};
+const allowedOrigins = ["http://127.0.0.1:5500", "http://localhost:5500"];
 
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: function(origin, callback){
+    if(!origin) return callback(null, true); // allow non-browser requests like Postman
+    if(allowedOrigins.indexOf(origin) === -1){
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ["GET","POST","PUT","DELETE"]
+}));
 
 app.use(express.json()); // parse JSON requests
-app.use("/api/test", testStudentRoutes);
 
 // routes
+const accountRoutes = require("./routes/AccountRoutes"); // must match filename exactly
+app.use("/api/accounts", accountRoutes);
 const availableSlotsRoutes  = require('./routes/AvailableSlotsRoutes');
 app.use('/api/slots', availableSlotsRoutes);
 const labRoutes = require('./routes/Admin-LabRoutes');

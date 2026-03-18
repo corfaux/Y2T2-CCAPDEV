@@ -3,7 +3,7 @@ const router = express.Router();
 const availableSlotsController = require('../controllers/AvailableSlotsController');
 
 // get all slots
-router.get('/', availableSlotsController.getAllSlots);
+router.get('/', availableSlotsController.getAvailability);
 // book a slot
 router.post('/book', availableSlotsController.bookSlot);
 // get all reservations

@@ -460,76 +460,28 @@ function hideAvailability() {
   continueButton.disabled = true;
 }
 
-// helper function to fetch booked slot IDs for a given building and date from the backend
-async function getBookedSlots(building, date) {
-  try {
-    const res = await fetch(`http://localhost:5000/api/reservations?labID=${building}&date=${date}`);
-    const bookings = await res.json();
-
-    if (!Array.isArray(bookings)) return [];
-
-    return bookings.map(b => b.slot_ID._id);
-  } catch (err) {
-    console.error("Failed to fetch reservations:", err);
-    return [];
-  }
-}
-
-// generate time slot buttons for each room based on the selected date
-/*
-function generateTimeSlots(selectedDate) {
-  roomGrid.innerHTML = "";
-  selectedSlots = [];
-  continueButton.disabled = true;
-
-  const building = document.getElementById("venueSelect").value;
+// fetch booked slots for all rooms in a building on a given date
+async function getBookedSlots(building, selectedDate) {
   const rooms = buildingRooms[building] || [];
-  const dayName = selectedDate.toLocaleDateString("en-US", { weekday: "long" });
+  const allBookedSlotIds = [];
 
-  rooms.forEach(room => {
-    const row = document.createElement("div");
-    row.classList.add("room-row");
-
-    // room label on the left of each row
-    const label = document.createElement("div");
-    label.classList.add("room-label");
-    label.textContent = room;
-
-    // container for the time slot buttons
-    const slotsContainer = document.createElement("div");
-    slotsContainer.classList.add("room-slots");
-
-    // get the class schedule for this room on the selected day (if any)
-    const roomSchedule = (classSchedule[dayName] && classSchedule[dayName][room]) || [];
-
-    // create buttons for each available time slot defined in the TimeSlots collection
-    timeSlots.forEach(slot => {
-      const button = document.createElement("button");
-      button.textContent = slot.startTime;
-      button.classList.add("timeslot");
-      button.dataset.slotId = slot.id;
-      button.dataset.startTime = slot.startTime;
-      button.dataset.endTime = slot.endTime;
-
-      // disable slot if it is occupied by a class or falls within a blocked time range
-      if (!slot.availability || bookedSlotIds.includes(slot._id)) {
-        button.disabled = true;
-        button.classList.add("occupied");
+  for (const labID of rooms) {
+    try {
+      const res = await fetch(`http://localhost:5000/api/reservations?labID=${labID}&date=${formatDate(selectedDate)}`);
+      if (!res.ok) {
+        console.warn(`Failed to fetch reservations for ${labID}`);
+        continue;
       }
 
-      // select/deselect slot on click, with a maximum of 6 slots (3 hours)
-      button.addEventListener("click", () =>
-        toggleSlot(room, slot, button)
-      );
+      const bookings = await res.json();
+      bookings.forEach(b => allBookedSlotIds.push(`${labID}_${b.startTime}_${b.endTime}`));
+    } catch (err) {
+      console.error(`Error fetching reservations for ${labID}:`, err);
+    }
+  }
 
-      slotsContainer.appendChild(button);
-    });
-
-    row.appendChild(label);
-    row.appendChild(slotsContainer);
-    roomGrid.appendChild(row);
-  });
-} */
+  return allBookedSlotIds;
+}
 
 // convert a time string (HH:MM) into total minutes since midnight
 function timeToMinutes(timeStr) {
@@ -582,24 +534,15 @@ let timeSlots = [];
 
 async function loadTimeSlots(building, selectedDate) {
   try {
-    const dayName = selectedDate.toLocaleDateString("en-US", { weekday: "long" });
-
-    const res = await fetch(`http://localhost:5000/api/slots?building=${building}&day=${dayName}`);
-
-    timeSlots = await res.json();
-
-    if (!timeSlots.length) {
-      timeSlots = generateDefaultTimeSlots();
-    }
-
+    // always generate default slots (30-min intervals)
+    timeSlots = generateDefaultTimeSlots();
   } catch (err) {
-    console.error("Failed to fetch slots from backend:", err);
+    console.error("Failed to generate time slots:", err);
     timeSlots = [];
   }
 }
 
 // if it fails to load from the backend, generate default 30-minute slots from 7:30 to 21:00
-/*
 function generateDefaultTimeSlots() {
   const slots = [];
   let hour = 7;
@@ -613,7 +556,8 @@ function generateDefaultTimeSlots() {
     const endMinute = totalMinutes % 60;
     const endTime = String(endHour).padStart(2, "0") + ":" + String(endMinute).padStart(2, "0");
 
-    slots.push({ id: id++, startTime, endTime });
+    // assign a temporary ID
+    slots.push({_id: `fallback-${startTime}-${endTime}`, startTime, endTime});
 
     minute += 30;
     if (minute === 60) {
@@ -623,7 +567,7 @@ function generateDefaultTimeSlots() {
   }
 
   return slots;
-} */
+} 
 
 // reference to the time header row
 const timeHeader = document.getElementById("timeHeader");
@@ -650,7 +594,9 @@ async function generateSchedule(building, selectedDate) {
 
   const rooms = buildingRooms[building] || [];
   const dayName = selectedDate.toLocaleDateString("en-US", { weekday: "long" });
-  const bookedSlotIds = await getBookedSlots(building, formatDate(selectedDate));
+
+  // fetch all booked slots for this building and date
+  const bookedSlotIds = await getBookedSlots(building, selectedDate);
 
   rooms.forEach(room => {
     const row = document.createElement("div");
@@ -662,6 +608,7 @@ async function generateSchedule(building, selectedDate) {
 
     row.appendChild(label);
 
+    // get class schedule for this room
     const roomSchedule = (classSchedule[dayName] && classSchedule[dayName][room]) || [];
 
     timeSlots.forEach(slot => {
@@ -672,14 +619,14 @@ async function generateSchedule(building, selectedDate) {
       cell.dataset.endTime = slot.endTime;
 
       // mark cell as unavailable if blocked by class schedule
-      if (!slot.availability || bookedSlotIds.includes(slot._id) || isSlotBlocked(slot, roomSchedule)) {
+      if (bookedSlotIds.includes(`${room}_${slot.startTime}_${slot.endTime}`) || isSlotBlocked(slot, roomSchedule)) {
         cell.classList.add("unavailable");
       }
 
+      // click to select/deselect slot
       cell.addEventListener("click", () => {
-        if (cell.classList.contains("unavailable")) return;
-
-        toggleSlot(room, slot, cell);
+        if (!cell.classList.contains("unavailable")) 
+          toggleSlot(room, slot, cell);
       });
 
       row.appendChild(cell);
@@ -715,27 +662,54 @@ document.getElementById("showAvailability").addEventListener("click", async()=>{
   generateSchedule(building, selectedDate);
 });
 
+let labMap = {};
+async function loadLabsMap() {
+  const res = await fetch("http://localhost:5000/api/labs");
+  const labs = await res.json();
+  labs.forEach(l => labMap[l.room] = l._id);
+}
+
 // save reservation data and move to the next page
 continueButton.addEventListener("click", async () => {
-  const labID = document.getElementById("venueSelect").value;
+  // const labID = document.getElementById("venueSelect").value;
   const date = document.getElementById("reservationDate").value;
-  const seats = document.getElementById("seatCount").value;
-  const studentID = "student-id-placeholder"; // replace with logged-in user if available
+  const seats = parseInt(document.getElementById("seatCount").value, 10);
+  
+  const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+  const studentID = currentUser?._id;
+  if (!studentID) {
+    showPopUp("Invalid student ID. Please log in again.");
+    return;
+  }
 
   for (const slot of selectedSlots) {
     try {
+      if (!labMap[slot.room]) {
+        showPopUp(`Lab ID not found for room ${slot.room}`);
+        continue;
+      }
       const res = await fetch("http://localhost:5000/api/slots/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          labID: slot.room,
-          studentID,
-          slot_ID: slot.slotId,
+          labID: labMap[slot.room], //slot.room,
+          studentID: studentID,  
+          startTime: slot.startTime,
+          endTime: slot.endTime,
           date,
           seats
         })
       });
-      const data = await res.json();
+
+      const text = await res.text();
+      let data;
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch (e) {
+        console.warn("Response is not valid JSON:", text);
+        data = { message: "Server returned invalid response" };
+      }
+
       if (!res.ok) showPopUp(data.message || "Failed to book slot");
     } catch (err) {
       console.error("Booking error:", err);
@@ -749,4 +723,5 @@ continueButton.addEventListener("click", async () => {
 
 window.addEventListener("DOMContentLoaded", async () => {
    // fetch backend timeslots before rendering
+   await loadLabsMap();
 });

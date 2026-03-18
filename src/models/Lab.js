@@ -9,6 +9,11 @@ const LabSchema = new mongoose.Schema({
     room: { type: String, required: true },
     capacity: { type: Number, required: true },
     availability: { type: Boolean, default: true },
+
+    slots: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Slot'
+    }]
 });
 
 const Lab = mongoose.model('Lab', LabSchema)

@@ -1,26 +1,44 @@
-function login(event) {
-    event.preventDefault();
+async function login(event) {
+  event.preventDefault();
 
-    const emailAddress = document.getElementById("email-field").value;
-    const password = document.getElementById("password-field").value;
+  const email = document.getElementById("email-field").value;
+  const password = document.getElementById("password-field").value;
 
-    if(userLoginMode) {
-        if(emailAddress in userData && password === userData[emailAddress].password) {
-            sessionStorage.setItem("currentUser", JSON.stringify(userData[emailAddress]));
-            window.location.href = ("student-profile.html");
-        } else {
-            window.location.reload();
-        }
+  if (!userLoginMode) {
+    // Technician login remains the same
+    if(email in technicianCredentials && password === technicianCredentials[email]) {
+      sessionStorage.setItem("currentTechnician", email);
+      window.location.href = "lab-management.html";
     } else {
-        if(emailAddress in technicianCredentials && password === technicianCredentials[emailAddress]) {
-            sessionStorage.setItem("currentTechnician", emailAddress);
-
-            // TODO: change this to landing page for technician
-            window.location.href = ("lab-management.html");
-        } else {
-            window.location.reload();
-        }
+      alert("Incorrect technician credentials");
     }
+    return;
+  }
+
+  // student login: call backend
+  try {
+    const res = await fetch("http://localhost:5000/api/accounts/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message || "Login failed");
+      return;
+    }
+
+    // save the full MongoDB object with _id
+    sessionStorage.setItem("currentUser", JSON.stringify(data));
+
+    // redirect to student profile
+    window.location.href = "student-profile.html";
+  } catch (err) {
+    console.error("Login error:", err);
+    alert("Server error. Try again later.");
+  }
 }
 
 function register(event) {

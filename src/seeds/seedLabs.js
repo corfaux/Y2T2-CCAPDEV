@@ -37,7 +37,7 @@ async function seedLabs() {
 
       { buildingID: ls._id, room: "LS212", capacity: 40 },
       { buildingID: ls._id, room: "LS229", capacity: 40 },
-      { buildingID: ls._id, room: "LS2320", capacity: 40 },
+      { buildingID: ls._id, room: "LS320", capacity: 40 },
       { buildingID: ls._id, room: "LS335", capacity: 40 },
 
       { buildingID: sj._id, room: "SJ212", capacity: 40 },
