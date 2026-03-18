@@ -28,65 +28,42 @@ function isSlotFree(slotStart, slotEnd, blockedSlots) {
 exports.getAvailability = async (req, res) => {
   try {
     const { building, date } = req.query;
-
     if (!building || !date) {
       return res.status(400).json({ message: "Missing building or date" });
     }
 
-    const now = new Date();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-
-    await Reservation.deleteMany({
-      $or: [
-        { date: { $lt: todayStart } }, // past days
-        {
-          date: todayStart, // today but already finished
-          endTime: {
-            $lt: toTimeString(currentMinutes)
-          }
-        }
-      ]
-    });
-
     const labs = await Lab.find({ building });
-    const labIds = labs.map(l => l._id);
-
     const selectedDate = new Date(date);
     selectedDate.setHours(0, 0, 0, 0);
 
+    // Get existing reservations
     const reservations = await Reservation.find({
       date: selectedDate,
-      labID: { $in: labIds }
+      labID: { $in: labs.map(l => l._id) }
     });
 
-    const dayName = selectedDate.toLocaleDateString("en-US", {
-      weekday: "long"
-    });
+    const dayName = selectedDate.toLocaleDateString("en-US", { weekday: "long" });
 
     const result = [];
 
     for (const lab of labs) {
-      const labReservations = reservations.filter(r =>
-        r.labID.toString() === lab._id.toString()
-      );
-
+      const labReservations = reservations.filter(r => r.labID.toString() === lab._id.toString());
       const blockedByClass = classSchedule[dayName]?.[lab.room] || [];
 
       const slots = [];
 
+      // fallback/default slots: 07:30 (450) to 21:00 (1260) in 30 min increments
       for (let mins = 450; mins + 30 <= 1260; mins += 30) {
         const start = toTimeString(mins);
         const end = toTimeString(mins + 30);
 
+        // check class schedule
         const freeByClass = isSlotFree(mins, mins + 30, blockedByClass);
 
+        // check reservations
         const reserved = labReservations.some(r => {
           const rStart = toMinutes(r.startTime);
           const rEnd = toMinutes(r.endTime);
-
           return !(mins + 30 <= rStart || mins >= rEnd);
         });
 
@@ -105,7 +82,6 @@ exports.getAvailability = async (req, res) => {
     }
 
     res.json(result);
-
   } catch (err) {
     console.error("Availability error:", err);
     res.status(500).json({ error: err.message });

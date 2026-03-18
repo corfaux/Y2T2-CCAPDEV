@@ -20,7 +20,7 @@ exports.getReservations = async (req, res) => {
     const reservations = await Reservation.find(query)
       .populate('labID')
       .populate('studentID')
-      .populate('slot_ID');
+      //.populate('slot_ID');
     // Format for frontend
     const formatted = reservations.map(r => ({
       _id: r._id,

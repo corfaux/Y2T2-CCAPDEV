@@ -2,6 +2,7 @@ const roomGrid = document.getElementById("roomGrid");
 const continueButton = document.getElementById("continueButton");
 
 let selectedSlots = [];
+localStorage.removeItem("selectedSlots");
 const MAX_SLOTS = 6;
 
 // list of buildings and the rooms inside each building
@@ -465,18 +466,21 @@ async function getBookedSlots(building, selectedDate) {
   const rooms = buildingRooms[building] || [];
   const allBookedSlotIds = [];
 
-  for (const labID of rooms) {
+  for (const room of rooms) {
+    const labID = labMap[room];
+    if (!labID) continue;
+
     try {
       const res = await fetch(`http://localhost:5000/api/reservations?labID=${labID}&date=${formatDate(selectedDate)}`);
       if (!res.ok) {
-        console.warn(`Failed to fetch reservations for ${labID}`);
+        console.warn(`Failed to fetch reservations for ${room}`);
         continue;
       }
 
       const bookings = await res.json();
       bookings.forEach(b => allBookedSlotIds.push(`${labID}_${b.startTime}_${b.endTime}`));
     } catch (err) {
-      console.error(`Error fetching reservations for ${labID}:`, err);
+      console.error(`Error fetching reservations for ${room}:`, err);
     }
   }
 
@@ -503,61 +507,115 @@ function isSlotBlocked(slot, ranges) {
   });
 }
 
+function normalizeTime(time) {
+  const [h, m] = time.split(":").map(Number);
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
 // handle selecting and deselecting time slots
-function toggleSlot(room, slot, button) {
-  const slotId = slot.id ?? slot._id ?? `${slot.startTime}-${slot.endTime}`;
+function toggleSlot(room, slot, bookedSlotIds, button, seats) {
+  const slotId = slot._id;
   const existingIndex = selectedSlots.findIndex(s => s.room === room && s.slotId === slotId);
+  const roomObj = timeSlots.find(r => r.room === room);
+
+  if (!roomObj) return showPopUp(`Room data not found for ${room}`);
+  const labID = roomObj.labID;
 
   if (existingIndex >= 0) {
+    // deselect
     selectedSlots.splice(existingIndex, 1);
     button.classList.remove("selected");
   } else {
-    if (selectedSlots.length >= MAX_SLOTS) {
-      showPopUp("You can only reserve up to 3 hours (6 time slots).");
-      return;
+    // check overlap with already selected slots
+    if (selectedSlots.some(s => s.room === room && timeOverlap(s, slot))) {
+      return showPopUp("Selected slot overlaps with another reservation in this room.");
     }
 
-    selectedSlots.push({
-      room,
-      slotId,
-      startTime: slot.startTime,
-      endTime: slot.endTime
-    });
+    // check max slots
+    if (selectedSlots.length >= MAX_SLOTS) {
+      return showPopUp(`You can only reserve up to ${MAX_SLOTS} time slots.`);
+    }
 
+    // check seat availability
+    const reservedSeats = bookedSlotIds.filter(id => id.startsWith(`${labID}_${slot.startTime}_${slot.endTime}`)).length;
+    if (reservedSeats + seats > roomObj.capacity) {
+      return showPopUp("Not enough seats available in this slot.");
+    }
+
+    // add slot
+    selectedSlots.push({ room, slotId, startTime: slot.startTime, endTime: slot.endTime });
     button.classList.add("selected");
   }
 
+  localStorage.setItem("selectedSlots", JSON.stringify(selectedSlots));
   continueButton.disabled = selectedSlots.length === 0;
+}
+
+function timeOverlap(a, b) {
+  const startA = timeToMinutes(a.startTime), endA = timeToMinutes(a.endTime);
+  const startB = timeToMinutes(b.startTime), endB = timeToMinutes(b.endTime);
+  return startA < endB && endA > startB;
 }
 
 let timeSlots = [];
 
 async function loadTimeSlots(building, selectedDate) {
   try {
-    // always generate default slots (30-min intervals)
-    timeSlots = generateDefaultTimeSlots();
+    const res = await fetch(
+      `http://localhost:5000/api/slots?building=${building}&date=${formatDate(selectedDate)}`
+    );
+    if (!res.ok) throw new Error("Backend fetch failed");
+
+    const labs = await res.json();
+
+    timeSlots = labs.length
+      ? labs.map(lab => ({
+          room: lab.room,
+          labID: lab.labID,
+          capacity: lab.capacity || 40,
+          slots: (lab.slots || []).map(slot => ({
+            _id: slot._id,
+            startTime: normalizeTime(slot.startTime),
+            endTime: normalizeTime(slot.endTime),
+            available: true
+          }))
+        }))
+      : buildingRooms[building].map(room => ({
+          room,
+          labID: `fallback-${room}`,
+          capacity: 40,
+          slots: generateDefaultTimeSlots(room)
+        }));
+
   } catch (err) {
-    console.error("Failed to generate time slots:", err);
-    timeSlots = [];
+    console.error(err);
+    // fallback
+    timeSlots = buildingRooms[building].map(room => ({
+      room,
+      labID: `fallback-${room}`,
+      slots: generateDefaultTimeSlots(room)
+    }));
   }
 }
 
 // if it fails to load from the backend, generate default 30-minute slots from 7:30 to 21:00
-function generateDefaultTimeSlots() {
+function generateDefaultTimeSlots(room) {
   const slots = [];
   let hour = 7;
   let minute = 30;
-  let id = 1;
 
   while (hour < 21 || (hour === 21 && minute === 0)) {
-    const startTime = String(hour).padStart(2, "0") + ":" + String(minute).padStart(2, "0");
+    const startTime = `${String(hour).padStart(2,"0")}:${String(minute).padStart(2,"0")}`;
     const totalMinutes = hour * 60 + minute + 30;
     const endHour = Math.floor(totalMinutes / 60);
     const endMinute = totalMinutes % 60;
-    const endTime = String(endHour).padStart(2, "0") + ":" + String(endMinute).padStart(2, "0");
+    const endTime = `${String(endHour).padStart(2,"0")}:${String(endMinute).padStart(2,"0")}`;
 
-    // assign a temporary ID
-    slots.push({_id: `fallback-${startTime}-${endTime}`, startTime, endTime});
+    slots.push({
+      _id: `fallback-${room}-${startTime}-${endTime}`, // now uses room param
+      startTime,
+      endTime
+    });
 
     minute += 30;
     if (minute === 60) {
@@ -567,7 +625,7 @@ function generateDefaultTimeSlots() {
   }
 
   return slots;
-} 
+}
 
 // reference to the time header row
 const timeHeader = document.getElementById("timeHeader");
@@ -576,7 +634,11 @@ const timeHeader = document.getElementById("timeHeader");
 function generateTimeHeader() {
   timeHeader.innerHTML = "<div></div>";
 
-  timeSlots.forEach(slot => {
+  if (timeSlots.length === 0) return;
+
+  const referenceSlots = timeSlots[0].slots;
+
+  referenceSlots.forEach(slot => {
     const cell = document.createElement("div");
     cell.textContent = slot.startTime;
     timeHeader.appendChild(cell);
@@ -605,28 +667,39 @@ async function generateSchedule(building, selectedDate) {
     const label = document.createElement("div");
     label.classList.add("room-label");
     label.textContent = room;
-
     row.appendChild(label);
 
-    // get class schedule for this room
+    // get room object from timeSlots
+    const roomObj = timeSlots.find(r => r.room === room);
+    const capacity = roomObj?.capacity || 40;
+    const roomSlots = roomObj ? roomObj.slots : [];
+
     const roomSchedule = (classSchedule[dayName] && classSchedule[dayName][room]) || [];
 
-    timeSlots.forEach(slot => {
+    roomSlots.forEach(slot => {
       const cell = document.createElement("div");
       cell.classList.add("time-cell");
-      cell.dataset.slotId = slot._id || slot.id;
+      cell.dataset.slotId = slot._id;
       cell.dataset.startTime = slot.startTime;
       cell.dataset.endTime = slot.endTime;
 
-      // mark cell as unavailable if blocked by class schedule
-      if (bookedSlotIds.includes(`${room}_${slot.startTime}_${slot.endTime}`) || isSlotBlocked(slot, roomSchedule)) {
+      // check class schedule
+      if (isSlotBlocked(slot, roomSchedule)) {
         cell.classList.add("unavailable");
       }
 
-      // click to select/deselect slot
+      // check if fully booked in DB
+      const labID = roomObj.labID;
+      const slotKey = `${labID}_${slot.startTime}_${slot.endTime}`;
+      if (bookedSlotIds.includes(slotKey)) {
+        cell.classList.add("unavailable");
+      }
+
       cell.addEventListener("click", () => {
-        if (!cell.classList.contains("unavailable")) 
-          toggleSlot(room, slot, cell);
+        if (!cell.classList.contains("unavailable")) {
+          const seats = parseInt(document.getElementById("seatCount").value, 10);
+          toggleSlot(room, slot, bookedSlotIds, cell, seats);
+        }
       });
 
       row.appendChild(cell);
@@ -654,6 +727,10 @@ document.getElementById("showAvailability").addEventListener("click", async()=>{
     hideAvailability(); return;
   }
 
+  if (!labMap || !Object.keys(labMap).length) {
+    await loadLabsMap();
+  }
+
   // Load time slots first
   await loadTimeSlots(building, selectedDate);
 
@@ -671,53 +748,41 @@ async function loadLabsMap() {
 
 // save reservation data and move to the next page
 continueButton.addEventListener("click", async () => {
-  // const labID = document.getElementById("venueSelect").value;
-  const date = document.getElementById("reservationDate").value;
+  const date = dateInput.value;
   const seats = parseInt(document.getElementById("seatCount").value, 10);
-  
   const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
   const studentID = currentUser?._id;
-  if (!studentID) {
-    showPopUp("Invalid student ID. Please log in again.");
-    return;
-  }
+
+  if (!studentID) return showPopUp("Invalid student ID. Please log in again.");
+  if (!selectedSlots.length) return showPopUp("No slots selected.");
 
   for (const slot of selectedSlots) {
+    const labID = labMap[slot.room];
+    if (!labID) {
+      showPopUp(`Lab ID not found for room ${slot.room}`);
+      continue;
+    }
+
     try {
-      if (!labMap[slot.room]) {
-        showPopUp(`Lab ID not found for room ${slot.room}`);
-        continue;
-      }
       const res = await fetch("http://localhost:5000/api/slots/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          labID: labMap[slot.room], //slot.room,
-          studentID: studentID,  
-          startTime: slot.startTime,
-          endTime: slot.endTime,
-          date,
-          seats
-        })
+        body: JSON.stringify({ labID, studentID, startTime: slot.startTime, endTime: slot.endTime, date, seats })
       });
 
-      const text = await res.text();
-      let data;
-      try {
-        data = text ? JSON.parse(text) : {};
-      } catch (e) {
-        console.warn("Response is not valid JSON:", text);
-        data = { message: "Server returned invalid response" };
-      }
+      const data = await res.json().catch(() => ({ message: "Server returned invalid response" }));
 
-      if (!res.ok) showPopUp(data.message || "Failed to book slot");
+      if (!res.ok) {
+        return showPopUp(data.message || "Failed to book slot");
+      }
     } catch (err) {
       console.error("Booking error:", err);
-      showPopUp("Server error. Try again later.");
+      return showPopUp("Server error. Try again later.");
     }
   }
 
-  // keep your redirect to the next page
+  // booking successful → save locally and redirect
+  localStorage.setItem("selectedSlots", JSON.stringify(selectedSlots));
   window.location.href = "details.html";
 });
 
