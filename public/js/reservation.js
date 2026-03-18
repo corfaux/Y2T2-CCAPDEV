@@ -765,7 +765,7 @@ continueButton.addEventListener("click", async () => {
   const chosenSlots = selectedSlots.map(slot => ({...slot, date, seats}));
   
   // booking successful → save locally and redirect
-  localStorage.setItem("selectedSlots", JSON.stringify(chosenSlots));
+  localStorage.setItem("reservationData", JSON.stringify({slots: selectedSlots, date, seats}));
   window.location.href = "details.html";
 });
 

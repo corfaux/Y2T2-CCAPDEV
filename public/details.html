@@ -89,9 +89,11 @@
 
             // load reservation data from localStorage
             const venue = localStorage.getItem("venue");
-            const date = localStorage.getItem("date");
-            const seats = parseInt(localStorage.getItem("seats") || "1");
-            const slots = JSON.parse(localStorage.getItem("selectedSlots")) || [];
+            const reservationData = JSON.parse(localStorage.getItem("reservationData")) || {};
+
+            const seats = reservationData.seats || 1;
+            const slots = reservationData.slots || [];
+            const date = reservationData.date;
 
             // build html summary of selected rooms and times
             let summaryHTML = "";
