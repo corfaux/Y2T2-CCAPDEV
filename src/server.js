@@ -9,8 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // middleware
-const allowedOrigins = ["http://127.0.0.1:5500", "http://localhost:5500", 
-                        "http://127.0.0.1:5000", "http://localhost:5000"];
+const allowedOrigins = ["http://127.0.0.1:5500", "http://localhost:5500", "http://127.0.0.1:5000", "http://localhost:5000"];
 
 const path = require('path');
 app.use(express.static(path.join(__dirname, "../public")));
@@ -18,7 +17,6 @@ app.use(express.static(path.join(__dirname, "../public")));
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../public", "index.html"));
 });
-
 
 app.use(cors({
   origin: function(origin, callback){
@@ -33,10 +31,10 @@ app.use(cors({
   methods: ["GET","POST","PUT","DELETE"]
 }));
 
-app.use(express.json()); // parse JSON requests
+app.use(express.json()); 
 
 // routes
-const accountRoutes = require("./routes/AccountRoutes"); // must match filename exactly
+const accountRoutes = require("./routes/AccountRoutes"); 
 app.use("/api/accounts", accountRoutes);
 const availableSlotsRoutes  = require('./routes/AvailableSlotsRoutes');
 app.use('/api/slots', availableSlotsRoutes);
@@ -64,7 +62,7 @@ app.get("/api/reservations", async (req, res) => {
 
     if (specificLab) {
       labs = [specificLab._id];
-    } 
+    }
     else {
 
       const building = await Lab.aggregate([
@@ -94,6 +92,26 @@ app.get("/api/reservations", async (req, res) => {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
+});
+
+app.delete("/api/slots/reservations/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deleted = await Reservation.findByIdAndDelete(id);
+
+
+        if (!deleted) {
+            return res.status(404).json({ message: "Reservation not found" });
+        }
+
+
+        res.json({ message: "Reservation deleted successfully" });
+
+
+    } catch (err) {
+        console.error("Delete error:", err);
+        res.status(500).json({ message: "Server error" });
+    }
 });
 
 // mongodb connection

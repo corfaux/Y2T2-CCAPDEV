@@ -7,7 +7,7 @@ const MAX_SLOTS = 6;
 
 // list of buildings and the rooms inside each building
 const buildingRooms = {
-  GK: ["GK210", "GK211", "GK302A", "GK302B", "GK304B", "GK306A", 
+  GK: ["GK210", "GK211", "GK302A", "GK302B", "GK304B", "GK306A",
     "GK306B", "GK404A", "GK404B"],
   LS: ["LS212", "LS229", "LS320", "LS335"],
   SJ: ["SJ212"],
@@ -26,7 +26,7 @@ const classSchedule = {
     C314: [
       { start: "07:30", end: "10:45" },
       { start: "12:45", end: "16:00" },
-      { start: "18:00", end: "21:00" } 
+      { start: "18:00", end: "21:00" }
     ],
     GK210: [
       { start: "09:15", end: "10:45" },
@@ -90,8 +90,9 @@ const classSchedule = {
     ],
     Y602: [
       { start: "11:00", end: "14:15" }
-    ] 
+    ]
   },
+
 
   Tuesday: {
     AG1904: [
@@ -175,8 +176,9 @@ const classSchedule = {
     ],
     Y602: [
       { start: "07:30", end: "16:00" }
-    ] 
+    ]
   },
+
 
   Wednesday: {
     AG1904: [
@@ -221,6 +223,7 @@ const classSchedule = {
       { start: "07:30", end: "14:15" }
     ]
   },
+
 
   Thursday: {
     AG1904: [
@@ -302,8 +305,9 @@ const classSchedule = {
     ],
     Y602: [
       { start: "11:00", end: "14:15" }
-    ] 
+    ]
   },
+
 
   Friday: {
     AG1904: [
@@ -375,8 +379,9 @@ const classSchedule = {
     ],
     Y602: [
       { start: "14:30", end: "16:00" }
-    ] 
+    ]
   },
+
 
   Saturday: {
     GK210: [
@@ -450,10 +455,10 @@ function isWithinBookingWindow(selectedDate) {
 
   const weekStart = getMonday(now); // monday of current week
   const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekStart.getDate() + 5); // saturday
+  weekEnd.setDate(weekStart.getDate() + 6); // saturday
 
   return selectedDate >= weekStart && selectedDate <= weekEnd;
-} 
+}
 
 // hide the time slots container and disable the continue button
 function hideAvailability() {
@@ -731,7 +736,7 @@ document.getElementById("showAvailability").addEventListener("click", async()=>{
     await loadLabsMap();
   }
 
-  // Load time slots first
+  // load time slots first
   await loadTimeSlots(building, selectedDate);
 
   document.querySelector(".timeslot-section").style.display="block";
@@ -762,8 +767,7 @@ continueButton.addEventListener("click", async () => {
     return showPopUp("Please select a date.");
   }
 
-  const chosenSlots = selectedSlots.map(slot => ({...slot, date, seats}));
-  
+ 
   // booking successful → save locally and redirect
   localStorage.setItem("reservationData", JSON.stringify({slots: selectedSlots, date, seats}));
   window.location.href = "details.html";

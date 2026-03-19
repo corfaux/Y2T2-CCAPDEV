@@ -8,5 +8,7 @@ router.get('/', availableSlotsController.getAvailability);
 router.post('/book', availableSlotsController.bookSlot);
 // get all reservations
 router.get('/reservations', availableSlotsController.getReservations);
+// delete a reservation
+router.delete('/reservations/:reservationID', availableSlotsController.deleteReservation);
 
 module.exports = router;

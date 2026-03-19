@@ -88,7 +88,6 @@ exports.getAvailability = async (req, res) => {
   }
 };
 
-
 exports.bookSlot = async (req, res) => {
   try {
     const {
@@ -166,6 +165,31 @@ exports.getReservations = async (req, res) => {
 
   } catch (err) {
     console.error("Get Reservations Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.deleteReservation = async (req, res) => {
+  try {
+    const { reservationID } = req.params;
+
+
+    if (!reservationID) {
+      return res.status(400).json({ message: "Reservation ID is required" });
+    }
+
+
+    const deleted = await Reservation.findByIdAndDelete(reservationID);
+
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Reservation not found" });
+    }
+
+
+    res.json({ message: "Reservation deleted successfully" });
+  } catch (err) {
+    console.error("Delete reservation error:", err);
     res.status(500).json({ error: err.message });
   }
 };
