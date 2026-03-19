@@ -41,12 +41,6 @@ async function login(event) {
   }
 }
 
-function register(event) {
-    event.preventDefault();
-
-    
-}
-
 function changeLoginMode(event) {
     const welcomeMsgHeader = document.querySelector(".welcome-message h2");
     const welcomeMsgPara = document.querySelector(".welcome-message p");

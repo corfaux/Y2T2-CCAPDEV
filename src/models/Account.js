@@ -6,6 +6,12 @@ const AccountSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     passwordHash: { type: String, required: true },
     contactNumber: { type: String },
+    idNumber: { type: String },
+    college: { 
+        type: String,
+        enum: ["none", "CCS", "GCOE", "COS", "CLA", "RVRCOB", "CLTSOE", "BAGCED", "TDSOL"]
+    },
+    description: { type: String },
     role: { 
         type: String,
         enum: ['student', 'admin'],

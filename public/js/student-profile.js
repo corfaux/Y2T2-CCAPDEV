@@ -26,6 +26,7 @@ if(currentUser){
   document.getElementById("contact-number").value = currentUser.contact || "";
   document.getElementById("id-num").value = currentUser.idNumber || "";
   document.getElementById("college-dropdown").value = currentUser.college || "none";
+  document.getElementById("description").value = currentUser.description || "";
 }
 
 if(isViewOnly){

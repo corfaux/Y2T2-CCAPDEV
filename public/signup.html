@@ -5,9 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>LabSys</title>
         <link rel="stylesheet" href="css/global.css">
-        <link rel="stylesheet" href="css/index.css">
+        <link rel="stylesheet" href="css/signup.css">
         <script type="text/javascript" src="js/data.js" defer></script>
-        <script type="module" src="js/index.js" defer></script>
+        <script type="module" src="js/signup.js" defer></script>
     </head>
 
     <body>
@@ -19,25 +19,39 @@
         </header>
 
         <div class="content">
-            <div class="login-pane">
-                <div class="welcome-message">
+            <div class="signup-pane">
+                <!-- <div class="welcome-message">
                     <h2>Welcome, Lasallian!</h2>
                     <p>Use your DLSU email address to continue with LabSys!</p>
-                    <p class="signup">Don't have an account? <a href="signup.html">Sign up</a></p>
-                </div>
+                    <p class="signup">Already have a LabSys account? <a href="index.html">Log in</a></p>
+                </div> -->
+                <h2>Sign up</h2>
                 
-                <form action="login" method="post">
+                <form action="signup" method="post">
+                    <div class="container">
+                        <label for="first-name">First Name</label>
+                        <input id="first-name" type="text">
+                    </div>
+                    
+                    <div class="container">
+                        <label for="last-name">Last Name</label>
+                        <input id="last-name" type="text">
+                    </div>
+
                     <div class="email">
                         <label for="email-field">Email Address</label>
                         <input id="email-field" type="text">
                     </div>
+
                     <div class="password">
                         <label for="password-field">Password</label>
                         <input id="password-field" type="password">
                     </div>
-                    
-                    <button id="login-btn" type="submit">Log in</button>
+
+                    <button id="signup-btn" type="submit">Sign up</button>
                 </form>
+
+                <p class="signup">Already have a LabSys account? <a href="index.html">Log in</a></p>
             </div> 
         </div>
 

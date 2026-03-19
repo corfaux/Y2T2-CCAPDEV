@@ -11,72 +11,64 @@ header {
     align-items: center;
 }
 
-.login-pane {
-    width: 40vw;
-    height: 35vh;
+.signup-pane {
+    width: 22.5vw;
+    height: 55vh;
     /* padding: 3vw; */
     border: 1px solid #dedfdf;
     border-radius: 15px;
     box-shadow: 0 0 3px 3px rgba(222, 223, 223, 0.35);
     display: flex;
-    justify-content: space-evenly;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
     /* gap: 5vw; */
     background-color: white;
 }
 
-.welcome-message {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5vh;
-}
-
-.welcome-message h2 {
-    font-size: 1.25rem;
+.signup-pane h2 {
+    font-size: 1.75rem;
     color:#00703c;
+    font-weight: 600;
 }
 
-.welcome-message p {
-    font-size: 0.875rem;
-}
-
-.welcome-message .signup {
-    font-size: 0.8rem;
-    color: gray;
-    margin: 0.75vh;
-}
-
-.welcome-message .signup a {
-    color: #00703c;
-}
-
-.login-pane form {
+.signup-pane form {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 0.75vh;
+    gap: 1.25vh;
+    margin-top: 2.5vh;
 }
 
-.login-pane form label {
+.signup-pane form label {
     font-weight: 450;
 }
 
-.login-pane form button {
+.signup-pane form button {
     text-decoration: none;
     font-weight: 450;
     color: white;
     padding: 0.35vw 0.5vw;
-    margin-top: 0.5vh;
+    margin-top: 1vh;
     background-color: #00703c;
     border: 1px solid white;
     border-radius: 8px;
     cursor: pointer;
 }
 
+.signup-pane p {
+    font-size: 0.75rem;
+    color: gray;
+    margin: 0.75vh;
+}
+
+.signup-pane p a {
+    color: #00703c;
+}
+
 /* TODO: fix class naming; class named "email" also in student-profile.html */
+.signup-pane form .container,
 .email,
 .password {
     display: flex;

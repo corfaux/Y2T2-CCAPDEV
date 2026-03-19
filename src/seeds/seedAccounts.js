@@ -18,6 +18,9 @@ const testStudents = [
     email: "nico_yazawa@dlsu.edu.ph",
     password: "niconiconii",
     contactNumber: "091234567",
+    idNumber: "12312036",
+    college: "CLA",
+    description: "Communication Arts - The greatest idol in the world!",
     role: "student"
   },
   {
@@ -26,6 +29,9 @@ const testStudents = [
     email: "maki_nishikino@dlsu.edu.ph",
     password: "password",
     contactNumber: "091234567",
+    idNumber: "12511068",
+    college: "RVRCOB",
+    description: "BS Accounting.",
     role: "student"
   },
   {
@@ -34,6 +40,9 @@ const testStudents = [
     email: "char_aznable@dlsu.edu.ph",
     password: "password",
     contactNumber: "091234567",
+    idNumber: "12215555",
+    college: "CCS",
+    description: "BSMS Computer Science",
     role: "student"
   }
 ];
@@ -56,6 +65,9 @@ async function seedAccounts() {
         email: student.email,
         passwordHash: hashedPassword,
         contactNumber: student.contactNumber,
+        idNumber: student.idNumber,
+        college: student.college,
+        description: student.description,
         role: student.role
       });
 
