@@ -9,7 +9,16 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // middleware
-const allowedOrigins = ["http://127.0.0.1:5500", "http://localhost:5500"];
+const allowedOrigins = ["http://127.0.0.1:5500", "http://localhost:5500", 
+                        "http://127.0.0.1:5000", "http://localhost:5000"];
+
+const path = require('path');
+app.use(express.static(path.join(__dirname, "../public")));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public", "index.html"));
+});
+
 
 app.use(cors({
   origin: function(origin, callback){
