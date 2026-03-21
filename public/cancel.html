@@ -129,28 +129,65 @@
                 });
             });
 
-            // Delete function
             async function deleteReservation(reservationID) {
                 try {
-                    const res = await fetch(`http://localhost:5000/api/slots/reservations/${reservationID}`, {
-                        method: "DELETE",
-                    });
+                    const res = await fetch(
+                        `http://localhost:5000/api/slots/reservations/${reservationID}`,
+                        {
+                            method: "DELETE"
+                        }
+                    );
 
                     const data = await res.json();
 
                     if (!res.ok) {
-                        alert("Error deleting reservation: " + data.message);
+                        alert(data.message);
                         return;
                     }
 
-                    alert(data.message);
-                    window.location.href = "student-profile.html"; // back to profile
+                    alert("Reservation cancelled!");
+                    window.location.href = "student-profile.html";
 
                 } catch (err) {
-                    console.error("Deletion error:", err);
-                    alert("An error occurred while deleting the reservation.");
+                    console.error(err);
+                    alert("Error deleting reservation");
                 }
             }
+
+            // update function
+            async function updateReservation(reservationID) {
+                try {
+                    const res = await fetch(
+                    `http://localhost:5000/api/slots/reservations/${reservationID}`,
+                    {
+                        method: "PUT",
+                        headers: {
+                        "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                        labID: selectedLabID,
+                        startTime: selectedStart,
+                        endTime: selectedEnd,
+                        date: selectedDate,
+                        seats: selectedSeats
+                        })
+                    }
+                    );
+
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                    alert(data.message);
+                    return;
+                    }
+
+                    alert("Reservation updated!");
+                    window.location.href = "student-profile.html";
+
+                } catch (err) {
+                    console.error(err);
+                }
+                }
         </script>
         </div>
     </body>

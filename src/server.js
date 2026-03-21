@@ -2,29 +2,25 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
-require('dotenv').config(); // load .env variables
-const Reservation = require('./models/Reservation');
-const Lab = require('./models/Lab');
+require('dotenv').config();
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// middleware
-const allowedOrigins = ["http://127.0.0.1:5500", "http://localhost:5500", "http://127.0.0.1:5000", "http://localhost:5000"];
-
-const path = require('path');
-app.use(express.static(path.join(__dirname, "../public")));
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public", "index.html"));
-});
+// --- Middleware ---
+const allowedOrigins = [
+  "http://127.0.0.1:5500",
+  "http://localhost:5500",
+  "http://127.0.0.1:5000",
+  "http://localhost:5000"
+];
 
 app.use(cors({
   origin: function(origin, callback){
-    if(!origin) return callback(null, true); // allow non-browser requests like Postman
+    if(!origin) return callback(null, true); // allow Postman / non-browser
     if(allowedOrigins.indexOf(origin) === -1){
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
+      return callback(new Error('CORS policy does not allow access from this origin.'), false);
     }
     return callback(null, true);
   },
@@ -35,96 +31,30 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(fileUpload({ createParentPath: true }));
+app.use(express.static(path.join(__dirname, "../public")));
 
-// routes
-const accountRoutes = require("./routes/AccountRoutes"); 
+// --- Routes ---
+const accountRoutes = require("./routes/AccountRoutes");
 app.use("/api/accounts", accountRoutes);
-const availableSlotsRoutes  = require('./routes/AvailableSlotsRoutes');
-app.use('/api/slots', availableSlotsRoutes);
-const labRoutes = require('./routes/Admin-LabRoutes');
-app.use('/api/labs', labRoutes);
 
-// get reservations by lab (room) and date
-app.get("/api/reservations", async (req, res) => {
-  try {
-    const { labID, date } = req.query;
+const availableSlotsRoutes = require("./routes/AvailableSlotsRoutes");
+app.use("/api/slots", availableSlotsRoutes);
 
-    if (!labID || !date) {
-      return res.status(400).json({ message: "labID and date required" });
-    }
+const labRoutes = require("./routes/Admin-LabRoutes");
+app.use("/api/labs", labRoutes);
 
-    const reservationDate = new Date(date);
-    reservationDate.setHours(0,0,0,0);
-
-    const nextDay = new Date(reservationDate);
-    nextDay.setDate(nextDay.getDate() + 1);
-
-    let labs;
-
-    const specificLab = await Lab.findOne({ room: labID });
-
-    if (specificLab) {
-      labs = [specificLab._id];
-    }
-    else {
-
-      const building = await Lab.aggregate([
-        {
-          $lookup: {
-            from: "buildings",
-            localField: "buildingID",
-            foreignField: "_id",
-            as: "building"
-          }
-        },
-        { $unwind: "$building" },
-        { $match: { "building.code": labID } }
-      ]);
-
-      labs = building.map(l => l._id);
-    }
-
-    const reservations = await Reservation.find({
-      labID: { $in: labs },
-      date: { $gte: reservationDate, $lt: nextDay }
-    }).populate("slot_ID");
-
-    res.json(reservations);
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
+// --- Default route ---
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public", "index.html"));
 });
 
-app.delete("/api/slots/reservations/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
-        const deleted = await Reservation.findByIdAndDelete(id);
-
-
-        if (!deleted) {
-            return res.status(404).json({ message: "Reservation not found" });
-        }
-
-
-        res.json({ message: "Reservation deleted successfully" });
-
-
-    } catch (err) {
-        console.error("Delete error:", err);
-        res.status(500).json({ message: "Server error" });
-    }
-});
-
-// mongodb connection
+// --- MongoDB connection ---
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/lab-reservation';
-
 mongoose.connect(MONGO_URI)
   .then(() => console.log('MongoDB connected successfully'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// start server
+// --- Start server ---
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

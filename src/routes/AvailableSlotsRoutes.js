@@ -2,13 +2,16 @@ const express = require('express');
 const router = express.Router();
 const availableSlotsController = require('../controllers/AvailableSlotsController');
 
-// get all slots
+// --- Get available slots for a building & date ---
 router.get('/', availableSlotsController.getAvailability);
-// book a slot
+
+// --- Book a slot (POST) ---
 router.post('/book', availableSlotsController.bookSlot);
-// get all reservations
+
+// --- Get all reservations ---
 router.get('/reservations', availableSlotsController.getReservations);
-// delete a reservation
-router.delete('/reservations/:reservationID', availableSlotsController.deleteReservation);
+
+// --- Update a reservation ---
+router.put('/reservations/:reservationID', availableSlotsController.updateReservation);
 
 module.exports = router;
