@@ -783,7 +783,7 @@ continueButton.addEventListener("click", async () => {
     localStorage.setItem("reservationID", reservationID);
   }
 
-  window.location.href = "details.html";
+  window.location.href = `details.html?reservationID=${reservationID}`;
 });
 
 window.addEventListener("DOMContentLoaded", async () => {
