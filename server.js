@@ -35,18 +35,20 @@ app.use(fileUpload({ createParentPath: true }));
 app.use(express.static(path.join(__dirname, "../public")));
 
 // --- Routes ---
-const accountRoutes = require("./routes/AccountRoutes");
+const accountRoutes = require("./src/routes/AccountRoutes");
 app.use("/api/accounts", accountRoutes);
 
-const availableSlotsRoutes = require("./routes/AvailableSlotsRoutes");
+const availableSlotsRoutes = require("./src/routes/AvailableSlotsRoutes");
 app.use("/api/slots", availableSlotsRoutes);
 
-const labRoutes = require("./routes/Admin-LabRoutes");
+const labRoutes = require("./src/routes/Admin-LabRoutes");
 app.use("/api/labs", labRoutes);
+const buildingRoutes = require('./src/routes/Admin-BuildingRoutes');
+app.use('/api/buildings', buildingRoutes);
 
 // --- Default route ---
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public", "index.html"));
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // --- MongoDB connection ---
