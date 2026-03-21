@@ -112,7 +112,6 @@
                             <th>Timeslot/s</th>
                             <th>Status</th>
                             <th>Cancel Reservation</th>
-                            <th>Edit Reservation</th>
                         </tr>
                     </thead>
                     <tbody id="reservation-tbody">
@@ -190,7 +189,6 @@
                             <td class="table-timeslots">${timeSlot}</td>
                             <td>${reservation.status || "N/A"}</td>
                             <td><button class="cancelBtn" onclick="location.href='cancel.html?reservationID=${reservation._id}'">Cancel</button></td>
-                            <td><button class="editBtn" onclick="location.href='edit.html?reservationID=${reservation._id}'">Edit</button></td>
                         `;
 
                         tbody.appendChild(row);
