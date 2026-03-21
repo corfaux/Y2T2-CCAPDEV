@@ -260,7 +260,7 @@ exports.updateReservation = async (req, res) => {
         primaryStudent,        
         additionalStudents       
       },
-      { new: true }
+      { returnDocument: after }
     );
 
     if (!updated) {

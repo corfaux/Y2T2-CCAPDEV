@@ -177,7 +177,7 @@
                             if (!labID) { alert(`Lab not found for room ${slot.room}`); continue; }
 
                             const endpoint = isEditing 
-                                ? `http://localhost:3000/api/reservations/${reservationID}`
+                                ? `http://localhost:3000/api/slots/reservations/${reservationID}`
                                 : "http://localhost:3000/api/slots/book";
                             const method = isEditing ? "PUT" : "POST";
 
