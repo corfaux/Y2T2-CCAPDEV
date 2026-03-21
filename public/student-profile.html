@@ -5,8 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Student Profile | LabSys</title>
         <link rel="stylesheet" href="css/global.css">
-        <link rel="stylesheet" href="css/student-profile.css">
-        <script type="text/javascript" src="js/data.js" defer></script> 
+        <link rel="stylesheet" href="css/student-profile.css">0
         <script type="module" src="js/student-profile.js" defer></script>
     </head>
 
@@ -158,7 +157,7 @@
             document.addEventListener("DOMContentLoaded", async () => {
                 try {
                     const studentID = localStorage.getItem("studentID");
-                    const res = await fetch(`http://localhost:5000/api/slots/reservations?studentID=${studentID}`);
+                    const res = await fetch(`http://localhost:3000/api/slots/reservations?studentID=${studentID}`);
                     const reservations = await res.json();
 
                     const tbody = document.getElementById("reservation-tbody");
