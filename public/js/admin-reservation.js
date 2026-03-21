@@ -9,14 +9,14 @@ let reservations = [];
 /* Initialize */
 
 async function fetchLabs() {
-  const res = await fetch('http://localhost:5000/api/labs');
+  const res = await fetch('http://localhost:3000/api/labs');
   labs = await res.json();
   renderLabsSelect();
   updateSchedule();
 }
 
 async function fetchReservations(labId, date) {
-  const res = await fetch(`http://localhost:5000/api/reservations?labID=${labId}&date=${date}`);
+  const res = await fetch(`http://localhost:3000/api/slots/reservations?labID=${labId}&date=${date}`)
   reservations = await res.json();
 }
 
@@ -97,7 +97,7 @@ async function updateSchedule() {
   for (let t = startTime; t < endTime; t += 0.5) {
 
     const timeStr = formatTime(t);
-    const slot = reservations.filter(r => normalizeTime(r.time) === timeStr);
+    const slot = reservations.filter(r => normalizeTime(r.startTime) === timeStr);
     const seatsUsed = slot.reduce((s, r) => s + r.seats, 0);
 
     let status = "slot-green";
@@ -142,8 +142,8 @@ function renderReservations(slotReservations) {
   return slotReservations
     .map(r => `<div class="reservation-entry ${searchMatches.includes(r._id) ? "reservation-highlight" : ""}">
       <div class="reservation-info">
-        <strong>${r.name}</strong><br>
-        <small>${r.email}</small>
+        <strong>${r.studentID.firstName} ${r.studentID.lastName}</strong><br>
+        <small>${r.studentID.email}</small>
       </div>
       <div class="reservation-actions">
         <button class="view-reservation" data-id="${r._id}">View</button>
@@ -181,28 +181,40 @@ scheduleBody.addEventListener("click", e => {
 
 function viewReservation(id) {
   const r = reservations.find(res => res._id === id);
+  let companions = "None";
+
+  if (r.additionalStudents && r.additionalStudents.length > 0) {
+    companions = r.additionalStudents.join(", ");
+  }
+
   openModal(`
     <h3>Reservation Details</h3>
-    <p><strong>Name:</strong> ${r.name}</p>
-    <p><strong>Email:</strong> ${r.email}</p>
-    <p><strong>Time:</strong> ${r.time}</p>
+    <p><strong>Name:</strong> ${r.studentID.firstName} ${r.studentID.lastName}</p>
+    <p><strong>Email:</strong> ${r.studentID.email}</p>
+    <p><strong>Time:</strong> ${r.startTime} - ${r.endTime}</p>
     <p><strong>Seats:</strong> ${r.seats}</p>
-    <p><strong>Companions:</strong> ${r.companions || "None"}</p>`, 
-    `<button id="viewStudentProfile" data-email="${r.email}">View Profile </button>    
+    <p><strong>Companions:</strong> ${companions}</p>`, 
+    `<button id="viewStudentProfile" data-id="${r.studentID._id}">View Profile </button>    
     <button onclick="closeModal()">Close</button>`);
 }
 
 async function cancelReservation(id) {
   const r = reservations.find(res => res._id === id);
-  const lab = labs.find(l => l._id === r.labID);
+  const lab = r.labID;
+  let companions = "None";
 
+  if (r.additionalStudents && r.additionalStudents.length > 0) {
+    companions = r.additionalStudents.join(", ");
+  }
+  
   openModal(`
     <h3>Cancel Reservation</h3>
     <p>Are you sure you want to cancel this reservation?</p>
-    <p><strong>Name:</strong> ${r.name}</p>
+    <p><strong>Name:</strong> ${r.studentID.firstName} ${r.studentID.lastName}</p>
     <p><strong>Laboratory:</strong> ${lab.buildingID?.name} ${lab.room}</p>
-    <p><strong>Time:</strong> ${r.time}</p>
+    <p><strong>Time:</strong> ${r.startTime} - ${r.endTime}</p>
     <p><strong>Seats:</strong> ${r.seats}</p>
+    <p><strong>Companions:</strong> ${companions}</p>
     <p style="color:#9b1c1c;"><strong>This action cannot be undone.</strong></p>
   `, `
     <button style="background:#9b1c1c;" id="confirmCancel" data-id="${id}">Cancel Reservation</button>
@@ -214,24 +226,18 @@ modalFooter.addEventListener("click", async (e) => {
   if (e.target.id === "confirmCancel") {
     const id = e.target.dataset.id;
 
-    await fetch(`http://localhost:5000/api/reservations/${id}`, {
+    await fetch(`http://localhost:3000/api/slots/reservations/${id}`, {
       method: "DELETE"
     });
 
     closeModal();
     updateSchedule();
   }
-  // TO FIX
-  /*if(e.target.id ==="viewStudentProfile") {
-    const email = e.target.dataset.email;
-    const users = JSON.parse(localStorage.getItem("users")) || {}; 
-    const student = users[email];
-
-    if (student) {
-      sessionStorage.setItem("viewingStudent", JSON.stringify(student));
-      window.location.href = "student-profile.html";
-    }
-  }*/
+  if (e.target.id === "viewStudentProfile") {
+    const id = e.target.dataset.id;
+    sessionStorage.setItem("viewStudentID", id);
+    window.location.href = "student-profile.html";
+  }
 });
 
 /* Search through reservations */
@@ -243,12 +249,12 @@ function searchReservations() {
   if (!query) return updateSchedule();
 
   const matches = reservations.filter(r =>
-    r.name.toLowerCase().includes(query) ||
-    r.email.toLowerCase().includes(query)
+    (r.studentID.firstName + " " + r.studentID.lastName).toLowerCase().includes(query) ||
+    r.studentID.email.toLowerCase().includes(query)
   );
 
   matches.forEach(r => {
-    expandedSlots[r.time] = true;
+    expandedSlots[r.startTime] = true;
     searchMatches.push(r._id);
   });
 

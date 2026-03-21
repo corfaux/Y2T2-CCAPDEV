@@ -88,7 +88,7 @@ profileForm.addEventListener("submit", async (e) => { // Saving changes to profi
     e.preventDefault();
 
     try {
-        const response = await fetch("http://localhost:5000/api/accounts/save-profile", {
+        const response = await fetch("http://localhost:3000/api/accounts/save-profile", {
             method: "POST",
             body: new FormData(profileForm)
         })
@@ -128,7 +128,7 @@ document.getElementById("delete-account-btn").addEventListener("click", async (e
 
     try {
         const email = JSON.parse(sessionStorage.getItem("currentUser")).email;
-        const response = await fetch(`http://localhost:5000/api/accounts/${email}`, {
+        const response = await fetch(`http://localhost:3000/api/accounts/${email}`, {
             method: "DELETE"
         });
 

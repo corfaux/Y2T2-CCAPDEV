@@ -45,22 +45,3 @@ function convertTo12Hour(time) {
   const formattedHour = hour % 12 || 12;
   return `${formattedHour}:${m} ${suffix}`;
 }
-
-exports.createReservation = async (req, res) => {
-  try {
-    const reservation = new Reservation(req.body);
-    await reservation.save();
-    res.status(201).json(reservation);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
-
-exports.deleteReservation = async (req, res) => {
-  try {
-    await Reservation.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Reservation deleted' });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};

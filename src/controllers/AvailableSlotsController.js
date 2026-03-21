@@ -178,7 +178,7 @@ exports.getReservations = async (req, res) => {
     if (labID) filter.labID = labID;
 
     const reservations = await Reservation.find(filter)
-      .populate({path: 'labID', model: 'Lab', populate: {path: 'buildingID', model: 'Building'}});
+      .populate({path: 'labID', model: 'Lab', populate: {path: 'buildingID', model: 'Building'}}).populate('studentID', 'firstName lastName email');
 
     res.json(reservations);
   } catch (err) {

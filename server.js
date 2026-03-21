@@ -6,14 +6,15 @@ require('dotenv').config();
 const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 // --- Middleware ---
 const allowedOrigins = [
   "http://127.0.0.1:5500",
   "http://localhost:5500",
   "http://127.0.0.1:5000",
-  "http://localhost:5000"
+  "http://localhost:5000",
+  "http://localhost:3000"
 ];
 
 app.use(cors({

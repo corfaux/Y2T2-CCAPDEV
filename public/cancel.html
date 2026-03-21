@@ -75,7 +75,7 @@
 
                 try {
                     const studentID = localStorage.getItem("studentID");
-                    const res = await fetch(`http://localhost:5000/api/slots/reservations?studentID=${studentID}`);
+                    const res = await fetch(`http://localhost:3000/api/slots/reservations?studentID=${studentID}`);
                     const reservations = await res.json();
 
                     tbody.innerHTML = ""; // clear any default rows
@@ -132,7 +132,7 @@
             async function deleteReservation(reservationID) {
                 try {
                     const res = await fetch(
-                        `http://localhost:5000/api/slots/reservations/${reservationID}`,
+                        `http://localhost:3000/api/slots/reservations/${reservationID}`,
                         {
                             method: "DELETE"
                         }
@@ -158,7 +158,7 @@
             async function updateReservation(reservationID) {
                 try {
                     const res = await fetch(
-                    `http://localhost:5000/api/slots/reservations/${reservationID}`,
+                    `http://localhost:3000/api/slots/reservations/${reservationID}`,
                     {
                         method: "PUT",
                         headers: {

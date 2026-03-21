@@ -5,7 +5,7 @@ document.querySelector(".login-pane form").addEventListener("submit", async (e) 
     const password = document.getElementById("password-field").value;
 
     try {
-        const response = await fetch("http://localhost:5000/api/accounts/login", {
+        const response = await fetch("http://localhost:3000/api/accounts/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password })

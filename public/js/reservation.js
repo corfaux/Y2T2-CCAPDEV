@@ -484,7 +484,7 @@ async function getBookedSlots(building, selectedDate) {
     if (!labID) continue;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/slots/reservations?labID=${labID}&date=${formatDate(selectedDate)}`);
+      const res = await fetch(`http://localhost:3000/api/slots/reservations?labID=${labID}&date=${formatDate(selectedDate)}`);
       if (!res.ok) {
         console.warn(`Failed to fetch reservations for ${room}`);
         continue;
@@ -575,7 +575,7 @@ async function loadTimeSlots(building, selectedDate) {
   try {
     if (!labMap || !Object.keys(labMap).length) await loadLabsMap();
 
-    const url = `http://localhost:5000/api/slots?building=${building}&date=${formatDate(selectedDate)}`;
+    const url = `http://localhost:3000/api/slots?building=${building}&date=${formatDate(selectedDate)}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error("Backend fetch failed");
 
@@ -755,7 +755,7 @@ document.getElementById("showAvailability").addEventListener("click", async()=>{
 
 let labMap = {};
 async function loadLabsMap() {
-  const res = await fetch("http://localhost:5000/api/labs");
+  const res = await fetch("http://localhost:3000/api/labs");
   const labs = await res.json();
   labs.forEach(l => labMap[l.room] = l._id);
 }

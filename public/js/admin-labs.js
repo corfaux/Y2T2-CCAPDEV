@@ -1,4 +1,5 @@
 const buildingInput = document.getElementById("buildingInput");
+const codeInput = document.getElementById("codeInput");
 const roomInput = document.getElementById("roomInput");
 const capacityInput = document.getElementById("capacityInput");
 const addLabBtn = document.querySelector(".controls button");
@@ -12,7 +13,7 @@ async function initLabPage() {
 
 async function fetchLabs() {
   try {
-    const res = await fetch('http://localhost:5000/api/labs');
+    const res = await fetch('http://localhost:3000/api/labs');
     labs = await res.json();
     renderLabs();
   } catch (err) {
@@ -47,11 +48,12 @@ async function renderLabs() {
 
 /* Adding a lab */
 addLabBtn.addEventListener("click", async () => {
-  const buildingCode = buildingInput.value.trim();
-  const room = roomInput.value.trim();
+  const buildingName = buildingInput.value.trim();
+  const buildingCode = codeInput.value.trim();
+  const room = buildingCode + roomInput.value.trim();
   const capacity = parseInt(capacityInput.value);
 
-  if (!buildingCode || !room) {
+  if (!buildingName || !buildingCode || !room) {
     return showpopUp("All fields are required.");
   }
 
@@ -60,21 +62,34 @@ addLabBtn.addEventListener("click", async () => {
   }
 
   try {
-    // Fetch building by code
-    const bRes = await fetch(`http://localhost:5000/api/buildings/code/${buildingCode}`);
+    let building;
 
-    if (!bRes.ok) {
-      return showpopUp("Building not found.");
-    }
+    // Try to fetch existing building
+    const bRes = await fetch(`http://localhost:3000/api/buildings/code/${buildingCode}`);
 
-    const building = await bRes.json();
+    if (bRes.ok) {
+      building = await bRes.json();
+    } else {
+      // Create building if not found
+      const name = prompt("Enter building name:");
 
-    if (!building || !building._id) {
-      return showpopUp("Invalid building code.");
+      if (!name) return showpopUp("Building name required");
+
+      const createRes = await fetch(`http://localhost:3000/api/buildings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, code: buildingCode })
+      });
+
+      if (!createRes.ok) {
+        throw new Error("Failed to create building");
+      }
+
+      building = await createRes.json();
     }
 
     // Create lab
-    const labRes = await fetch('http://localhost:5000/api/labs', {
+    const labRes = await fetch('http://localhost:3000/api/labs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -84,13 +99,10 @@ addLabBtn.addEventListener("click", async () => {
       })
     });
 
-    if (!labRes.ok) {
-      throw new Error("Failed to create lab");
-    }
+    if (!labRes.ok) throw new Error();
 
     showpopUp("Lab added successfully!");
 
-    // Clear inputs
     buildingInput.value = "";
     roomInput.value = "";
     capacityInput.value = "";
@@ -187,7 +199,7 @@ modalFooter.addEventListener("click", async (e) => {
     }
 
     try {
-      await fetch(`http://localhost:5000/api/labs/${id}`, {
+      await fetch(`http://localhost:3000/api/labs/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ capacity, availability })
@@ -213,7 +225,7 @@ modalFooter.addEventListener("click", async (e) => {
     const id = e.target.dataset.id;
 
     try {
-      await fetch(`http://localhost:5000/api/labs/${id}`, {
+      await fetch(`http://localhost:3000/api/labs/${id}`, {
         method: "DELETE"
       });
 
@@ -250,10 +262,18 @@ function showpopUp(message) {
 
 // TO FIX
 async function labHasReservations(labId) {
-  const today = new Date().toISOString().split("T")[0]; // example date
-  const res = await fetch(`http://localhost:5000/api/reservations?labID=${labId}&date=${today}`);
-  const data = await res.json();
-  return data.length > 0;
+  try {
+    const today = new Date().toISOString().split("T")[0];
+    const res = await fetch(`/api/reservations?labID=${labId}`);
+
+    if (!res.ok) return false;
+
+    const data = await res.json();
+    return Array.isArray(data) && data.length > 0;
+
+  } catch {
+    return false;
+  }
 }
 
 function showModalWarning(message) {
