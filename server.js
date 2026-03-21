@@ -45,6 +45,8 @@ const labRoutes = require("./src/routes/Admin-LabRoutes");
 app.use("/api/labs", labRoutes);
 const buildingRoutes = require('./src/routes/Admin-BuildingRoutes');
 app.use('/api/buildings', buildingRoutes);
+const reservationRoutes = require('./src/routes/Admin-ReservationRoutes');
+app.use('/api/reservations', reservationRoutes);
 
 // --- Default route ---
 app.get("/", (req, res) => {

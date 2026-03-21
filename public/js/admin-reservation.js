@@ -226,7 +226,7 @@ modalFooter.addEventListener("click", async (e) => {
   if (e.target.id === "confirmCancel") {
     const id = e.target.dataset.id;
 
-    await fetch(`http://localhost:3000/api/slots/reservations/${id}`, {
+    await fetch(`http://localhost:3000/api/reservations/${id}`, {
       method: "DELETE"
     });
 
