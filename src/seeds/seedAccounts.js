@@ -21,6 +21,7 @@ const testStudents = [
     idNumber: "12312036",
     college: "CLA",
     description: "Communication Arts - The greatest idol in the world!",
+    photo: "uploads/nico_yazawa.png",
     role: "student"
   },
   {
@@ -32,6 +33,7 @@ const testStudents = [
     idNumber: "12511068",
     college: "RVRCOB",
     description: "BS Accounting.",
+    photo: "",
     role: "student"
   },
   {
@@ -43,6 +45,7 @@ const testStudents = [
     idNumber: "12215555",
     college: "CCS",
     description: "BSMS Computer Science",
+    photo: "",
     role: "student"
   }
 ];
@@ -68,6 +71,7 @@ async function seedAccounts() {
         idNumber: student.idNumber,
         college: student.college,
         description: student.description,
+        photo: student.photo,
         role: student.role
       });
 

@@ -12,6 +12,7 @@ const AccountSchema = new mongoose.Schema({
         enum: ["none", "CCS", "GCOE", "COS", "CLA", "RVRCOB", "CLTSOE", "BAGCED", "TDSOL"]
     },
     description: { type: String },
+    photo: { type: String },
     role: { 
         type: String,
         enum: ['student', 'admin'],

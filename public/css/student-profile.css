@@ -28,7 +28,7 @@
     cursor: pointer;
 }
 
-.profile {
+#profile-form {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -38,7 +38,7 @@
     height: 320px; */
 }
 
-.profile > .container {
+#profile-form > .container {
     display: flex;
     justify-content: center;
     gap: 2vw;
@@ -71,7 +71,7 @@
     display: none;
 }
 
-.profile > .container textarea {
+#profile-form > .container textarea {
     width: 25vw;
     height: 10vw;
 }
@@ -111,6 +111,13 @@
     width: 10vw;
 }
 
+.personal-info input:read-only {
+    background-color: light-dark(rgba(239, 239, 239, 0.3), rgba(59, 59, 59, 0.3));
+    color: light-dark(rgb(84, 84, 84), rgb(170, 170, 170));
+    border: 1px solid rgba(118, 118, 118, 0.3);
+    cursor: default;
+}
+
 .name {
     display: flex;
     align-items: center;
@@ -128,6 +135,27 @@
 
 .name .container input {
     width: 7.5vw;
+}
+
+.save-profile-btn {
+    width: 5vw;
+    align-self: flex-end;
+    font-size: 0.8rem;
+    font-family: inherit;
+    font-weight: 450;
+    color: white;
+    padding: 0.35vw 0.5vw;
+    margin-top: 1.25vh;
+    background-color: #00703c;
+    border: 1px solid #dedfdf;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.save-profile-btn:disabled {
+    background-color: white;
+    color: #a0a0a0;
+    cursor: not-allowed;
 }
 
 .reservation-preview {

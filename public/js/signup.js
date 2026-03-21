@@ -1,5 +1,5 @@
-async function signup(event) {
-    event.preventDefault();
+document.querySelector(".signup-pane form").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
     const newUserData = {
         firstName: document.getElementById("first-name").value,
@@ -10,18 +10,19 @@ async function signup(event) {
         idNumber: "",
         college: "none",
         description: "",
+        photo: "",
         role: "student"
     };
     
     try {
-        const res = await fetch("http://localhost:5000/api/accounts/signup", {
+        const response = await fetch("http://localhost:5000/api/accounts/signup", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(newUserData)
         });
 
-        const result = await res.json();
-        if(res.ok) {
+        const result = await response.json();
+        if(response.ok) {
             alert("Account created successfully!");
             window.location.href = "index.html";
         } else {
@@ -31,7 +32,4 @@ async function signup(event) {
         console.error("Signup error:", err);
         alert("Server error. Try again later.");
     }
-}
-
-
-document.querySelector(".signup-pane form").addEventListener("submit", signup);
+});

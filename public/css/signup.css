@@ -74,12 +74,3 @@ header {
     display: flex;
     flex-direction: column;
 }
-
-#switch-mode-btn {
-    color: #D3D3D3;
-    background-color: transparent;
-    font-size: 0.875rem;
-    text-decoration: none;
-    border: 0;
-    cursor: pointer;
-}

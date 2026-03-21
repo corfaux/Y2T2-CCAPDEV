@@ -35,17 +35,15 @@
                 Back to Admin Reservations
             </button>
 
-            <form class="profile">
+            <form id="profile-form" method="post">
                 <div class="container">
                     <div class="profile-pic">
-                        <img src="images/default-profile-pic.jpg">
-                        <label for="update-photo" id="update-pic-btn">Update photo</label>
-                        <input id="update-photo" type="file" accept="image/jpg, image/jpeg, image/png, image/webp">
+                        <img src="images/default-profile-pic.jpg" alt="profile picture">
+                        <label for="photo" id="update-pic-btn">Update photo</label>
+                        <input id="photo" name="photo" type="file" accept="image/jpg, image/jpeg, image/png, image/webp">
                     </div>
 
-                    <form>
-                        <textarea id="description" name="description" placeholder="A short description about you..."></textarea>
-                    </form>
+                    <textarea id="description" name="description" placeholder="A short description about you..."></textarea>
                 </div>
                 
                 <div class="details">
@@ -55,23 +53,23 @@
                         <div class="name">
                             <div class="container">
                                 <label for="first-name">First Name</label>
-                                <input id="first-name" type="text" disabled>
+                                <input id="first-name" name="firstName" type="text" readonly>
                             </div>
                             
                             <div class="container">
                                 <label for="last-name">Last Name</label>
-                                <input id="last-name" type="text" disabled>
+                                <input id="last-name" name="lastName" type="text" readonly>
                             </div>
                         </div>
 
                         <div class="email">
                             <label for="email-address">Email Address</label>
-                            <input id="email-address" type="text" disabled>
+                            <input id="email-address" name="email" type="text" readonly>
                         </div>
                         
                         <div class="contact">
                             <label for="contact-number">Contact No.</label>
-                            <input id="contact-number" type="text" placeholder="09XXXXXXXXX">
+                            <input id="contact-number" name="contactNumber" type="text" placeholder="09XXXXXXXXX">
                         </div>
                     </div>
                     <div class="student-info">
@@ -79,7 +77,7 @@
 
                         <div class="id-number">
                             <label for="id-num">ID Number</label>
-                            <input id="id-num" type="text">
+                            <input id="id-num" name="idNumber" type="text">
                         </div>
                         
                         <div class="college">
@@ -96,6 +94,8 @@
                                 <option value="TDSOL">TDSOL</option>
                             </select>
                         </div>
+
+                        <button class="save-profile-btn" type="submit" disabled>Save profile</button>
                     </div>
                 </div>
             </form>

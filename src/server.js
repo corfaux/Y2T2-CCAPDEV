@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const fileUpload = require('express-fileupload');
 require('dotenv').config(); // load .env variables
 const Reservation = require('./models/Reservation');
 const Lab = require('./models/Lab');
@@ -31,7 +32,9 @@ app.use(cors({
   methods: ["GET","POST","PUT","DELETE"]
 }));
 
-app.use(express.json()); 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(fileUpload({ createParentPath: true }));
 
 // routes
 const accountRoutes = require("./routes/AccountRoutes"); 
