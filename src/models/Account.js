@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const AccountSchema = new mongoose.Schema({
     firstName: { type: String, required: true },
@@ -18,8 +18,8 @@ const AccountSchema = new mongoose.Schema({
         enum: ['student', 'admin'],
         default: 'student'
     }
-})
+});
 
-const Account = mongoose.model('Account', AccountSchema)
+const Account = mongoose.model('Account', AccountSchema);
 
-module.exports = Account
+module.exports = Account;

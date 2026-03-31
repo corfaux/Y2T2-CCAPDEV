@@ -1,4 +1,5 @@
 const Account = require("../models/Account");
+const Reservation = require("../models/Reservation");
 const bcrypt = require("bcryptjs");
 const path = require("path");
 const fs = require("fs").promises;
@@ -126,19 +127,25 @@ exports.saveProfile = async (req, res) => {
 
 exports.deleteAccount = async (req, res) => {
     try {
-        const email = req.params.email;
-        const currentAccount = await Account.findOne({ email: email });
-        const deletedAccount = await Account.findOneAndDelete({ email: email });
-
-        if(!deletedAccount) {
+        const accountToDelete = await Account.findOne({ email: req.params.email });
+        if(!accountToDelete) {
             return res.status(404).json({ message: "Account not found." });
         }
 
+        // Delete all reservations made by this user
+        const deletedReservations = await Reservation.deleteMany({ studentID: deletedAccount._id });
+        if(deletedReservations.deletedCount > 0) {
+            console.log(`Deleted ${deletedReservations.deletedCount} reservations.`);
+        }
+
+        // Delete parent (Account) AFTER children (Reservations)
+        await Account.findOneAndDelete({ email: email });
+
         // Delete profile pic in uploads folder if they have one
-        if(currentAccount.photo) {
+        if(accountToDelete.photo) {
             try {
-				fs.unlink(path.join(__dirname, '..', '..', 'public', currentAccount.photo));
-			    console.log("Successfully deleted photo:", currentAccount.photo);
+				await fs.unlink(path.join(__dirname, '..', '..', 'public', accountToDelete.photo));
+			    console.log("Successfully deleted photo:", accountToDelete.photo);
             } catch(deleteErr) {
                 console.error("Could not delete photo. It might not exist on disk:", deleteErr.message);
             }

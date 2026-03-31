@@ -74,10 +74,6 @@ header {
     transition: text-decoration 0.2s ease;
 }
 
-.header-right button:hover {
-    text-decoration: underline;
-}
-
 /* Logout button */
 .header-right .logout {
     font-size: 0.95rem;
