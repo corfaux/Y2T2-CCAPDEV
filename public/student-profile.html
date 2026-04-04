@@ -110,7 +110,6 @@
                             <th>Room No.</th>
                             <th>Timeslot/s</th>
                             <th>Status</th>
-                            <th>Cancel Reservation</th>
                             <th>Edit Reservation</th>
                         </tr>
                     </thead>
@@ -127,7 +126,6 @@
                             <td class="table-timeslots">-</td>
                             <td class="table-timeslots">-</td>
                             <td class="table-timeslots">-</td>
-                            <td><button class="cancelBtn" onclick="location.href='cancel.html'">Cancel</button></td>
                         </tr>
                         <tr>
                             <td>-</td>
@@ -188,7 +186,6 @@
                             <td>${room}</td>
                             <td class="table-timeslots">${timeSlot}</td>
                             <td>${reservation.status || "N/A"}</td>
-                            <td><button class="cancelBtn" onclick="location.href='cancel.html?reservationID=${reservation._id}'">Cancel</button></td>
                             <td><button class="editBtn" onclick="location.href='reservation.html?reservationID=${reservation._id}'">Edit</button></td>
                         `;
 
