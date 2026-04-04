@@ -118,11 +118,10 @@ profileForm.addEventListener("submit", async (e) => {
 
     try {
         const response = await fetch(`${BASE_URL}/api/accounts/save-profile`, {
-            method: "POST",
+            method: "PATCH",
             body: new FormData(profileForm)
         })
 
-        const result = await response.json();
         if(response.ok) {
             alert("Account details saved.");
 
@@ -141,6 +140,7 @@ profileForm.addEventListener("submit", async (e) => {
 
             sessionStorage.setItem("currentUser", JSON.stringify(userToDisplay));
         } else {
+            const result = await response.json(); // Placed here because backend sends 204 (no body) if success
             alert(`Could not save changes: ${result.message}`);
 
             // console.log("Errors:");
@@ -166,13 +166,13 @@ document.getElementById("delete-account-btn").addEventListener("click", async (e
             method: "DELETE"
         });
 
-        const result = await response.json();
         if(response.ok) {
             alert("Account successfully deleted.");
             
             sessionStorage.removeItem("currentUser"); 
             window.location.href = "index.html"; 
         } else {
+            const result = await response.json(); // Placed here because backend sends 204 (no body) if success
             alert(`Could not delete account: ${result.message}`);
         }
     } catch(err) {

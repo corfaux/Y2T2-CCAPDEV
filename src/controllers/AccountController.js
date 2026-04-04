@@ -148,7 +148,7 @@ exports.saveProfile = async (req, res) => {
         // Form validation
         const errors = {};
         if(!firstName) {
-            errors.firstName = "Missing last name.";
+            errors.firstName = "Missing first name.";
         }
         if(!lastName) {
             errors.lastName = "Missing last name.";
@@ -197,13 +197,13 @@ exports.saveProfile = async (req, res) => {
             }
         }
 
-        const updatedUser = await Account.findOneAndUpdate(
+        await Account.findOneAndUpdate(
             { _id: id },
             { $set: updateDetails },
             { returnDocument: "after" }
         );
 
-        res.status(200).json({ message: "Profile changes saved!", user: updatedUser });
+        res.status(204).end();
     } catch(err) {
         console.error("Account updating error:", err);
         res.status(500).json({ message: "Server error while updating account details." });
@@ -237,7 +237,7 @@ exports.deleteAccount = async (req, res) => {
             }
         }
 
-        res.status(200).json({ message: "Account successfully deleted." });
+        res.status(204).end();
     } catch(err) {
         console.error("Account deletion error:", err);
         res.status(500).json({ message: "Server error while deleting account." });
