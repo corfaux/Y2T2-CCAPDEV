@@ -8,7 +8,7 @@ const ReservationSchema = new mongoose.Schema({
   },
 
   studentID: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: 'Account',
     required: true
   },

@@ -25,14 +25,17 @@
                     <p class="signup">Don't have an account? <a href="signup.html">Sign up</a></p>
                 </div>
                 
-                <form action="login" method="post">
-                    <div class="email">
+                <form action="login" method="post" autocomplete="on">
+                    <div class="container">
                         <label for="email-field">Email Address</label>
-                        <input id="email-field" name="email" type="text">
+                        <input id="email-field" name="email" type="email">
+                        <small class="error">Please enter your DLSU email address.</small>
                     </div>
-                    <div class="password">
+
+                    <div class="container">
                         <label for="password-field">Password</label>
                         <input id="password-field" name="password" type="password">
+                        <small class="error">Please enter your password.</small>
                     </div>
                     
                     <button id="login-btn" type="submit">Log in</button>

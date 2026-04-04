@@ -17,15 +17,14 @@ if(isViewOnly && adminBackBtn) {
 
 // Load user (student) data
 if(currentUser) {
-    // use _id if have it, fallback to idNumber
-    localStorage.setItem("studentID", currentUser._id || currentUser.idNumber); 
+    localStorage.setItem("studentID", currentUser._id); 
 
     document.getElementById("first-name").value = currentUser.firstName || "";
     document.getElementById("last-name").value = currentUser.lastName || "";
     document.getElementById("email-address").value = currentUser.email || "";
-    document.getElementById("contact-number").value = currentUser.contact || "";
-    document.getElementById("id-num").value = currentUser.idNumber || "";
-    document.getElementById("college-dropdown").value = currentUser.college || "none";
+    document.getElementById("contact-number").value = currentUser.contactNumber || "";
+    document.getElementById("id").value = currentUser._id || "";
+    document.getElementById("college").value = currentUser.college || "none";
     document.getElementById("description").value = currentUser.description || "";
     document.querySelector(".profile-pic img").src = currentUser.photo || "images/default-profile-pic.jpg";
 }
@@ -81,11 +80,39 @@ const checkFormDifferences = () => {
     saveProfileButton.disabled = !isChanged; 
 };
 
-// Enable "save profile" button if user changes profile details
-profileForm.addEventListener("input", checkFormDifferences);
-profileForm.addEventListener("change", checkFormDifferences);
-profileForm.addEventListener("submit", async (e) => { // Saving changes to profile details
+const firstNameField = document.getElementById("first-name");
+const firstNameError = document.querySelector("#first-name + .error");
+const lastNameField = document.getElementById("last-name");
+const lastNameError = document.querySelector("#last-name + .error");
+const contactNumberField = document.getElementById("contact-number");
+const contactNumberError = document.querySelector("#contact-number + .error");
+
+// Saving changes to profile details
+profileForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    // Form validation
+    let invalidInput = false;
+    if(!firstNameField.value) {
+        invalidInput = true;
+        firstNameField.setAttribute("style", "background-color: #ffeae8;  border: 2px solid #ce2c30;");
+        firstNameError.setAttribute("style", "visibility: visible");
+    }
+    if(!lastNameField.value) {
+        invalidInput = true;
+        lastNameField.setAttribute("style", "background-color: #ffeae8;  border: 2px solid #ce2c30;");
+        lastNameError.setAttribute("style", "visibility: visible");
+    }
+    // Only check contact number if it is not empty
+    if(contactNumberField.value && !/^09[0-9]{9}$/.test(contactNumberField.value)) {
+        invalidInput = true;
+        contactNumberField.setAttribute("style", "background-color: #ffeae8;  border: 2px solid #ce2c30;");
+        contactNumberError.setAttribute("style", "visibility: visible");
+    }
+
+    if(invalidInput) {
+        return;
+    }
 
     try {
         const response = await fetch("http://localhost:3000/api/accounts/save-profile", {
@@ -101,18 +128,23 @@ profileForm.addEventListener("submit", async (e) => { // Saving changes to profi
             initialSnapshot = new FormData(profileForm);
 
             // Update session storage (so no need to relogin, just restart page to see if changes saved)
-            currentUser.firstName = document.getElementById("first-name").value;
-            currentUser.lastName = document.getElementById("last-name").value;
+            currentUser.firstName = firstNameField.value;
+            currentUser.lastName = lastNameField.value;
             currentUser.email = document.getElementById("email-address").value;
-            currentUser.contact = document.getElementById("contact-number").value;
-            currentUser.idNumber = document.getElementById("id-num").value;
-            currentUser.college = document.getElementById("college-dropdown").value;
+            currentUser.contactNumber = contactNumberField.value;
+            currentUser._id = document.getElementById("id").value;
+            currentUser.college = document.getElementById("college").value;
             currentUser.description = document.getElementById("description").value;
             currentUser.photo = document.querySelector(".profile-pic img").src;
 
             sessionStorage.setItem("currentUser", JSON.stringify(currentUser));
         } else {
             alert(`Could not save changes: ${result.message}`);
+
+            // console.log("Errors:");
+            // for(const error in result.errors) {
+            //     console.log(`${error}: ${result.errors[error]}`);
+            // }
         }
     } catch(err) {
         console.error("Saving error:", err);
@@ -127,8 +159,8 @@ document.getElementById("delete-account-btn").addEventListener("click", async (e
     }
 
     try {
-        const email = JSON.parse(sessionStorage.getItem("currentUser")).email;
-        const response = await fetch(`http://localhost:3000/api/accounts/${email}`, {
+        const _id = JSON.parse(sessionStorage.getItem("currentUser"))._id;
+        const response = await fetch(`http://localhost:3000/api/accounts/${_id}`, {
             method: "DELETE"
         });
 
@@ -145,4 +177,35 @@ document.getElementById("delete-account-btn").addEventListener("click", async (e
         console.error("Account deletion error:", err);
         alert("Server error. Try again later.");
     }
+});
+
+
+// Enable "save profile" button if user changes profile details
+profileForm.addEventListener("input", checkFormDifferences);
+profileForm.addEventListener("change", checkFormDifferences);
+
+// Clear error indicators after user tries to input again
+firstNameField.addEventListener("focus", (e) => {
+    e.target.setAttribute("style", "background-color: revert;  border: revert;");
+    firstNameError.setAttribute("style", "visibility: hidden");
+});
+lastNameField.addEventListener("focus", (e) => {
+    e.target.setAttribute("style", "background-color: revert;  border: revert;");
+    lastNameError.setAttribute("style", "visibility: hidden");
+});
+contactNumberField.addEventListener("focus", (e) => {
+    e.target.setAttribute("style", "background-color: revert;  border: revert;");
+    contactNumberError.setAttribute("style", "visibility: hidden");
+});
+
+// Auto-capitalize input for first name and last name
+firstNameField.addEventListener("input", (e) => {
+    e.target.value = e.target.value.replace(/\b\w/g, (char) => char.toUpperCase());
+});
+lastNameField.addEventListener("input", (e) => {
+    e.target.value = e.target.value.replace(/\b\w/g, (char) => char.toUpperCase());
+});
+// Only numbers allowed for input for contact number
+document.getElementById("contact-number").addEventListener("input", (e) => {
+    e.target.value = e.target.value.replace(/[^0-9]/, "");
 });

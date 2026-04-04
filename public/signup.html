@@ -6,7 +6,6 @@
         <title>LabSys</title>
         <link rel="stylesheet" href="css/global.css">
         <link rel="stylesheet" href="css/signup.css">
-        <script type="text/javascript" src="js/data.js" defer></script>
         <script type="module" src="js/signup.js" defer></script>
     </head>
 
@@ -22,31 +21,35 @@
             <div class="signup-pane">
                 <h2>Sign up</h2>
                 
-                <form action="signup" method="post">
-                    <div class="container">
+                <form id="signup-form" action="signup" method="post" autocomplete="off">
+                    <div class="labels">
                         <label for="first-name">First Name</label>
-                        <input id="first-name" type="text">
-                    </div>
-                    
-                    <div class="container">
                         <label for="last-name">Last Name</label>
-                        <input id="last-name" type="text">
+                        <label for="last-name">ID Number</label>
+                        <label for="email">Email</label>
+                        <label for="password">Password</label>
                     </div>
 
-                    <div class="email">
-                        <label for="email-field">Email Address</label>
-                        <input id="email-field" type="text">
-                    </div>
+                    <div class="fields">
+                        <input id="first-name" type="text" autocapitalize="words">
+                        <small class="error">Please enter your first name.</small>
 
-                    <div class="password">
-                        <label for="password-field">Password</label>
-                        <input id="password-field" type="password">
-                    </div>
+                        <input id="last-name" type="text" autocapitalize="words">
+                        <small class="error">Please enter your last name.</small>
 
-                    <button id="signup-btn" type="submit">Sign up</button>
+                        <input id="id" type="tel" maxlength="8">
+                        <small class="error">ID ERROR</small>
+
+                        <input id="email" type="email">
+                        <small class="error">EMAIL ERROR</small>
+
+                        <input id="password" type="password">
+                        <small class="error">PASSWORD ERROR</small>
+                    </div>
                 </form>
 
-                <p class="signup">Already have a LabSys account? <a href="index.html">Log in</a></p>
+                <button id="signup-btn" type="submit" form="signup-form">Sign up</button>
+                <small>Already have a LabSys account? <a href="index.html">Log in</a></small>
             </div> 
         </div>
 
