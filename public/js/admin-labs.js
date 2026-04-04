@@ -14,7 +14,7 @@ async function initLabPage() {
 
 async function fetchLabs() {
   try {
-    const res = await fetch('${BASE_URL}/api/labs');
+    const res = await fetch(`${BASE_URL}/api/labs`);
     labs = await res.json();
     renderLabs();
   } catch (err) {
@@ -90,7 +90,7 @@ addLabBtn.addEventListener("click", async () => {
     }
 
     // Create lab
-    const labRes = await fetch('${BASE_URL}/api/labs', {
+    const labRes = await fetch(`${BASE_URL}/api/labs`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -261,11 +261,10 @@ function showpopUp(message) {
   }, 3000);
 }
 
-// TO FIX
 async function labHasReservations(labId) {
   try {
     const today = new Date().toISOString().split("T")[0];
-    const res = await fetch(`/api/reservations?labID=${labId}`);
+    const res = await fetch(`${BASE_URL}/api/reservations?labID=${labId}`);
 
     if (!res.ok) return false;
 
