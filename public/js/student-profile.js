@@ -1,7 +1,7 @@
 const viewingStudent = JSON.parse(sessionStorage.getItem("viewingStudent"));
 const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
 
-const userToDisplay = viewingStudent || userToDisplay;
+const userToDisplay = viewingStudent || currentUser;
 const isViewOnly = viewingStudent !== null;
 const adminBackBtn = document.getElementById("adminBackBtn");
 
