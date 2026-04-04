@@ -73,6 +73,7 @@
 
         <script>
             (async function() {
+                const BASE_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "https://labsys-d4fk.onrender.com";
                 // current user
                 const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
                 if (!currentUser) {
@@ -143,7 +144,7 @@
                 // fetch labs and map
                 let labs = [];
                 async function loadLabs() {
-                    const res = await fetch("http://localhost:3000/api/labs");
+                    const res = await fetch(`${BASE_URL}/api/labs`);
                     labs = await res.json();
                     window.labMap = {};
                     labs.forEach(l => window.labMap[l.room] = l._id);
@@ -177,8 +178,8 @@
                             if (!labID) { alert(`Lab not found for room ${slot.room}`); continue; }
 
                             const endpoint = isEditing 
-                                ? `http://localhost:3000/api/slots/reservations/${reservationID}`
-                                : "http://localhost:3000/api/slots/book";
+                                ? `${BASE_URL}/api/slots/reservations/${reservationID}`
+                                : `${BASE_URL}/api/slots/book`;
                             const method = isEditing ? "PUT" : "POST";
 
                             const res = await fetch(endpoint, {

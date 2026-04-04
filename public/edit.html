@@ -56,13 +56,14 @@
         </footer>
         <script>
             document.addEventListener("DOMContentLoaded", async () => {
+                const BASE_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "https://labsys-d4fk.onrender.com";
                 const params = new URLSearchParams(window.location.search);
                 const reservationID = params.get("reservationID"); // get the selected reservation ID
                 const tbody = document.querySelector(".selected-reserve tbody");
 
                 try {
                     const studentID = localStorage.getItem("studentID");
-                    const res = await fetch(`http://localhost:3000/api/slots/reservations?studentID=${studentID}`);
+                    const res = await fetch(`${BASE_URL}/api/slots/reservations?studentID=${studentID}`);
                     const reservations = await res.json();
 
                     tbody.innerHTML = ""; // clear any default rows
