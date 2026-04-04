@@ -248,13 +248,18 @@ function searchReservations() {
 
   if (!query) return updateSchedule();
 
-  const matches = reservations.filter(r =>
-    (r.studentID.firstName + " " + r.studentID.lastName).toLowerCase().includes(query) ||
-    r.studentID.email.toLowerCase().includes(query)
-  );
+  const matches = reservations.filter(r => {
+    if (!r.studentID) return false;
+
+    const fullName = `${r.studentID.firstName} ${r.studentID.lastName}`.toLowerCase();
+    const email = r.studentID.email?.toLowerCase() || "";
+
+    return fullName.includes(query) || email.includes(query);
+  });
 
   matches.forEach(r => {
-    expandedSlots[r.startTime] = true;
+    const normalized = normalizeTime(r.startTime);
+    expandedSlots[normalized] = true;
     searchMatches.push(r._id);
   });
 
