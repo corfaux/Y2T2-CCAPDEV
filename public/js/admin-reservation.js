@@ -10,7 +10,7 @@ let reservations = [];
 /* Initialize */
 
 async function fetchLabs() {
-  const res = await fetch('${BASE_URL}/api/labs');
+  const res = await fetch(`${BASE_URL}/api/labs`);
   labs = await res.json();
   renderLabsSelect();
   updateSchedule();

@@ -778,7 +778,7 @@ document.getElementById("showAvailability").addEventListener("click", async()=>{
 
 let labMap = {};
 async function loadLabsMap() {
-  const res = await fetch("${BASE_URL}/api/labs");
+  const res = await fetch(`${BASE_URL}/api/labs`);
   const labs = await res.json();
   labs.forEach(l => labMap[l.room] = l._id);
 }

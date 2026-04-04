@@ -90,7 +90,7 @@ profileForm.addEventListener("submit", async (e) => { // Saving changes to profi
     e.preventDefault();
 
     try {
-        const response = await fetch("${BASE_URL}/api/accounts/save-profile", {
+        const response = await fetch(`${BASE_URL}/api/accounts/save-profile`, {
             method: "POST",
             body: new FormData(profileForm)
         })
