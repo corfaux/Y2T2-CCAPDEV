@@ -24,7 +24,7 @@ LabSys is designed to streamline reservation for computer laboratories for both 
 - Logout
 - Reserve for a student
 - Remove reservation
-- View student profiles
+- Edit reservation
 
 ## Development
 

@@ -19,7 +19,7 @@
     font-size: 0.8rem;
     font-weight: 450;
     color: white;
-    width: 6vw;
+    /* min-width: 6vw; */
     padding: 0.35vw 0.5vw;
     margin: 0.75vh 0 0.75vh auto;
     background-color: #ff2c2c;
@@ -104,18 +104,24 @@
     font-weight: 450;
 }
 
-.personal-info,
-.student-info {
+.personal-info {
     display: flex;
     flex-direction: column;
     gap: 1.5vh;
+}
+
+.student-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
 }
 
 .personal-info input {
     width: 10vw;
 }
 
-.personal-info input:read-only {
+.personal-info input:read-only,
+.student-info input:read-only {
     background-color: light-dark(rgba(239, 239, 239, 0.3), rgba(59, 59, 59, 0.3));
     color: light-dark(rgb(84, 84, 84), rgb(170, 170, 170));
     border: 1px solid rgba(118, 118, 118, 0.3);
@@ -128,11 +134,18 @@
     gap: 2.5vw;
 }
 
+.error {
+    font-size: 0.625rem;
+    color: #ce2c30;
+    margin: 1px 0 -4px;
+    visibility: hidden;
+}
+
 .name .container,
 .email,
 .contact,
 .id-number,
-.college {
+.college-dropdown {
     display: flex;
     flex-direction: column;
 }
@@ -142,7 +155,7 @@
 }
 
 .save-profile-btn {
-    width: 5vw;
+    min-width: 5vw;
     align-self: flex-end;
     font-size: 0.8rem;
     font-family: inherit;

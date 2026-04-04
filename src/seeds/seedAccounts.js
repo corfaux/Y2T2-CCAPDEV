@@ -13,40 +13,52 @@ mongoose.connect(MONGO_URI)
 
 const testStudents = [
   {
+    _id: "12312036",
     firstName: "Nico",
     lastName: "Yazawa",
     email: "nico_yazawa@dlsu.edu.ph",
     password: "niconiconii",
-    contactNumber: "091234567",
-    idNumber: "12312036",
+    contactNumber: "09123456789",
     college: "CLA",
     description: "Communication Arts - The greatest idol in the world!",
-    photo: "uploads/nico_yazawa.png",
+    photo: "/uploads/nico-yazawa.png",
     role: "student"
   },
   {
+    _id: "12511068",
     firstName: "Maki",
     lastName: "Nishikino",
     email: "maki_nishikino@dlsu.edu.ph",
     password: "password",
-    contactNumber: "091234567",
-    idNumber: "12511068",
+    contactNumber: "09123456789",
     college: "RVRCOB",
     description: "BS Accounting.",
     photo: "",
     role: "student"
   },
   {
+    _id: "12215555",
     firstName: "Char",
     lastName: "Aznable",
     email: "char_aznable@dlsu.edu.ph",
     password: "password",
-    contactNumber: "091234567",
-    idNumber: "12215555",
+    contactNumber: "09123456789",
     college: "CCS",
     description: "BSMS Computer Science",
     photo: "",
     role: "student"
+  },
+  {
+    _id: "12367680",
+    firstName: "Test",
+    lastName: "Tester",
+    email: "itservices@dlsu.edu.ph",
+    password: "password",
+    contactNumber: "",
+    college: "none",
+    description: "",
+    photo: "",
+    role: "admin"    
   }
 ];
 
@@ -63,12 +75,12 @@ async function seedAccounts() {
       const hashedPassword = await bcrypt.hash(student.password, 10);
 
       const newStudent = new Account({
+        _id: student._id,
         firstName: student.firstName,
         lastName: student.lastName,
         email: student.email,
         passwordHash: hashedPassword,
         contactNumber: student.contactNumber,
-        idNumber: student.idNumber,
         college: student.college,
         description: student.description,
         photo: student.photo,

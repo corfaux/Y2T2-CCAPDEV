@@ -18,16 +18,15 @@ if(isViewOnly && adminBackBtn) {
 }
 
 // Load user (student) data
-if(userToDisplay) {
-    // use _id if have it, fallback to idNumber
-    localStorage.setItem("studentID", userToDisplay._id || userToDisplay.idNumber); 
+if(currentUser) {
+    localStorage.setItem("studentID", currentUser._id); 
 
     document.getElementById("first-name").value = userToDisplay.firstName || "";
     document.getElementById("last-name").value = userToDisplay.lastName || "";
     document.getElementById("email-address").value = userToDisplay.email || "";
-    document.getElementById("contact-number").value = userToDisplay.contact || "";
-    document.getElementById("id-num").value = userToDisplay.idNumber || "";
-    document.getElementById("college-dropdown").value = userToDisplay.college || "none";
+    document.getElementById("contact-number").value = userToDisplay.contactNumber || "";
+    document.getElementById("id").value = userToDisplay._id || "";
+    document.getElementById("college").value = userToDisplay.college || "none";
     document.getElementById("description").value = userToDisplay.description || "";
     document.querySelector(".profile-pic img").src = userToDisplay.photo || "images/default-profile-pic.jpg";
 }
@@ -83,11 +82,39 @@ const checkFormDifferences = () => {
     saveProfileButton.disabled = !isChanged; 
 };
 
-// Enable "save profile" button if user changes profile details
-profileForm.addEventListener("input", checkFormDifferences);
-profileForm.addEventListener("change", checkFormDifferences);
-profileForm.addEventListener("submit", async (e) => { // Saving changes to profile details
+const firstNameField = document.getElementById("first-name");
+const firstNameError = document.querySelector("#first-name + .error");
+const lastNameField = document.getElementById("last-name");
+const lastNameError = document.querySelector("#last-name + .error");
+const contactNumberField = document.getElementById("contact-number");
+const contactNumberError = document.querySelector("#contact-number + .error");
+
+// Saving changes to profile details
+profileForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    // Form validation
+    let invalidInput = false;
+    if(!firstNameField.value) {
+        invalidInput = true;
+        firstNameField.setAttribute("style", "background-color: #ffeae8;  border: 2px solid #ce2c30;");
+        firstNameError.setAttribute("style", "visibility: visible");
+    }
+    if(!lastNameField.value) {
+        invalidInput = true;
+        lastNameField.setAttribute("style", "background-color: #ffeae8;  border: 2px solid #ce2c30;");
+        lastNameError.setAttribute("style", "visibility: visible");
+    }
+    // Only check contact number if it is not empty
+    if(contactNumberField.value && !/^09[0-9]{9}$/.test(contactNumberField.value)) {
+        invalidInput = true;
+        contactNumberField.setAttribute("style", "background-color: #ffeae8;  border: 2px solid #ce2c30;");
+        contactNumberError.setAttribute("style", "visibility: visible");
+    }
+
+    if(invalidInput) {
+        return;
+    }
 
     try {
         const response = await fetch(`${BASE_URL}/api/accounts/save-profile`, {
@@ -103,18 +130,23 @@ profileForm.addEventListener("submit", async (e) => { // Saving changes to profi
             initialSnapshot = new FormData(profileForm);
 
             // Update session storage (so no need to relogin, just restart page to see if changes saved)
-            userToDisplay.firstName = document.getElementById("first-name").value;
-            userToDisplay.lastName = document.getElementById("last-name").value;
+            userToDisplay.firstName = firstNameField.value;
+            userToDisplay.lastName = lastNameField.value;
             userToDisplay.email = document.getElementById("email-address").value;
-            userToDisplay.contact = document.getElementById("contact-number").value;
-            userToDisplay.idNumber = document.getElementById("id-num").value;
-            userToDisplay.college = document.getElementById("college-dropdown").value;
+            userToDisplay.contactNumber = contactNumberField.value;
+            userToDisplay._id = document.getElementById("id").value;
+            userToDisplay.college = document.getElementById("college").value;
             userToDisplay.description = document.getElementById("description").value;
             userToDisplay.photo = document.querySelector(".profile-pic img").src;
 
-            sessionStorage.setItem("userToDisplay", JSON.stringify(userToDisplay));
+            sessionStorage.setItem("currentUser", JSON.stringify(userToDisplay));
         } else {
             alert(`Could not save changes: ${result.message}`);
+
+            // console.log("Errors:");
+            // for(const error in result.errors) {
+            //     console.log(`${error}: ${result.errors[error]}`);
+            // }
         }
     } catch(err) {
         console.error("Saving error:", err);
@@ -129,8 +161,8 @@ document.getElementById("delete-account-btn").addEventListener("click", async (e
     }
 
     try {
-        const email = JSON.parse(sessionStorage.getItem("userToDisplay")).email;
-        const response = await fetch(`${BASE_URL}/api/accounts/${email}`, {
+        const _id = userToDisplay._id;
+        const response = await fetch(`${BASE_URL}/api/accounts/${_id}`, {
             method: "DELETE"
         });
 
@@ -138,7 +170,7 @@ document.getElementById("delete-account-btn").addEventListener("click", async (e
         if(response.ok) {
             alert("Account successfully deleted.");
             
-            sessionStorage.removeItem("userToDisplay"); 
+            sessionStorage.removeItem("currentUser"); 
             window.location.href = "index.html"; 
         } else {
             alert(`Could not delete account: ${result.message}`);
@@ -147,4 +179,35 @@ document.getElementById("delete-account-btn").addEventListener("click", async (e
         console.error("Account deletion error:", err);
         alert("Server error. Try again later.");
     }
+});
+
+
+// Enable "save profile" button if user changes profile details
+profileForm.addEventListener("input", checkFormDifferences);
+profileForm.addEventListener("change", checkFormDifferences);
+
+// Clear error indicators after user tries to input again
+firstNameField.addEventListener("focus", (e) => {
+    e.target.setAttribute("style", "background-color: revert;  border: revert;");
+    firstNameError.setAttribute("style", "visibility: hidden");
+});
+lastNameField.addEventListener("focus", (e) => {
+    e.target.setAttribute("style", "background-color: revert;  border: revert;");
+    lastNameError.setAttribute("style", "visibility: hidden");
+});
+contactNumberField.addEventListener("focus", (e) => {
+    e.target.setAttribute("style", "background-color: revert;  border: revert;");
+    contactNumberError.setAttribute("style", "visibility: hidden");
+});
+
+// Auto-capitalize input for first name and last name
+firstNameField.addEventListener("input", (e) => {
+    e.target.value = e.target.value.replace(/\b\w/g, (char) => char.toUpperCase());
+});
+lastNameField.addEventListener("input", (e) => {
+    e.target.value = e.target.value.replace(/\b\w/g, (char) => char.toUpperCase());
+});
+// Only numbers allowed for input for contact number
+document.getElementById("contact-number").addEventListener("input", (e) => {
+    e.target.value = e.target.value.replace(/[^0-9]/, "");
 });

@@ -52,36 +52,40 @@
                         <div class="name">
                             <div class="container">
                                 <label for="first-name">First Name</label>
-                                <input id="first-name" name="firstName" type="text" readonly>
+                                <input id="first-name" name="firstName" type="text">
+                                <small class="error">Please enter your first name.</small>
                             </div>
                             
                             <div class="container">
                                 <label for="last-name">Last Name</label>
-                                <input id="last-name" name="lastName" type="text" readonly>
+                                <input id="last-name" name="lastName" type="text">
+                                <small class="error">Please enter your last name.</small>
                             </div>
                         </div>
 
                         <div class="email">
                             <label for="email-address">Email Address</label>
-                            <input id="email-address" name="email" type="text" readonly>
+                            <input id="email-address" name="email" type="email" readonly>
                         </div>
                         
                         <div class="contact">
                             <label for="contact-number">Contact No.</label>
-                            <input id="contact-number" name="contactNumber" type="text" placeholder="09XXXXXXXXX">
+                            <input id="contact-number" name="contactNumber" type="tel" maxlength="11" placeholder="09XXXXXXXXX">
+                            <small class="error">Invalid contact number.</small>
                         </div>
                     </div>
+
                     <div class="student-info">
                         <h3>Student Information</h2>
 
                         <div class="id-number">
-                            <label for="id-num">ID Number</label>
-                            <input id="id-num" name="idNumber" type="text">
+                            <label for="id">ID Number</label>
+                            <input id="id" name="id" type="text" readonly>
                         </div>
                         
-                        <div class="college">
-                            <label for="college-dropdown">College</label>
-                            <select id="college-dropdown" name="college">
+                        <div class="college-dropdown">
+                            <label for="college">College</label>
+                            <select id="college" name="college">
                                 <option value="none">-</option>
                                 <option value="CCS">CCS</option>
                                 <option value="GCOE">GCOE</option>
@@ -191,7 +195,6 @@
 
                         tbody.appendChild(row);
                     });
-
                 } catch (err) {
                     console.error("Error loading reservations:", err);
                 }

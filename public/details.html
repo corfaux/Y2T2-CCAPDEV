@@ -86,7 +86,7 @@
                 const isEditing = !!reservationID;
 
                 // pre-fill primary student info
-                document.getElementById("mainId").value = currentUser.idNumber || "";
+                document.getElementById("mainId").value = currentUser._id || "";
                 document.getElementById("mainName").value = `${currentUser.lastName}, ${currentUser.firstName}`;
                 document.getElementById("mainCollege").value = currentUser.college || "";
 

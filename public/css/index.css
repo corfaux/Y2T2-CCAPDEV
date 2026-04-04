@@ -30,7 +30,7 @@ header {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 0.5vh;
+    gap: 0.75vh;
 }
 
 .welcome-message h2 {
@@ -57,11 +57,18 @@ header {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 0.75vh;
+    gap: 0.25vh;
 }
 
 .login-pane form label {
     font-weight: 450;
+}
+
+.login-pane form .error {
+    font-size: 0.595rem;
+    color: #ce2c30;
+    margin: 0.25vh 0 0 0;
+    visibility: hidden;
 }
 
 .login-pane form button {
@@ -76,9 +83,7 @@ header {
     cursor: pointer;
 }
 
-/* TODO: fix class naming; class named "email" also in student-profile.html */
-.email,
-.password {
+.login-pane form .container {
     display: flex;
     flex-direction: column;
 }
