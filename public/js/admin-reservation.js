@@ -235,7 +235,10 @@ modalFooter.addEventListener("click", async (e) => {
   }
   if (e.target.id === "viewStudentProfile") {
     const id = e.target.dataset.id;
-    sessionStorage.setItem("viewStudentID", id);
+    const student = reservations.find(r => r.studentID._id === id)?.studentID;
+    if (student) {
+        sessionStorage.setItem("viewingStudent", JSON.stringify(student));
+    }
     window.location.href = "student-profile.html";
   }
 });
@@ -244,7 +247,7 @@ modalFooter.addEventListener("click", async (e) => {
 function searchReservations() {
   const query = reservationSearch.value.toLowerCase().trim();
   searchMatches = [];
-  expandedSlots = {}; // In case the time slots are different
+  expandedSlots = {}; // Reset expanded slots
 
   if (!query) return updateSchedule();
 

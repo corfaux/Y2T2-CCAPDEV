@@ -1,5 +1,7 @@
 const roomGrid = document.getElementById("roomGrid");
 const continueButton = document.getElementById("continueButton");
+const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+const navLinks = document.getElementById("navLinks");
 
 let selectedSlots = [];
 localStorage.removeItem("selectedSlots");
@@ -422,6 +424,26 @@ dateInput.min = formatDate(today);
 // set the latest selectable date to December 31 of the current year
 const endOfYear = new Date(year, 11, 31);
 dateInput.max = formatDate(endOfYear);
+
+// dynamic header for viewing page as student and as admin
+function renderHeader() {
+  if (!currentUser || !navLinks) return;
+
+  if (currentUser.role === "admin") {
+    navLinks.innerHTML = `
+      <li><a href="reservation.html">Make a Reservation</a></li>
+      <li><a href="reservation-management.html">Manage Reservations</a></li>
+      <li><a href="lab-management.html">Manage Laboratories</a></li>
+    `;
+  } else {
+    navLinks.innerHTML = `
+      <li><a href="student-profile.html">View Profile</a></li>
+      <li><a href="reservation.html">Make a Reservation</a></li>
+    `;
+  }
+}
+
+renderHeader();
 
 // show warning message if trying to book past 6 hours
 function showPopUp(message) {

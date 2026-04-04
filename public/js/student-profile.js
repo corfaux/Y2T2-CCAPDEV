@@ -1,8 +1,8 @@
-const currentUser =
-    JSON.parse(sessionStorage.getItem("currentUser")) ||
-    JSON.parse(sessionStorage.getItem("viewingStudent"));
+const viewingStudent = JSON.parse(sessionStorage.getItem("viewingStudent"));
+const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
 
-const isViewOnly = sessionStorage.getItem("viewingStudent") !== null;
+const userToDisplay = viewingStudent || userToDisplay;
+const isViewOnly = viewingStudent !== null;
 const adminBackBtn = document.getElementById("adminBackBtn");
 
 // Return to admin page
@@ -16,18 +16,18 @@ if(isViewOnly && adminBackBtn) {
 }
 
 // Load user (student) data
-if(currentUser) {
+if(userToDisplay) {
     // use _id if have it, fallback to idNumber
-    localStorage.setItem("studentID", currentUser._id || currentUser.idNumber); 
+    localStorage.setItem("studentID", userToDisplay._id || userToDisplay.idNumber); 
 
-    document.getElementById("first-name").value = currentUser.firstName || "";
-    document.getElementById("last-name").value = currentUser.lastName || "";
-    document.getElementById("email-address").value = currentUser.email || "";
-    document.getElementById("contact-number").value = currentUser.contact || "";
-    document.getElementById("id-num").value = currentUser.idNumber || "";
-    document.getElementById("college-dropdown").value = currentUser.college || "none";
-    document.getElementById("description").value = currentUser.description || "";
-    document.querySelector(".profile-pic img").src = currentUser.photo || "images/default-profile-pic.jpg";
+    document.getElementById("first-name").value = userToDisplay.firstName || "";
+    document.getElementById("last-name").value = userToDisplay.lastName || "";
+    document.getElementById("email-address").value = userToDisplay.email || "";
+    document.getElementById("contact-number").value = userToDisplay.contact || "";
+    document.getElementById("id-num").value = userToDisplay.idNumber || "";
+    document.getElementById("college-dropdown").value = userToDisplay.college || "none";
+    document.getElementById("description").value = userToDisplay.description || "";
+    document.querySelector(".profile-pic img").src = userToDisplay.photo || "images/default-profile-pic.jpg";
 }
 
 if(isViewOnly) {
@@ -101,16 +101,16 @@ profileForm.addEventListener("submit", async (e) => { // Saving changes to profi
             initialSnapshot = new FormData(profileForm);
 
             // Update session storage (so no need to relogin, just restart page to see if changes saved)
-            currentUser.firstName = document.getElementById("first-name").value;
-            currentUser.lastName = document.getElementById("last-name").value;
-            currentUser.email = document.getElementById("email-address").value;
-            currentUser.contact = document.getElementById("contact-number").value;
-            currentUser.idNumber = document.getElementById("id-num").value;
-            currentUser.college = document.getElementById("college-dropdown").value;
-            currentUser.description = document.getElementById("description").value;
-            currentUser.photo = document.querySelector(".profile-pic img").src;
+            userToDisplay.firstName = document.getElementById("first-name").value;
+            userToDisplay.lastName = document.getElementById("last-name").value;
+            userToDisplay.email = document.getElementById("email-address").value;
+            userToDisplay.contact = document.getElementById("contact-number").value;
+            userToDisplay.idNumber = document.getElementById("id-num").value;
+            userToDisplay.college = document.getElementById("college-dropdown").value;
+            userToDisplay.description = document.getElementById("description").value;
+            userToDisplay.photo = document.querySelector(".profile-pic img").src;
 
-            sessionStorage.setItem("currentUser", JSON.stringify(currentUser));
+            sessionStorage.setItem("userToDisplay", JSON.stringify(userToDisplay));
         } else {
             alert(`Could not save changes: ${result.message}`);
         }
@@ -127,7 +127,7 @@ document.getElementById("delete-account-btn").addEventListener("click", async (e
     }
 
     try {
-        const email = JSON.parse(sessionStorage.getItem("currentUser")).email;
+        const email = JSON.parse(sessionStorage.getItem("userToDisplay")).email;
         const response = await fetch(`http://localhost:3000/api/accounts/${email}`, {
             method: "DELETE"
         });
@@ -136,7 +136,7 @@ document.getElementById("delete-account-btn").addEventListener("click", async (e
         if(response.ok) {
             alert("Account successfully deleted.");
             
-            sessionStorage.removeItem("currentUser"); 
+            sessionStorage.removeItem("userToDisplay"); 
             window.location.href = "index.html"; 
         } else {
             alert(`Could not delete account: ${result.message}`);
