@@ -195,10 +195,6 @@
                         tbody.appendChild(row);
                     });
 
-                    // Optionally, update the reservation count below the table
-                    const countParagraph = document.querySelector("p");
-                    countParagraph.textContent = `You have ${reservations.length}/2 reservations as of now.`;
-
                 } catch (err) {
                     console.error("Error loading reservations:", err);
                 }
