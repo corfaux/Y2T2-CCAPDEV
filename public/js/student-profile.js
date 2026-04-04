@@ -5,6 +5,8 @@ const userToDisplay = viewingStudent || userToDisplay;
 const isViewOnly = viewingStudent !== null;
 const adminBackBtn = document.getElementById("adminBackBtn");
 
+const BASE_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "https://labsys-d4fk.onrender.com";
+
 // Return to admin page
 if(isViewOnly && adminBackBtn) {
     adminBackBtn.style.display = "inline-block";
@@ -88,7 +90,7 @@ profileForm.addEventListener("submit", async (e) => { // Saving changes to profi
     e.preventDefault();
 
     try {
-        const response = await fetch("http://localhost:3000/api/accounts/save-profile", {
+        const response = await fetch("${BASE_URL}/api/accounts/save-profile", {
             method: "POST",
             body: new FormData(profileForm)
         })
@@ -128,7 +130,7 @@ document.getElementById("delete-account-btn").addEventListener("click", async (e
 
     try {
         const email = JSON.parse(sessionStorage.getItem("userToDisplay")).email;
-        const response = await fetch(`http://localhost:3000/api/accounts/${email}`, {
+        const response = await fetch(`${BASE_URL}/api/accounts/${email}`, {
             method: "DELETE"
         });
 

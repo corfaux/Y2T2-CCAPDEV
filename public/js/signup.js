@@ -1,3 +1,5 @@
+const BASE_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "https://labsys-d4fk.onrender.com";
+
 document.querySelector(".signup-pane form").addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -15,7 +17,7 @@ document.querySelector(".signup-pane form").addEventListener("submit", async (e)
     };
     
     try {
-        const response = await fetch("http://localhost:3000/api/accounts/signup", {
+        const response = await fetch(`${BASE_URL}/api/accounts/signup`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(newUserData)

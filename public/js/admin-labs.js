@@ -4,6 +4,7 @@ const roomInput = document.getElementById("roomInput");
 const capacityInput = document.getElementById("capacityInput");
 const addLabBtn = document.querySelector(".controls button");
 const popUp = document.getElementById("popupMessage");
+const BASE_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "https://labsys-d4fk.onrender.com";
 let labs = [];
 
 /* Initialize */
@@ -13,7 +14,7 @@ async function initLabPage() {
 
 async function fetchLabs() {
   try {
-    const res = await fetch('http://localhost:3000/api/labs');
+    const res = await fetch('${BASE_URL}/api/labs');
     labs = await res.json();
     renderLabs();
   } catch (err) {
@@ -65,7 +66,7 @@ addLabBtn.addEventListener("click", async () => {
     let building;
 
     // Try to fetch existing building
-    const bRes = await fetch(`http://localhost:3000/api/buildings/code/${buildingCode}`);
+    const bRes = await fetch(`${BASE_URL}/api/buildings/code/${buildingCode}`);
 
     if (bRes.ok) {
       building = await bRes.json();
@@ -75,7 +76,7 @@ addLabBtn.addEventListener("click", async () => {
 
       if (!name) return showpopUp("Building name required");
 
-      const createRes = await fetch(`http://localhost:3000/api/buildings`, {
+      const createRes = await fetch(`${BASE_URL}/api/buildings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, code: buildingCode })
@@ -89,7 +90,7 @@ addLabBtn.addEventListener("click", async () => {
     }
 
     // Create lab
-    const labRes = await fetch('http://localhost:3000/api/labs', {
+    const labRes = await fetch('${BASE_URL}/api/labs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -199,7 +200,7 @@ modalFooter.addEventListener("click", async (e) => {
     }
 
     try {
-      await fetch(`http://localhost:3000/api/labs/${id}`, {
+      await fetch(`${BASE_URL}/api/labs/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ capacity, availability })
@@ -225,7 +226,7 @@ modalFooter.addEventListener("click", async (e) => {
     const id = e.target.dataset.id;
 
     try {
-      await fetch(`http://localhost:3000/api/labs/${id}`, {
+      await fetch(`${BASE_URL}/api/labs/${id}`, {
         method: "DELETE"
       });
 

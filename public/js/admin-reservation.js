@@ -1,5 +1,6 @@
 const startTime = 7.5;
 const endTime = 18;
+const BASE_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "https://labsys-d4fk.onrender.com";
 // Array to store matched queries
 let searchMatches = [];
 let expandedSlots = {};
@@ -9,14 +10,14 @@ let reservations = [];
 /* Initialize */
 
 async function fetchLabs() {
-  const res = await fetch('http://localhost:3000/api/labs');
+  const res = await fetch('${BASE_URL}/api/labs');
   labs = await res.json();
   renderLabsSelect();
   updateSchedule();
 }
 
 async function fetchReservations(labId, date) {
-  const res = await fetch(`http://localhost:3000/api/slots/reservations?labID=${labId}&date=${date}`)
+  const res = await fetch(`${BASE_URL}/api/slots/reservations?labID=${labId}&date=${date}`)
   reservations = await res.json();
 }
 
@@ -226,7 +227,7 @@ modalFooter.addEventListener("click", async (e) => {
   if (e.target.id === "confirmCancel") {
     const id = e.target.dataset.id;
 
-    await fetch(`http://localhost:3000/api/reservations/${id}`, {
+    await fetch(`${BASE_URL}/api/reservations/${id}`, {
       method: "DELETE"
     });
 
