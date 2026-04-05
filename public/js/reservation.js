@@ -447,7 +447,6 @@ function showPopUp(message) {
   popUp.classList.remove("hidden");
   popUp.classList.add("show");
 
-
   setTimeout(() => {
     popUp.classList.remove("show");
     setTimeout(() => {
@@ -516,8 +515,9 @@ async function getBookedSlots(building, selectedDate) {
         const existing = allBookedSlotIds.find(s => s.key === key);
         if (existing) {
           existing.seats += b.seats;
+          existing.userIDs.push(b.userID);
         } else {
-          allBookedSlotIds.push({ key, seats: b.seats });
+          allBookedSlotIds.push({ key, seats: b.seats, userIDs: [b.userID] });
         }
       });
     } catch (err) {
@@ -562,6 +562,25 @@ function isSlotInPast(slot, selectedDate) {
   return slotStartMinutes <= currentMinutes;
 }
 
+function hasUserReserved(slot, labID, bookedSlotIds) {
+  const start = normalizeTime(slot.startTime);
+  const end = normalizeTime(slot.endTime);
+  const userID = String(currentUser._id);
+
+  // check current session selections
+  if (selectedSlots.some(s =>
+    s.labID === labID &&
+    normalizeTime(s.startTime) === start &&
+    normalizeTime(s.endTime) === end
+  )) return true;
+
+  // check backend bookings
+  const booked = bookedSlotIds.find(s => s.key === `${labID}_${start}_${end}`);
+  if (booked && booked.userIDs.map(String).includes(userID)) return true;
+
+  return false;
+}
+
 function normalizeTime(time) {
   const [h, m] = time.split(":").map(Number);
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
@@ -580,6 +599,11 @@ function toggleSlot(room, slot, bookedSlotIds, button, seats) {
     selectedSlots.splice(existingIndex, 1);
     button.classList.remove("selected");
   } else {
+    const booked = bookedSlotIds.find(s => s.key === `${labID}_${slot.startTime}_${slot.endTime}`);
+    // check if slot has already been reserved by this user
+    if (hasUserReserved(slot, labID, bookedSlotIds)) {
+      return showPopUp("You already have a reservation for this lab at this time.");
+    }
     // overlap check
     if (selectedSlots.some(s => s.room === room && timeOverlap(s, slot))) {
       return showPopUp("Selected slot overlaps with another reservation in this room.");
@@ -591,8 +615,8 @@ function toggleSlot(room, slot, bookedSlotIds, button, seats) {
     }
 
     // seat availability
-    const booked = bookedSlotIds.find(s => s.key === `${labID}_${slot.startTime}_${slot.endTime}`);
     const reservedSeats = booked ? booked.seats : 0;
+
     if (reservedSeats + seats > roomObj.capacity) {
       return showPopUp("Not enough seats available in this slot.");
     }

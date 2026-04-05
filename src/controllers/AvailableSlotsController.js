@@ -168,6 +168,12 @@ exports.bookSlot = async (req, res) => {
       return !(sEnd <= rStart || sStart >= rEnd);
     });
 
+    // check if this student already has a reservation in this slot
+    const existing = overlappingReservations.find(r => r.studentID.toString() === studentID);
+    if (existing) {
+      return res.status(400).json({ message: "You already booked a reservation in this time slot" });
+    }
+
     // sum seats
     const totalReservedSeats = overlappingReservations.reduce((sum, r) => sum + r.seats, 0);
 
