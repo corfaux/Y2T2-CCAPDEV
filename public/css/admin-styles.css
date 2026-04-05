@@ -338,3 +338,15 @@ select {
 .hidden {
     display: none;
 }
+
+/* view reservation in reservation management */
+.reservation-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.reservation-details h3 {
+    margin-bottom: 8px;
+}

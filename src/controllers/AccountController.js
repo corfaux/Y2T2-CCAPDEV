@@ -5,7 +5,7 @@ const path = require("path");
 const fs = require("fs").promises;
 
 exports.login = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, rememberMe } = req.body;
 
     // Form validation
     const errors = {};
@@ -21,7 +21,7 @@ exports.login = async (req, res) => {
     }
 
     try {
-        const account = await Account.findOne({ email });
+        const account = await Account.findOne({ email: email }).lean();
         if(!account) {
             return res.status(401).json({ message: "Invalid email address or password." });
         }
@@ -31,17 +31,17 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: "Invalid username or password." });
         }
 
-        res.json({
-			_id: account._id,
-			firstName: account.firstName,
-			lastName: account.lastName,
-			email: account.email,
-			contactNumber: account.contactNumber,
-			college: account.college,
-			description: account.description,
-			photo: account.photo,
-			role: account.role
-        });
+        // Session
+        req.session._id = account._id;
+        req.session.role = account.role;
+        // Remember me for 21 days
+        if(rememberMe) {
+            req.session.cookie.maxAge = 1000 * 60 * 60 * 24 * 21;
+        } else {
+            req.session.cookie.expires = false;
+        }
+
+        res.status(200).json({ message: "Logged in successfully!", account: account });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Server error" });
@@ -98,8 +98,8 @@ exports.signup = async (req, res) => {
 
     try {
         let errorMsg = "";
-        const existingId = await Account.findOne({ _id });
-        const existingEmail = await Account.findOne({ email });
+        const existingId = await Account.findById(_id);
+        const existingEmail = await Account.findOne({ email: email });
 
         if(existingId) {
             errorMsg += "ID number already in use.";
@@ -134,13 +134,58 @@ exports.signup = async (req, res) => {
     }
 };
 
+exports.logout = async (req, res) => {
+    req.session.destroy((err) => {
+        if(err) {
+            console.error("Logout error:", err);
+            return res.status(500).json({ message: "Could not log out. Please try again." });
+        }    
+        res.clearCookie("connect.sid"); 
+    
+        return res.status(204).end();
+    });
+}
+
+exports.checkSession = async (req, res) => {
+    if(req.session && req.session._id) {
+        return res.status(200).json({ isAuthenticated: true, role: req.session.role });
+    }
+    
+    return res.status(401).json({ isAuthenticated: false });
+}
+
+exports.getProfile = async (req, res) => {
+    const targetId = req.query.studentId ? req.query.studentId : req.session._id;
+
+    try {
+        const account = await Account.findById(targetId).select("-password").lean();
+        if(!account) {
+            // If logged in user was a student but they don't exist in the DB, clear session
+            if(targetId === req.session._id) {
+                res.clearCookie("connect.sid"); 
+            } 
+            
+            return res.status(404).json({ message: "Account no longer exists." });
+        }
+        
+        res.status(200).json({ 
+            message: "Profile fetched successfully.", 
+            account: account,
+            isViewOnly: Boolean(req.query.studentId)
+        });
+    } catch(err) {
+        console.error("Error fetching profile:", err);
+        res.status(500).json({ message: "Server error while fetching profile." });
+    }
+}
+
 exports.saveProfile = async (req, res) => {
     try {
         const { id, firstName, lastName,
                 contactNumber, college, description
             } = req.body;
         
-        const currentUser = await Account.findOne({ _id: id });
+        const currentUser = await Account.findById(id);
         if(!currentUser) {
             return res.status(404).json({ message: "User not found." });
         }
@@ -212,7 +257,7 @@ exports.saveProfile = async (req, res) => {
 
 exports.deleteAccount = async (req, res) => {
     try {
-        const accountToDelete = await Account.findOne({ _id: req.params._id });
+        const accountToDelete = await Account.findById(req.params._id);
         if(!accountToDelete) {
             return res.status(404).json({ message: "Account not found." });
         }
@@ -225,7 +270,7 @@ exports.deleteAccount = async (req, res) => {
         // }
 
         // Delete parent (Account) AFTER children (Reservations)
-        await Account.findOneAndDelete({ _id: accountToDelete._id });
+        await Account.findByIdAndDelete(accountToDelete._id);
 
         // Delete profile pic in uploads folder if they have one
         if(accountToDelete.photo) {

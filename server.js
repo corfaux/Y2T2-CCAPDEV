@@ -2,13 +2,21 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
+const session = require('express-session');
+const MongoStore = require('connect-mongo').default;
 require('dotenv').config();
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --- Middleware ---
+// --- MongoDB connection ---
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/lab-reservation';
+mongoose.connect(MONGO_URI)
+  .then(() => console.log('MongoDB connected successfully'))
+  .catch(err => console.error('MongoDB connection error:', err));
+
+// --- Global middleware ---
 const allowedOrigins = [
   "http://127.0.0.1:5500",
   "http://localhost:5500",
@@ -17,7 +25,6 @@ const allowedOrigins = [
   "http://localhost:3000",
   "https://labsys-d4fk.onrender.com"
 ];
-
 app.use(cors({
   origin: function(origin, callback){
     if(!origin) return callback(null, true); // allow Postman / non-browser
@@ -29,19 +36,31 @@ app.use(cors({
   credentials: true,
   methods: ["GET","POST","PUT", "PATCH", "DELETE"]
 }));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(fileUpload({ createParentPath: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
+// --- Session middleware ---
+app.use(session({
+  secret: process.env.SESSION_SECRET || "sixseven",
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({ 
+    mongoUrl: MONGO_URI,
+    collectionName: 'sessions'
+  }),
+  cookie: {
+    httpOnly: true, 
+    // secure: true // UNCOMMENT THIS IN PRODUCTION IF USING HTTPS
+  }
+}));
+
 // --- Routes ---
 const accountRoutes = require("./src/routes/AccountRoutes");
 app.use("/api/accounts", accountRoutes);
-
 const availableSlotsRoutes = require("./src/routes/AvailableSlotsRoutes");
 app.use("/api/slots", availableSlotsRoutes);
-
 const labRoutes = require("./src/routes/Admin-LabRoutes");
 app.use("/api/labs", labRoutes);
 const buildingRoutes = require('./src/routes/Admin-BuildingRoutes');
@@ -54,11 +73,6 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// --- MongoDB connection ---
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/lab-reservation';
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('MongoDB connected successfully'))
-  .catch(err => console.error('MongoDB connection error:', err));
 
 // --- Start server ---
 app.listen(PORT, () => {

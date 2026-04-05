@@ -22,7 +22,7 @@
                     <!--<li><a href="">Cancel Reservation</a></li>-->
                 </ul>
             </nav>
-            <a id="logout-btn" href="index.html">Log Out</a>
+            <button id="logout-btn">Log Out</button>
         </header>
 
         <div class="content">
@@ -63,9 +63,9 @@
                             </div>
                         </div>
 
-                        <div class="email">
-                            <label for="email-address">Email Address</label>
-                            <input id="email-address" name="email" type="email" readonly>
+                        <div class="email-address">
+                            <label for="email">Email Address</label>
+                            <input id="email" name="email" type="email" readonly>
                         </div>
                         
                         <div class="contact">
@@ -156,9 +156,66 @@
         </footer>
         <script>
             document.addEventListener("DOMContentLoaded", async () => {
+                let studentID = null;
+                
+                try {
+                    // differentiate user logged in vs admin logged in viewing a student's profile
+                    const targetStudentId = new URLSearchParams(window.location.search).get("studentId");
+                    
+                    let apiUrl = "http://localhost:3000/api/accounts/profile";
+                    if(targetStudentId) {
+                        apiUrl += `?studentId=${targetStudentId}`;
+                    }
+
+                    const response = await fetch(apiUrl, {
+                        method: "GET",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "include"
+                    });
+
+                    const data = await response.json();
+
+                    // Admin view
+                    if(data.isViewOnly) {
+                        const adminBackBtn = document.getElementById("adminBackBtn");
+
+                        adminBackBtn.style.display = "inline-block";
+                        adminBackBtn.addEventListener("click", () => {
+                            window.location.href = "reservation-management.html";
+                        });
+
+                        // Disable all inputs
+                        document.querySelectorAll("input, textarea, select").forEach(el => {
+                            el.readOnly = true;
+                        });
+                        document.getElementById("college").disabled = true;
+
+                        // Hide user-only buttons
+                        document.getElementById("logout-btn").style.visibility = "hidden"
+                        document.getElementById("delete-account-btn").style.visibility = "hidden"
+                        document.getElementById("update-pic-btn").style.display = "none";
+                        document.querySelector(".save-profile-btn").style.display = "none";
+                    } else {
+                        sessionStorage.setItem("currentUser", JSON.stringify(data.account));
+                    }
+
+                    studentID = data.account._id;
+                    
+                    document.getElementById("first-name").value = data.account.firstName;
+                    document.getElementById("last-name").value = data.account.lastName;
+                    document.getElementById("email").value = data.account.email;
+                    document.getElementById("contact-number").value = data.account.contactNumber;
+                    document.getElementById("id").value = data.account._id;
+                    document.getElementById("college").value = data.account.college;
+                    document.getElementById("description").value = data.account.description;
+                    document.querySelector(".profile-pic img").src = data.account.photo || "images/default-profile-pic.jpg";
+                } catch (err) {
+                    console.error(err);
+                    alert("Connection error. Please try again.");
+                }
+
                 try {
                     const BASE_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "https://labsys-d4fk.onrender.com";
-                    const studentID = localStorage.getItem("studentID");
                     const res = await fetch(`${BASE_URL}/api/slots/reservations?studentID=${studentID}`);
                     const reservations = await res.json();
 

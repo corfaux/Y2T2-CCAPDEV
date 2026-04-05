@@ -8,6 +8,23 @@ const BASE_URL = window.location.hostname === "localhost" ? "http://localhost:30
 let labs = [];
 
 /* Initialize */
+document.querySelector(".logout").addEventListener("click", async (e) => {
+    try {
+        const response = await fetch("/api/accounts/logout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include"
+        });
+
+        if(response.ok) {
+            sessionStorage.clear()
+            window.location.href = "/index.html";
+        }
+    } catch(err) {
+        console.error("Error logging out:", err);
+    }
+});
+
 async function initLabPage() {
   await fetchLabs();
 }

@@ -8,6 +8,22 @@ let labs = [];
 let reservations = [];
 
 /* Initialize */
+document.querySelector(".logout").addEventListener("click", async (e) => {
+    try {
+        const response = await fetch("/api/accounts/logout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include"
+        });
+
+        if(response.ok) {
+            sessionStorage.clear()
+            window.location.href = "/index.html";
+        }
+    } catch(err) {
+        console.error("Error logging out:", err);
+    }
+});
 
 async function fetchLabs() {
   const res = await fetch(`${BASE_URL}/api/labs`);
@@ -200,14 +216,16 @@ function viewReservation(id) {
   }
 
   openModal(`
-    <h3>Reservation Details</h3>
-    <p><strong>Name:</strong> ${r.studentID.firstName} ${r.studentID.lastName}</p>
-    <p><strong>Email:</strong> ${r.studentID.email}</p>
-    <p><strong>Time:</strong> ${r.startTime} - ${r.endTime}</p>
-    <p><strong>Seats:</strong> ${r.seats}</p>
-    <p><strong>Companions:</strong> ${companions}</p>`, 
-    `<button id="viewStudentProfile" data-id="${r.studentID._id}">View Profile </button>    
-    <button onclick="closeModal()">Close</button>`);
+    <div class="reservation-details">
+      <h3>Reservation Details</h3>
+      <p><strong>Name:</strong> ${r.studentID.firstName} ${r.studentID.lastName}</p>
+      <p><strong>Email:</strong> ${r.studentID.email}</p>
+      <p><strong>Time:</strong> ${r.startTime} - ${r.endTime}</p>
+      <p><strong>Seats:</strong> ${r.seats}</p>
+      <p><strong>Companions:</strong> ${companions}</p>`, 
+      `<button id="viewStudentProfile" data-id="${r.studentID._id}">View Profile </button>    
+      <button onclick="closeModal()">Close</button>
+    </div>`);
 }
 
 async function cancelReservation(id) {
@@ -248,10 +266,8 @@ modalFooter.addEventListener("click", async (e) => {
   if (e.target.id === "viewStudentProfile") {
     const id = e.target.dataset.id;
     const student = reservations.find(r => r.studentID._id === id)?.studentID;
-    if (student) {
-        sessionStorage.setItem("viewingStudent", JSON.stringify(student));
-    }
-    window.location.href = "student-profile.html";
+
+    window.location.href = `/student-profile.html?studentId=${student._id}`;
   }
 });
 

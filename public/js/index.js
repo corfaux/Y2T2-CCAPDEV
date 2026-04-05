@@ -4,6 +4,26 @@ const emailField = document.getElementById("email-field");
 const emailError = document.querySelector("#email-field + .error");
 const passwordField = document.getElementById("password-field");
 const passwordError = document.querySelector("#password-field + .error");
+const rememberMeOption = document.getElementById("remember-me");
+
+// No need to log in again if there is currently a session
+document.addEventListener("DOMContentLoaded", async (e) => {
+    try {
+        const response = await fetch(`${BASE_URL}/api/accounts/check-session`, {
+            method: "GET",
+            credentials: "include"
+        });
+
+        if(response.ok) {
+            const data = await response.json();
+
+            window.location.href = data.role === "student" ?
+                                    "student-profile.html" : "lab-management.html";
+        }
+    } catch(err) {
+        console.error("Error checking session:", err);
+    }
+});
 
 document.querySelector(".login-pane form").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -29,7 +49,11 @@ document.querySelector(".login-pane form").addEventListener("submit", async (e) 
         const response = await fetch(`${BASE_URL}/api/accounts/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: emailField.value, password: passwordField.value })
+            body: JSON.stringify({
+                email: emailField.value,
+                password: passwordField.value,
+                rememberMe: rememberMeOption.checked
+            })
         });
 
         const data = await response.json();
@@ -44,9 +68,9 @@ document.querySelector(".login-pane form").addEventListener("submit", async (e) 
             return;
         }
 
-        sessionStorage.setItem("currentUser", JSON.stringify(data));
-        window.location.href = data.role === "student" ? // handle login modes
-                               "student-profile.html" : "lab-management.html";
+        sessionStorage.setItem("currentUser", JSON.stringify(data.account));
+        window.location.href = data.account.role === "student" ? // handle login modes
+                                "student-profile.html" : "lab-management.html";
     } catch(err) {
         console.error("Login error:", err);
         alert("Server error. Try again later.");

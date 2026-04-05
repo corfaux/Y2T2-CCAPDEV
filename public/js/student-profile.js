@@ -1,50 +1,22 @@
-const viewingStudent = JSON.parse(sessionStorage.getItem("viewingStudent"));
-const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
-
-const userToDisplay = viewingStudent || currentUser;
-const isViewOnly = viewingStudent !== null;
-const adminBackBtn = document.getElementById("adminBackBtn");
-
 const BASE_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "https://labsys-d4fk.onrender.com";
 
-// Return to admin page
-if(isViewOnly && adminBackBtn) {
-    adminBackBtn.style.display = "inline-block";
+document.getElementById("logout-btn").addEventListener("click", async (e) => {
+    try {
+        const response = await fetch("/api/accounts/logout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include"
+        });
 
-    adminBackBtn.addEventListener("click", () => {
-        sessionStorage.removeItem("viewingStudent");
-        window.location.href = "reservation-management.html";
-    });
-}
+        if(response.ok) {
+            sessionStorage.clear()
+            window.location.href = "/index.html";
+        }
+    } catch(err) {
+        console.error("Error logging out:", err);
+    }
+});
 
-// Load user (student) data
-if(currentUser) {
-    localStorage.setItem("studentID", currentUser._id); 
-
-    document.getElementById("first-name").value = userToDisplay.firstName || "";
-    document.getElementById("last-name").value = userToDisplay.lastName || "";
-    document.getElementById("email-address").value = userToDisplay.email || "";
-    document.getElementById("contact-number").value = userToDisplay.contactNumber || "";
-    document.getElementById("id").value = userToDisplay._id || "";
-    document.getElementById("college").value = userToDisplay.college || "none";
-    document.getElementById("description").value = userToDisplay.description || "";
-    document.querySelector(".profile-pic img").src = userToDisplay.photo || "images/default-profile-pic.jpg";
-}
-
-if(isViewOnly) {
-    // Disable all inputs
-    document.querySelectorAll("input, textarea, select").forEach(el => {
-        el.disabled = true;
-    });
-
-    // Hide user-only buttons
-    document.getElementById("delete-account-btn").style.display = "none";
-    document.getElementById("update-pic-btn").style.display = "none";
-    document.querySelector(".save-profile-btn").style.display = "none";
-}
-
-
-/******************** USER-ONLY FUNCTIONALITIES ********************/
 // Functionality for updating profile picture
 let profilePic = document.querySelector(".profile-pic img");
 let updatePhoto = document.querySelector(".profile-pic input");
@@ -119,6 +91,7 @@ profileForm.addEventListener("submit", async (e) => {
     try {
         const response = await fetch(`${BASE_URL}/api/accounts/save-profile`, {
             method: "PATCH",
+            credentials: "include",
             body: new FormData(profileForm)
         })
 
@@ -127,18 +100,6 @@ profileForm.addEventListener("submit", async (e) => {
 
             saveProfileButton.disabled = true;
             initialSnapshot = new FormData(profileForm);
-
-            // Update session storage (so no need to relogin, just restart page to see if changes saved)
-            userToDisplay.firstName = firstNameField.value;
-            userToDisplay.lastName = lastNameField.value;
-            userToDisplay.email = document.getElementById("email-address").value;
-            userToDisplay.contactNumber = contactNumberField.value;
-            userToDisplay._id = document.getElementById("id").value;
-            userToDisplay.college = document.getElementById("college").value;
-            userToDisplay.description = document.getElementById("description").value;
-            userToDisplay.photo = document.querySelector(".profile-pic img").src;
-
-            sessionStorage.setItem("currentUser", JSON.stringify(userToDisplay));
         } else {
             const result = await response.json(); // Placed here because backend sends 204 (no body) if success
             alert(`Could not save changes: ${result.message}`);
@@ -163,7 +124,8 @@ document.getElementById("delete-account-btn").addEventListener("click", async (e
     try {
         const _id = userToDisplay._id;
         const response = await fetch(`${BASE_URL}/api/accounts/${_id}`, {
-            method: "DELETE"
+            method: "DELETE",
+            credentials: "include"
         });
 
         if(response.ok) {

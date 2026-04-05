@@ -85,10 +85,12 @@
                 const reservationID = localStorage.getItem("reservationID"); // existing reservation
                 const isEditing = !!reservationID;
 
-                // pre-fill primary student info
-                document.getElementById("mainId").value = currentUser._id || "";
-                document.getElementById("mainName").value = `${currentUser.lastName}, ${currentUser.firstName}`;
-                document.getElementById("mainCollege").value = currentUser.college || "";
+                // pre-fill primary student info if a student made the reservation
+                if(JSON.parse(sessionStorage.getItem("currentUser")).role === "student") {
+                    document.getElementById("mainId").value = currentUser._id || "";
+                    document.getElementById("mainName").value = `${currentUser.lastName}, ${currentUser.firstName}`;
+                    document.getElementById("mainCollege").value = currentUser.college || "";
+                }
 
                 // load reservation data
                 const reservationData = JSON.parse(localStorage.getItem("reservationData")) || {};
@@ -228,9 +230,22 @@
                     `;
                     document.body.appendChild(popUp);
                     setTimeout(() => popUp.classList.add("show"), 10);
-                    document.getElementById("confirmLogout").addEventListener("click", () => {
-                        localStorage.clear();
-                        window.location.href = "index.html";
+                    document.getElementById("confirmLogout").addEventListener("click", async () => {
+                        try {
+                            const response = await fetch("/api/accounts/logout", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                credentials: "include"
+                            });
+
+                            if(response.ok) {
+                                sessionStorage.clear()
+                                localStorage.clear();
+                                window.location.href = "/index.html";
+                            }
+                        } catch(err) {
+                            console.error("Error logging out:", err);
+                        }
                     });
                     document.getElementById("cancelLogout").addEventListener("click", () => {
                         popUp.classList.remove("show");

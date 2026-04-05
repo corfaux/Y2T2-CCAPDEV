@@ -58,6 +58,7 @@ header {
     justify-content: center;
     align-items: center;
     gap: 0.25vh;
+    margin-top: 2.25vh;
 }
 
 .login-pane form label {
@@ -67,7 +68,7 @@ header {
 .login-pane form .error {
     font-size: 0.595rem;
     color: #ce2c30;
-    margin: 0.25vh 0 0 0;
+    margin-top: 0.25vh;
     visibility: hidden;
 }
 
@@ -86,4 +87,18 @@ header {
 .login-pane form .container {
     display: flex;
     flex-direction: column;
+}
+
+.remember {
+    display: flex;
+    gap: 5px;
+    margin: 0.25vh 3.25vw 1vh 0;
+}
+
+#remember-me {
+    height: 16px;
+}
+
+#remember-me + label {
+    font-size: 0.875rem;
 }
