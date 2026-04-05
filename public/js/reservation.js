@@ -4,11 +4,9 @@ const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
 const navLinks = document.getElementById("navLinks");
 const BASE_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "https://labsys-d4fk.onrender.com";
 
-
 let selectedSlots = [];
 localStorage.removeItem("selectedSlots");
 const MAX_SLOTS = 6;
-
 
 // list of buildings and the rooms inside each building
 const buildingRooms = {
@@ -21,7 +19,6 @@ const buildingRooms = {
   C: ["C314"],
   Y: ["Y602"]
 };
-
 
 // actual class schedules used to block unavailable time slots in the reservation system
 const classSchedule = {
@@ -98,7 +95,6 @@ const classSchedule = {
       { start: "11:00", end: "14:15" }
     ]
   },
-
 
   Tuesday: {
     AG1904: [
@@ -185,7 +181,6 @@ const classSchedule = {
     ]
   },
 
-
   Wednesday: {
     AG1904: [
       { start: "07:30", end: "14:15" }
@@ -229,7 +224,6 @@ const classSchedule = {
       { start: "07:30", end: "14:15" }
     ]
   },
-
 
   Thursday: {
     AG1904: [
@@ -314,7 +308,6 @@ const classSchedule = {
     ]
   },
 
-
   Friday: {
     AG1904: [
       { start: "07:30", end: "14:15" }
@@ -388,7 +381,6 @@ const classSchedule = {
     ]
   },
 
-
   Saturday: {
     GK210: [
       { start: "09:15", end: "12:30" }
@@ -408,38 +400,30 @@ const classSchedule = {
   }
 }
 
-
 // reference to the popup element used for warnings and messages
 const popUp = document.getElementById("popupMessage");
 
-
 // reference to the date input field
 const dateInput = document.getElementById("reservationDate");
-
 
 // check if the page was loaded to edit an existing reservation
 const reservationID = new URLSearchParams(window.location.search).get("reservationID");
 let isEditing = !!reservationID; // true if editing
 
-
 // get today’s date and current year
 const today = new Date();
 const year = today.getFullYear();
 
-
 // set the earliest selectable date to today
 dateInput.min = formatDate(today);
-
 
 // set the latest selectable date to December 31 of the current year
 const endOfYear = new Date(year, 11, 31);
 dateInput.max = formatDate(endOfYear);
 
-
 // dynamic header for viewing page as student and as admin
 function renderHeader() {
   if (!currentUser || !navLinks) return;
-
 
   if (currentUser.role === "admin") {
     navLinks.innerHTML = `
@@ -455,9 +439,7 @@ function renderHeader() {
   }
 }
 
-
 renderHeader();
-
 
 // show warning message if trying to book past 6 hours
 function showPopUp(message) {
@@ -474,7 +456,6 @@ function showPopUp(message) {
   }, 3000);
 }
 
-
 // convert a date object into YYYY-MM-DD format
 function formatDate(date) {
   const year = date.getFullYear();
@@ -482,7 +463,6 @@ function formatDate(date) {
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
-
 
 // get monday of the week for a given date
 function getMonday(date) {
@@ -492,15 +472,12 @@ function getMonday(date) {
   return new Date(d.setDate(diff));
 }
 
-
 // check if selected date is within current bookable week
 function isWithinBookingWindow(selectedDate) {
   const now = new Date();
 
-
   // nothing bookable if today is sunday
   if (now.getDay() === 0) return false;
-
 
   const weekStart = getMonday(now); // monday of current week
   const weekEnd = new Date(weekStart);
@@ -510,24 +487,20 @@ function isWithinBookingWindow(selectedDate) {
   return selectedDate >= weekStart && selectedDate <= weekEnd;
 }
 
-
 // hide the time slots container and disable the continue button
 function hideAvailability() {
   document.querySelector(".timeslot-section").style.display = "none";
   continueButton.disabled = true;
 }
 
-
 // fetch booked slots for all rooms in a building on a given date
 async function getBookedSlots(building, selectedDate) {
   const rooms = buildingRooms[building] || [];
   const allBookedSlotIds = [];
 
-
   for (const room of rooms) {
     const labID = labMap[room];
     if (!labID) continue;
-
 
     try {
       const res = await fetch(`${BASE_URL}/api/slots/reservations?labID=${labID}&date=${formatDate(selectedDate)}`);
@@ -535,7 +508,6 @@ async function getBookedSlots(building, selectedDate) {
         console.warn(`Failed to fetch reservations for ${room}`);
         continue;
       }
-
 
       const bookings = await res.json();
       bookings.forEach(b => {
@@ -553,10 +525,8 @@ async function getBookedSlots(building, selectedDate) {
     }
   }
 
-
   return allBookedSlotIds;
 }
-
 
 // convert a time string (HH:MM) into total minutes since midnight
 function timeToMinutes(timeStr) {
@@ -564,12 +534,10 @@ function timeToMinutes(timeStr) {
   return h * 60 + m;
 }
 
-
 // check if a time slot is blocked based on an array of {start, end} ranges
 function isSlotBlocked(slot, ranges) {
   const slotStart = timeToMinutes(typeof slot === "string" ? slot : slot.startTime);
   const slotEnd = timeToMinutes(typeof slot === "string" ? slot : slot.endTime);
-
 
   return ranges.some(range => {
     const start = timeToMinutes(range.start);
@@ -581,12 +549,23 @@ function isSlotBlocked(slot, ranges) {
   });
 }
 
+// check if a time slot has passed based on the current time (only if the selected date is today)
+function isSlotInPast(slot, selectedDate) {
+  const now = new Date();
+  // only compare if the selected date is today
+  const todayStr = formatDate(now);
+  const selectedStr = formatDate(selectedDate);
+  if (todayStr !== selectedStr) return false;
+
+  const slotStartMinutes = timeToMinutes(slot.startTime);
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  return slotStartMinutes <= currentMinutes;
+}
 
 function normalizeTime(time) {
   const [h, m] = time.split(":").map(Number);
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
-
 
 // handle selecting and deselecting time slots
 function toggleSlot(room, slot, bookedSlotIds, button, seats) {
@@ -595,7 +574,6 @@ function toggleSlot(room, slot, bookedSlotIds, button, seats) {
   const roomObj = timeSlots.find(r => r.room === room);
   if (!roomObj) return showPopUp(`Room data not found for ${room}`);
   const labID = slot.labID || roomObj.labID;
-
 
   if (existingIndex >= 0) {
     // deselect
@@ -607,12 +585,10 @@ function toggleSlot(room, slot, bookedSlotIds, button, seats) {
       return showPopUp("Selected slot overlaps with another reservation in this room.");
     }
 
-
     // max slots
     if (selectedSlots.length >= MAX_SLOTS) {
       return showPopUp(`You can only reserve up to ${MAX_SLOTS} time slots.`);
     }
-
 
     // seat availability
     const booked = bookedSlotIds.find(s => s.key === `${labID}_${slot.startTime}_${slot.endTime}`);
@@ -621,17 +597,14 @@ function toggleSlot(room, slot, bookedSlotIds, button, seats) {
       return showPopUp("Not enough seats available in this slot.");
     }
 
-
     // select
     selectedSlots.push({ room, slotId, startTime: slot.startTime, endTime: slot.endTime, labID });
     button.classList.add("selected");
   }
 
-
   localStorage.setItem("selectedSlots", JSON.stringify(selectedSlots));
   continueButton.disabled = selectedSlots.length === 0;
 }
-
 
 function timeOverlap(a, b) {
   const startA = timeToMinutes(a.startTime), endA = timeToMinutes(a.endTime);
@@ -639,9 +612,7 @@ function timeOverlap(a, b) {
   return startA < endB && endA > startB;
 }
 
-
 let timeSlots = [];
-
 
 async function loadTimeSlots(building, selectedDate) {
   try {
@@ -652,9 +623,7 @@ async function loadTimeSlots(building, selectedDate) {
     const res = await fetch(url);
     if (!res.ok) throw new Error("Backend fetch failed");
 
-
     const labs = await res.json();
-
 
     timeSlots = labs.length
       ? labs.map(lab => ({
@@ -685,13 +654,11 @@ async function loadTimeSlots(building, selectedDate) {
   }
 }
 
-
 // if it fails to load from the backend, generate default 30-minute slots from 7:30 to 21:00
 function generateDefaultTimeSlots(room) {
   const slots = [];
   let hour = 7;
   let minute = 30;
-
 
   while (hour < 21 || (hour === 21 && minute === 0)) {
     const startTime = `${String(hour).padStart(2,"0")}:${String(minute).padStart(2,"0")}`;
@@ -699,7 +666,6 @@ function generateDefaultTimeSlots(room) {
     const endHour = Math.floor(totalMinutes / 60);
     const endMinute = totalMinutes % 60;
     const endTime = `${String(endHour).padStart(2,"0")}:${String(endMinute).padStart(2,"0")}`;
-
 
     slots.push({
       _id: `fallback-${labMap[room] || "temp"}-${startTime}-${endTime}`,
@@ -709,7 +675,6 @@ function generateDefaultTimeSlots(room) {
       available: true
     });
 
-
     minute += 30;
     if (minute === 60) {
       minute = 0;
@@ -717,27 +682,19 @@ function generateDefaultTimeSlots(room) {
     }
   }
 
-
-
-
   return slots;
 }
 
-
 // reference to the time header row
 const timeHeader = document.getElementById("timeHeader");
-
 
 // create the time header labels
 function generateTimeHeader() {
   timeHeader.innerHTML = "<div></div>";
 
-
   if (timeSlots.length === 0) return;
 
-
   const referenceSlots = timeSlots[0].slots;
-
 
   referenceSlots.forEach(slot => {
     const cell = document.createElement("div");
@@ -746,10 +703,8 @@ function generateTimeHeader() {
   });
 }
 
-
 // reference to the schedule grid
 const scheduleGrid = document.getElementById("scheduleGrid");
-
 
 // generate the schedule grid view for the selected building and date
 async function generateSchedule(building, selectedDate) {
@@ -757,34 +712,27 @@ async function generateSchedule(building, selectedDate) {
   selectedSlots = [];
   continueButton.disabled = true;
 
-
   const rooms = buildingRooms[building] || [];
   const dayName = selectedDate.toLocaleDateString("en-US", { weekday: "long" });
-
 
   // fetch all booked slots for this building and date
   const bookedSlotIds = await getBookedSlots(building, selectedDate);
 
-
   rooms.forEach(room => {
     const row = document.createElement("div");
     row.classList.add("room-row");
-
 
     const label = document.createElement("div");
     label.classList.add("room-label");
     label.textContent = room;
     row.appendChild(label);
 
-
     // get room object from timeSlots
     const roomObj = timeSlots.find(r => r.room === room);
     const capacity = roomObj?.capacity || 40;
     const roomSlots = roomObj ? roomObj.slots : [];
 
-
     const roomSchedule = (classSchedule[dayName] && classSchedule[dayName][room]) || [];
-
 
     roomSlots.forEach(slot => {
       const cell = document.createElement("div");
@@ -793,12 +741,10 @@ async function generateSchedule(building, selectedDate) {
       cell.dataset.startTime = slot.startTime;
       cell.dataset.endTime = slot.endTime;
 
-
       // check class schedule
-      if (isSlotBlocked(slot, roomSchedule)) {
+      if (isSlotBlocked(slot, roomSchedule) || isSlotInPast(slot, selectedDate)) {
         cell.classList.add("unavailable");
       }
-
 
       // check if fully booked in DB
       const labID = roomObj.labID;
@@ -808,7 +754,6 @@ async function generateSchedule(building, selectedDate) {
         cell.classList.add("unavailable");
       }
 
-
       cell.addEventListener("click", () => {
         if (!cell.classList.contains("unavailable")) {
           const seats = parseInt(document.getElementById("seatCount").value, 10);
@@ -816,15 +761,12 @@ async function generateSchedule(building, selectedDate) {
         }
       });
 
-
       row.appendChild(cell);
     });
-
 
     scheduleGrid.appendChild(row);
   });
 }
-
 
 // handle clicking the "Show Availability" button
 document.getElementById("showAvailability").addEventListener("click", async()=>{
@@ -832,37 +774,29 @@ document.getElementById("showAvailability").addEventListener("click", async()=>{
   const dateValue=document.getElementById("reservationDate").value;
   if(!building || !dateValue) return;
 
-
   const selectedDate=new Date(dateValue);
-
 
   if(selectedDate.getDay()===0){
     showPopUp("Reservations are not allowed on Sundays.");
     hideAvailability(); return;
   }
 
-
-  /*
   if(!isWithinBookingWindow(selectedDate)){
     showPopUp("You have reached the end of the bookable window.");
     hideAvailability(); return;
-  } */
-
+  } 
 
   if (!labMap || !Object.keys(labMap).length) {
     await loadLabsMap();
   }
 
-
   // load time slots first
   await loadTimeSlots(building, selectedDate);
-
 
   document.querySelector(".timeslot-section").style.display="block";
   generateTimeHeader();
   generateSchedule(building, selectedDate);
 });
-
 
 let labMap = {};
 async function loadLabsMap() {
@@ -871,18 +805,15 @@ async function loadLabsMap() {
   labs.forEach(l => labMap[l.room] = l._id);
 }
 
-
 // save new reservation data and move to the next page
 continueButton.addEventListener("click", async () => {
   const date = dateInput.value;
   const seats = parseInt(document.getElementById("seatCount").value, 10);
   const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
 
-
   if (!currentUser?._id) return showPopUp("Invalid student ID. Please log in again.");
   if (!selectedSlots.length) return showPopUp("No slots selected.");
   if (!date) return showPopUp("Please select a date.");
-
 
   // store reservation info for details.html
   localStorage.setItem("reservationData", JSON.stringify({
@@ -891,16 +822,13 @@ continueButton.addEventListener("click", async () => {
     seats
   }));
 
-
   // if editing, keep the reservation ID so details.html knows
   if (isEditing) {
     localStorage.setItem("reservationID", reservationID);
   }
 
-
   window.location.href = `details.html?reservationID=${reservationID}`;
 });
-
 
 window.addEventListener("DOMContentLoaded", async () => {
   await loadLabsMap();
