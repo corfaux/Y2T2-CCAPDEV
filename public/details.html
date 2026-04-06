@@ -67,7 +67,7 @@
                 </div>
         </div>
 
-
+        <script src="js/header.js"></script>
         <script>
             (async function() {
                 const BASE_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "https://labsys-d4fk.onrender.com";
@@ -78,26 +78,6 @@
                     window.location.href = "index.html";
                     return;
                 }
-                // Loading header dynamically
-                const navLinks = document.getElementById("navLinks");
-                function renderHeader() {
-                    if (!currentUser || !navLinks) return;
-
-                    if (currentUser.role === "admin") {
-                        navLinks.innerHTML = `
-                            <li><a href="reservation.html">Make a Reservation</a></li>
-                            <li><a href="reservation-management.html">Manage Reservations</a></li>
-                            <li><a href="lab-management.html">Manage Laboratories</a></li>
-                        `;
-                    } else {
-                        navLinks.innerHTML = `
-                            <li><a href="student-profile.html">View Profile</a></li>
-                            <li><a href="reservation.html">Make a Reservation</a></li>
-                        `;
-                    }
-                }
-
-                renderHeader();
 
                 const studentID = currentUser._id;
                 const reservationID = localStorage.getItem("reservationID"); // existing reservation

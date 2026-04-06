@@ -16,11 +16,7 @@
                 <h1>LabSys</h1>
             </div> 
             <nav>
-                <ul>
-                    <li><a href="#">View Profile</a></li>
-                    <li><a href="reservation.html">Make a Reservation</a></li>
-                    <!--<li><a href="">Cancel Reservation</a></li>-->
-                </ul>
+                <ul id="navLinks"></ul>
             </nav>
             <button id="logout-btn">Log Out</button>
         </header>
@@ -154,6 +150,7 @@
         <footer>
             
         </footer>
+        <script src="js/header.js"></script>
         <script>
             document.addEventListener("DOMContentLoaded", async () => {
                 const BASE_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "https://labsys-d4fk.onrender.com";
