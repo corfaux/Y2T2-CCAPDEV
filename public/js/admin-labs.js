@@ -281,7 +281,7 @@ function showpopUp(message) {
 async function labHasReservations(labId) {
   try {
     const today = new Date().toISOString().split("T")[0];
-    const res = await fetch(`${BASE_URL}/api/reservations?labID=${labId}`);
+    const res = await fetch(`${BASE_URL}/api/slots/reservations?labID=${labId}`);
 
     if (!res.ok) return false;
 
