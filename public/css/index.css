@@ -102,3 +102,10 @@ header {
 #remember-me + label {
     font-size: 0.875rem;
 }
+
+a:link, 
+a:visited, 
+a:hover, 
+a:active {
+  color: white;
+}
