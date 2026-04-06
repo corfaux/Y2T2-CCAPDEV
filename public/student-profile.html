@@ -163,7 +163,7 @@
                     // differentiate user logged in vs admin logged in viewing a student's profile
                     const targetStudentId = new URLSearchParams(window.location.search).get("studentId");
                     
-                    let apiUrl = "http://localhost:3000/api/accounts/profile";
+                    let apiUrl = `${BASE_URL}/api/accounts/profile`;
                     if(targetStudentId) {
                         apiUrl += `?studentId=${targetStudentId}`;
                     }
