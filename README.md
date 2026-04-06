@@ -56,6 +56,14 @@ Follow **Conventional Commits** standard:
 
 This project is part of a web application development course focused on design and development of the frontend and backend of web applications and frontend-backend integration.
 
+## How to Run Locally
+
+1. Navigate to the root directory. Run npm init -y then npm install to initialize the folder and install dependencies.
+2. Run seeds [TO UPDATE] to fill in the database. The database name should be `lab-reservation`
+3. Run server.js to connect to MongoDB.
+4. Access through localhost:3000
+
+
 ## License
 
 This project is developed for educational purposes at De La Salle University.
