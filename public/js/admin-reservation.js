@@ -44,7 +44,7 @@ async function fetchReservations(labId, date) {
     console.log("Loaded reservations: ", reservations) //Debugging
   } catch (err) {
     console.error("Failed to fetch reservations: ", err);
-    reservatinos = [];
+    reservations = [];
   } 
 }
 

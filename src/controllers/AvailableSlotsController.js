@@ -212,14 +212,13 @@ exports.getReservations = async (req, res) => {
     const filter = {};
     if (studentID) filter.studentID = studentID;
     if (date) {
-      const d = new Date(date);
-      d.setHours(0,0,0,0);
-      filter.date = d;
+      const target = new Date(date).toDateString(); 
+      filter.date = { $regex: `^${target}` };
     }
     if (labID) filter.labID = labID;
 
     const reservations = await Reservation.find(filter)
-      .populate({path: 'labID', model: 'Lab', populate: {path: 'buildingID', model: 'Building'}}).populate('studentID', 'firstName lastName email');
+      .populate({path: 'labID', model: 'Lab', populate: {path: 'buildingID', model: 'Building'}}).populate('studentID', 'firstName lastName email contactNumber college description photo');
 
     res.json(reservations);
   } catch (err) {
