@@ -156,6 +156,7 @@
         </footer>
         <script>
             document.addEventListener("DOMContentLoaded", async () => {
+                const BASE_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "https://labsys-d4fk.onrender.com";
                 let studentID = null;
                 
                 try {
@@ -215,7 +216,6 @@
                 }
 
                 try {
-                    const BASE_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "https://labsys-d4fk.onrender.com";
                     const res = await fetch(`${BASE_URL}/api/slots/reservations?studentID=${studentID}`);
                     const reservations = await res.json();
 
