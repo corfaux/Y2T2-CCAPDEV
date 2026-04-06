@@ -6,7 +6,18 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!navLinks) return;
 
     function renderHeader() {
-        if (!currentUser) return;
+         if (!currentUser) {
+            navLinks.innerHTML = `
+                <li><a href="about.html">About</a></li>
+            `;
+
+            if (logoutBtn) {
+                logoutBtn.textContent = "Log In";
+                logoutBtn.href = "index.html";
+            }
+
+            return;
+        }
 
         if (currentUser.role === "admin") {
             navLinks.innerHTML = `

@@ -35,13 +35,7 @@ async function fetchLabs() {
 async function fetchReservations(labId, date) {
   try {
     const res = await fetch(`${BASE_URL}/api/slots/reservations?labID=${labId}&date=${date}`)
-    if (!res.ok) {
-      console.warn("Reservations failed: ", res.status, res.statusText); //Debugging
-      reservations = [];
-      return;
-    }
     reservations = await res.json();
-    console.log("Loaded reservations: ", reservations) //Debugging
   } catch (err) {
     console.error("Failed to fetch reservations: ", err);
     reservations = [];
