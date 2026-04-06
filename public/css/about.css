@@ -1,0 +1,84 @@
+/* HERO SECTION */
+.hero {
+    position: relative;
+    height: 70vh;
+    min-height: 500px;
+
+    background-image: url('https://www.dlsu.edu.ph/wp-content/uploads/2025/11/about_main-hero.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    align-items: flex-end; 
+}
+
+.hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.75),
+        rgba(0, 0, 0, 0.4)
+    );
+}
+
+.hero-overlay {
+    position: relative;
+    z-index: 1;
+
+    width: 100%;
+    padding: 4rem 6rem;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.hero-left h1 {
+    font-family: "Galliard BT", sans-serif;
+    font-size: 5rem;
+    color: white;
+}
+
+.hero-right {
+    max-width: 500px;
+}
+
+.hero-right p {
+    color: white;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* BACKGROUND SECTION */
+.about-bg {
+    background-image: url('https://www.dlsu.edu.ph/wp-content/uploads/2026/02/dlsu-educational-philosophy-bg-2.jpg');
+    background-size: cover;
+    background-position: center;
+    padding: 3vh 0;
+}
+
+
+/* CONTENT CARDS */
+.about-card {
+    width: 60%;
+    background: white;
+    border-radius: 15px;
+    padding: 2vw;
+    box-shadow: 0 0 3px 3px rgba(222, 223, 223, 0.35);
+}
+
+.about-card h2 {
+    color: #00703c;
+    margin-bottom: 1vh;
+}
+
+.about-card ul {
+    padding-left: 1.5vw;
+}
+
+.about-card li {
+    margin-bottom: 0.5vh;
+}

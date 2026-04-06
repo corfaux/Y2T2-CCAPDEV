@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About | LabSys</title>
+
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/about.css">
+</head>
+
+<body>
+
+<header>
+  <div class="container">
+    <img src="images/dlsu-logo-white.png">
+    <h1>LabSys</h1>
+  </div>
+
+  <nav>
+    <ul id="navLinks"></ul>
+  </nav>
+
+  <a id="logout-btn" href="index.html">Log Out</a>
+</header>
+
+<!-- HERO: The upper part -->
+<section class="hero">
+  <div class="hero-overlay">
+    <div class="hero-left">
+      <h1>About LabSys</h1>
+    </div>
+
+    <div class="hero-right">
+      <p>
+        A Laboratory Reservation System for DLSU students based on the booking system
+        presently enforced through LibCal for the Henry Sy Discussion and Viewing Rooms.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- BACKGROUND WRAPPER -->
+<div class="about-bg">
+  <div class="content">
+
+    <div class="about-card">
+      <h2>System Overview</h2>
+      <p>
+        Student users are allowed to reserve up to 3 seats in 30-minute time intervals from 7am to 5pm,
+        only within the current Monday to Saturday working week. They are also able to customize their profile,
+        visible only to the users themselves and lab technicians for identification and data collection. 
+
+        Lab Technicians possess administrator privileges and are able to manually create and cancel reservations, input new buildings,
+        laboratories, and view student profiles.
+      </p>
+    </div>
+
+    <div class="about-card">
+      <h2>Student User Features</h2>
+      <ul>
+        <li>Create reservations at any laboratory (Max 3 Seats and 6 time slots) </li>
+        <li>Edit reservations</li>
+        <li>Upload profile picture</li>
+        <li>Edit profile information</li>
+      </ul>
+      <h2>Admin User Features</h2>
+      <ul>
+        <li>Add/Edit/Delete Laboratories</li>
+        <li>View/Delete Reservations</li>
+        <li>View Student Profiles</li>
+        <li>Create New Reservations</li>
+        <li>Search reservations within a specified date and lab.</li>
+      </ul>
+    </div>
+
+    <div class="about-card">
+      <h2>Languages/Platforms Used</h2>
+      <ul>
+        <li><strong>Frontend:</strong> HTML, CSS, JavaScript</li>
+        <li><strong>Backend:</strong> Node.js, Express.js</li>
+        <li><strong>Database:</strong> MongoDB Atlas</li>
+      </ul>
+    </div>
+
+    <div class="about-card">
+      <h2>NPM Packages & Libraries</h2>
+      <ul>
+        <li>express</li>
+        <li>mongoose</li>
+        <li>cors</li>
+        <li>dotenv</li>
+        <li>express-fileupload</li>
+        <li>express-session</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+</footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const navLinks = document.getElementById("navLinks");
+    const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+
+    function renderHeader() {
+        if (!currentUser || !navLinks) return;
+
+        if (currentUser.role === "admin") {
+            navLinks.innerHTML = `
+                <li><a href="reservation.html">Make a Reservation</a></li>
+                <li><a href="reservation-management.html">Manage Reservations</a></li>
+                <li><a href="lab-management.html">Manage Laboratories</a></li>
+                <li><a href="about.html">About</a></li>
+            `;
+        } else {
+            navLinks.innerHTML = `
+                <li><a href="student-profile.html">View Profile</a></li>
+                <li><a href="reservation.html">Make a Reservation</a></li>
+                <li><a href="about.html">About</a></li>
+            `;
+        }
+    }
+
+    renderHeader();
+
+    document.getElementById("logout-btn").addEventListener("click", () => {
+        sessionStorage.clear();
+    });
+});
+</script>
+
+</body>
+</html>
