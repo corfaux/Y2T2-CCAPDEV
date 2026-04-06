@@ -482,8 +482,11 @@ function isWithinBookingWindow(selectedDate) {
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekStart.getDate() + 6); // saturday
 
+  const s = formatDate(selectedDate);
+  const start = formatDate(weekStart);
+  const end = formatDate(weekEnd);
 
-  return selectedDate >= weekStart && selectedDate <= weekEnd;
+  return s >= start && s <= end;
 }
 
 // hide the time slots container and disable the continue button
@@ -798,7 +801,8 @@ document.getElementById("showAvailability").addEventListener("click", async()=>{
   const dateValue=document.getElementById("reservationDate").value;
   if(!building || !dateValue) return;
 
-  const selectedDate=new Date(dateValue);
+  const parts = dateValue.split("-"); // ["YYYY","MM","DD"]
+  const selectedDate = new Date(parts[0], parts[1]-1, parts[2]);
 
   if(selectedDate.getDay()===0){
     showPopUp("Reservations are not allowed on Sundays.");
