@@ -2,21 +2,16 @@ const Lab = require('../models/Lab');
 const Reservation = require('../models/Reservation');
 const classSchedule = require('../models/ClassSchedule');
 
-
-
-
 function toMinutes(time) {
   const [h, m] = time.split(':').map(Number);
   return h * 60 + m;
 }
-
 
 function toTimeString(mins) {
   const h = Math.floor(mins / 60);
   const m = mins % 60;
   return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
 }
-
 
 function isSlotFree(slotStart, slotEnd, blockedSlots) {
   for (const b of blockedSlots || []) {
@@ -31,42 +26,35 @@ function isSlotFree(slotStart, slotEnd, blockedSlots) {
   return true;
 }
 
-
 exports.getAvailability = async (req, res) => {
   try {
     const { building, date } = req.query;
     const currentReservationID = req.query.reservationID;
 
-
     if (!building || !date) {
       return res.status(400).json({ message: "Missing building or date" });
     }
 
-
     const labs = await Lab.find({ building });
     const selectedDate = new Date(date);
     selectedDate.setHours(0, 0, 0, 0);
-
 
     const reservations = await Reservation.find({
       date: selectedDate,
       labID: { $in: labs.map(l => l._id) }
     });
 
-
     const dayName = selectedDate.toLocaleDateString("en-US", { weekday: "long" });
 
-
     const result = [];
-
 
     for (const lab of labs) {
       const labReservations = reservations.filter(r => r.labID.toString() === lab._id.toString());
       const blockedByClass = classSchedule[dayName]?.[lab.room] || [];
 
+      const isLabClosed = lab.availability === false || String(lab.availability).trim().toLowerCase() === "false";
 
       const slots = [];
-
 
       // fallback/default slots: 07:30 (450) to 21:00 (1260) in 30 min increments
       for (let mins = 450; mins + 30 <= 1260; mins += 30) {
@@ -92,7 +80,7 @@ exports.getAvailability = async (req, res) => {
       const reservedSeats = overlappingReservations.reduce((sum, r) => sum + r.seats, 0);
 
 
-      const available = freeByClass && reservedSeats < lab.capacity;
+      const available = !isLabClosed && freeByClass && reservedSeats < lab.capacity;
 
 
         slots.push({
@@ -108,6 +96,7 @@ exports.getAvailability = async (req, res) => {
       result.push({
         room: lab.room,
         labID: lab._id,
+        availability: lab.availability,
         slots
       });
     }
@@ -119,7 +108,6 @@ exports.getAvailability = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
 
 exports.bookSlot = async (req, res) => {
   console.log("bookSlot triggered", req.body);
@@ -146,6 +134,11 @@ exports.bookSlot = async (req, res) => {
     // fetch lab info
     const lab = await Lab.findById(labID);
     if (!lab) return res.status(404).json({ message: "Lab not found" });
+    
+    const isLabClosed = lab.availability === false || String(lab.availability).trim().toLowerCase() === "false";
+    if (isLabClosed) {
+      return res.status(400).json({ message: "This lab is currently unavailable for booking." });
+    }
 
     // get all reservations for that lab on that date
     const labReservations = await Reservation.find({ labID, date: selectedDate });
@@ -261,6 +254,11 @@ exports.updateReservation = async (req, res) => {
 
     const lab = await Lab.findById(labID);
     if (!lab) return res.status(404).json({ message: "Lab not found" });
+
+    const isLabClosed = lab.availability === false || String(lab.availability).trim().toLowerCase() === "false";
+    if (isLabClosed) {
+      return res.status(400).json({ message: "This lab is currently unavailable for booking." });
+    }
 
     const dayName = selectedDate.toLocaleDateString("en-US", { weekday: "long" });
     const blockedByClass = classSchedule[dayName]?.[lab.room] || [];

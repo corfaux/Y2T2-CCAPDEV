@@ -61,7 +61,15 @@
                 try {
                     const BASE_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "https://labsys-d4fk.onrender.com";
 
-                    const studentID = localStorage.getItem("studentID");
+                    const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+                    
+                    if (!currentUser || !currentUser._id) {
+                        console.error("No user logged in!");
+                        document.querySelector(".selected-reserve tbody").innerHTML = `<tr><td colspan="7">Please log in to view reservations.</td></tr>`;
+                        return;
+                    }
+
+                    const studentID = currentUser._id;
 
                     const res = await fetch(`${BASE_URL}/api/slots/reservations?studentID=${studentID}`);
                     const data = await res.json();

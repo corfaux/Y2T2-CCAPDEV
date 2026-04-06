@@ -552,6 +552,31 @@ function isSlotBlocked(slot, ranges) {
   });
 }
 
+// check if the entire lab room is available/open for booking
+function isLabAvailable(roomObj) {
+  if (!roomObj) return false;
+
+  // check the raw lab data 
+  const realLab = labDataMap[roomObj.room];
+  if (realLab && (realLab.availability === false || String(realLab.availability).trim().toLowerCase() === "false")) {
+    return false;
+  }
+
+  if (roomObj.availability === false || String(roomObj.availability).trim().toLowerCase() === "false") {
+    return false;
+  }
+
+  // if backend explicitly flagged every slot as unavailable
+  if (roomObj.slots && roomObj.slots.length > 0) {
+    const allSlotsUnavailable = roomObj.slots.every(slot => slot.available === false);
+    if (allSlotsUnavailable) {
+      return false;
+    }
+  }
+
+  return true; 
+}
+
 // check if a time slot has passed based on the current time (only if the selected date is today)
 function isSlotInPast(slot, selectedDate) {
   const now = new Date();
@@ -657,11 +682,12 @@ async function loadTimeSlots(building, selectedDate) {
           room: lab.room,
           labID: lab.labID,
           capacity: lab.capacity || 40,
+          availability: lab.availability,
           slots: (lab.slots || []).map(slot => ({
             _id: slot._id,
             startTime: normalizeTime(slot.startTime),
             endTime: normalizeTime(slot.endTime),
-            available: true
+            available: slot.available
           }))
         }))
       : buildingRooms[building].map(room => ({
@@ -721,7 +747,8 @@ function generateTimeHeader() {
 
   if (timeSlots.length === 0) return;
 
-  const referenceSlots = timeSlots[0].slots;
+  const validRoom = timeSlots.find(r => r.slots && r.slots.length > 0);
+  const referenceSlots = validRoom ? validRoom.slots : generateDefaultTimeSlots("dummy");
 
   referenceSlots.forEach(slot => {
     const cell = document.createElement("div");
@@ -757,7 +784,10 @@ async function generateSchedule(building, selectedDate) {
     // get room object from timeSlots
     const roomObj = timeSlots.find(r => r.room === room);
     const capacity = roomObj?.capacity || 40;
-    const roomSlots = roomObj ? roomObj.slots : [];
+
+    const roomSlots = roomObj && roomObj.slots && roomObj.slots.length > 0 ? roomObj.slots : generateDefaultTimeSlots(room);
+
+    const labIsOpen = isLabAvailable(roomObj);
 
     const roomSchedule = (classSchedule[dayName] && classSchedule[dayName][room]) || [];
 
@@ -768,13 +798,12 @@ async function generateSchedule(building, selectedDate) {
       cell.dataset.startTime = slot.startTime;
       cell.dataset.endTime = slot.endTime;
 
-      // check class schedule
-      if (isSlotBlocked(slot, roomSchedule) || isSlotInPast(slot, selectedDate)) {
+      if (!labIsOpen || slot.available === false || isSlotBlocked(slot, roomSchedule) || isSlotInPast(slot, selectedDate)) {
         cell.classList.add("unavailable");
       }
 
       // check if fully booked in DB
-      const labID = roomObj.labID;
+      const labID = roomObj ? roomObj.labID : `fallback-${room}`;
       const slotKey = `${labID}_${slot.startTime}_${slot.endTime}`;
       const booked = bookedSlotIds.find(s => s.key === slotKey);
       if (booked && booked.seats >= capacity) {
@@ -827,10 +856,18 @@ document.getElementById("showAvailability").addEventListener("click", async()=>{
 });
 
 let labMap = {};
+let labDataMap = {};
 async function loadLabsMap() {
-  const res = await fetch(`${BASE_URL}/api/labs`);
-  const labs = await res.json();
-  labs.forEach(l => labMap[l.room] = l._id);
+  try {
+    const res = await fetch(`${BASE_URL}/api/labs`);
+    const labs = await res.json();
+    labs.forEach(l => {
+      labMap[l.room] = l._id;
+      labDataMap[l.room] = l;
+    });
+  } catch (err) {
+    console.error("Failed to load lab map:", err);
+  }
 }
 
 // save new reservation data and move to the next page
