@@ -58,7 +58,8 @@ This project is part of a web application development course focused on design a
 
 ## How to Run Locally
 
-1. Navigate to the root directory. Run npm init -y then npm install to initialize the folder and install dependencies.
+Using the CLI:
+1. Navigate to the root directory. Run `npm init -y` then `npm install` to initialize the folder and install dependencies.
 2. Run `node src\seeds\seedDatabase` to fill in the database. The database name should be `lab-reservation`
 3. Run `node server.js` to connect to MongoDB.
 4. Access through `localhost:3000`
