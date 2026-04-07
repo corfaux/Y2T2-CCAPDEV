@@ -52,7 +52,7 @@ app.use(session({
   }),
   cookie: {
     httpOnly: true, 
-    secure: true // UNCOMMENT THIS BEFORE DEPLOYMENT
+    secure: true
   }
 }));
 

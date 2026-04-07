@@ -59,9 +59,15 @@ This project is part of a web application development course focused on design a
 ## How to Run Locally
 
 1. Navigate to the root directory. Run npm init -y then npm install to initialize the folder and install dependencies.
-2. Run seeds [TO UPDATE] to fill in the database. The database name should be `lab-reservation`
-3. Run server.js to connect to MongoDB.
-4. Access through localhost:3000
+2. Run `node src\seeds\seedDatabase` to fill in the database. The database name should be `lab-reservation`
+3. Run `node server.js` to connect to MongoDB.
+4. Access through `localhost:3000`
+5. The following are the passwords for a student and admin account. Alternatively, you may create your own student account.
+
+| Type | Email | Password
+|------|---------|--------|
+| `admin` | itservices@dlsu.edu.ph | password |
+| `student` | nico_yazawa@dlsu.edu.ph | niconiconii |
 
 
 ## License
