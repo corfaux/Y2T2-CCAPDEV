@@ -1,5 +1,5 @@
 const startTime = 7.5;
-const endTime = 18;
+const endTime = 21;
 const BASE_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "https://labsys-d4fk.onrender.com";
 // Array to store matched queries
 let searchMatches = [];
