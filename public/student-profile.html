@@ -109,6 +109,7 @@
                             <th>Building</th>
                             <th>Room No.</th>
                             <th>Timeslot/s</th>
+                            <th>Seats</th>
                             <th>Status</th>
                             <th>Edit Reservation</th>
                         </tr>
@@ -243,6 +244,7 @@
                             <td>${building}</td>
                             <td>${room}</td>
                             <td class="table-timeslots">${timeSlot}</td>
+                            <td>${reservation.seats || "N/A"}</td>
                             <td>${reservation.status || "N/A"}</td>
                             <td><button class="editBtn" onclick="location.href='reservation.html?reservationID=${reservation._id}'">Edit</button></td>
                         `;
