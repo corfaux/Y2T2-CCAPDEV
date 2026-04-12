@@ -10,6 +10,9 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust the reverse proxy (Render)
+app.set("trust proxy", 1);
+
 // --- MongoDB connection ---
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/lab-reservation';
 mongoose.connect(MONGO_URI)
